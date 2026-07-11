@@ -1,37 +1,38 @@
 export const products = [
   {
     id: 1,
-    name: "كريم ترطيب للوجه",
-    category: "skincare",
-    price: 250,
-    image: "",
+    name: "Rose Eau de Parfum",
+    category: "perfume",
+    price: 1250,
+    salePrice: null,
+    badge: "Best Seller",
+    image: ""
   },
   {
     id: 2,
-    name: "شنطة يد جلد",
-    category: "bags",
-    price: 600,
-    image: "",
+    name: "Niacinamide Serum 10%",
+    category: "skincare",
+    price: 550,
+    salePrice: null,
+    badge: "New",
+    image: ""
   },
   {
     id: 3,
-    name: "طقم أواني مطبخ",
-    category: "kitchen",
-    price: 450,
-    image: "",
+    name: "Faux Leather Shoulder Bag",
+    category: "bags",
+    price: 1450,
+    salePrice: null,
+    badge: "Best Seller",
+    image: ""
   },
   {
     id: 4,
-    name: "حجاب كريب",
-    category: "hijab",
-    price: 120,
-    image: "",
-  },
-  {
-    id: 5,
-    name: "Rose Perfume",
-    category: "perfume",
-    price: 380,
-    image: "",
-  },
-];
+    name: "Kitchen Organizer Set",
+    category: "kitchen",
+    price: 950,
+    salePrice: 699,
+    badge: "Sale",
+    image: ""
+  }
+]

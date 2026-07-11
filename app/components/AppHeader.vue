@@ -1,12 +1,12 @@
 <template>
-  <header class="px-6 py-4 bg-olive relative">
-    <div class="flex items-center gap-10">
+  <header class="px-6 py-4 bg-olive relative overflow-visible">
+    <div class="flex items-center justify-between gap-6">
       <NuxtLink to="/" class="shrink-0">
-        <img src="/logo.svg" alt="Saadawy Store" class="h-16" />
+        <img src="/logo.svg" alt="Saadawy Store" class="h-24 -my-4" />
       </NuxtLink>
 
       <nav
-        class="hidden md:flex items-center gap-8 text-beige font-medium text-base flex-1"
+        class="hidden md:flex items-center gap-8 text-beige font-medium text-base absolute left-1/2 -translate-x-1/2"
       >
         <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
         <NuxtLink to="/category/skincare" class="hover:text-gold transition"

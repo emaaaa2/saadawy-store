@@ -2,6 +2,7 @@
   <div>
     <HomeHero></HomeHero>
     <CategoryGrid></CategoryGrid>
+    <BestSellers></BestSellers>
     <WhyUs></WhyUs>
     <AppFooter></AppFooter>
   </div>
