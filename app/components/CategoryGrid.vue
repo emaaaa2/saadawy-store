@@ -1,13 +1,13 @@
 <template>
-  <section class="px-4 py-16 max-w-6xl mx-auto">
-    <div class="text-center mb-12">
-      <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
-        Shop by Category
-      </span>
-      <h2 class="text-3xl md:text-4xl font-bold text-olive">
-        Six worlds, one roof
-      </h2>
-    </div>
+  <section class="px-6 py-phi-4 max-w-6xl mx-auto">
+  <div class="text-center mb-phi-4">
+    <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-phi-1">
+      Shop by Category
+    </span>
+    <h2 class="text-phi-h2 font-bold text-olive">
+      Six worlds, one roof
+    </h2>
+  </div>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       <NuxtLink
