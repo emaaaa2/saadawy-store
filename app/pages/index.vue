@@ -1,3 +1,6 @@
 <template>
-<HomeHero></HomeHero>
+  <div>
+    <HomeHero></HomeHero>
+    <CategoryGrid></CategoryGrid>
+  </div>
 </template>
