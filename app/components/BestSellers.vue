@@ -17,10 +17,17 @@
           :key="product.id"
           class="bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition group"
         >
-          <div
-            class="relative aspect-square bg-gradient-to-br from-champagne to-rose flex items-center justify-center"
-          >
-            <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
+          <div class="relative aspect-square bg-champagne overflow-hidden">
+            <img
+              v-if="product.image"
+              :src="product.image"
+              :alt="product.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
+            </div>
+
             <span
               class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full"
               :class="{
@@ -66,16 +73,25 @@
         </div>
       </div>
 
-      <div
-        class="bg-olive rounded-2xl p-8 flex flex-col justify-center text-beige"
-      >
-        <p class="font-serif text-2xl leading-snug mb-4">
-          Beauty.<br />Style.<br />Home Essentials.
-        </p>
+      <div class="relative rounded-2xl overflow-hidden">
+        <img
+          src="/images/makeup.jpg"
+          alt="Beauty, Style, Home Essentials"
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div class="absolute inset-0 bg-olive/60"></div>
+
         <div
-          class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center"
+          class="relative p-8 flex flex-col justify-center h-full text-beige"
         >
-          <Icon name="mdi:flower-outline" class="text-gold text-xl" />
+          <p class="font-serif text-2xl leading-snug mb-4">
+            Beauty.<br />Style.<br />Home Essentials.
+          </p>
+          <div
+            class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center"
+          >
+            <Icon name="mdi:flower-outline" class="text-gold text-xl" />
+          </div>
         </div>
       </div>
     </div>

@@ -6,7 +6,9 @@ export const products = [
     price: 1250,
     salePrice: null,
     badge: "Best Seller",
-    image: ""
+    image: "/images/perfume1.jpg",
+    image2: "/images/perfume2.jpg",
+    image3: "/images/perfume3.jpg"
   },
   {
     id: 2,
@@ -15,7 +17,7 @@ export const products = [
     price: 550,
     salePrice: null,
     badge: "New",
-    image: ""
+    image: "/images/skincare.jpg"
   },
   {
     id: 3,
@@ -24,7 +26,8 @@ export const products = [
     price: 1450,
     salePrice: null,
     badge: "Best Seller",
-    image: ""
+    image: "/images/bag.jpg",
+    image2: "/images/bag2.jpg"
   },
   {
     id: 4,
@@ -33,6 +36,16 @@ export const products = [
     price: 950,
     salePrice: 699,
     badge: "Sale",
-    image: ""
+    image: "/images/kitchen.jpg"
+  },{
+    id: 5,
+    name: "cotton hijab",
+    category: "hijab",
+    price: 250,
+    salePrice: null,
+    badge: "New",
+    image: "/images/hijab.jpg",
+    image2: "/images/hijab2.jpg",
+    image3: "/images/hijab3.jpg"
   }
 ]
