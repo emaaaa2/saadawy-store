@@ -1,28 +1,24 @@
 <template>
-  <section class="bg-sage/10 px-6 py-phi-4">
-    <div class="max-w-5xl mx-auto">
-      <div class="text-center mb-phi-4">
-        <span
-          class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-phi-1"
-        >
-          Why Saadawy
-        </span>
-        <h2 class="text-phi-h2 font-bold text-olive">
-          More than just products
-        </h2>
-      </div>
+  <section class="relative px-6 py-phi-4 overflow-hidden">
+    <img
+      src="/images/pic.jpg"
+      alt=""
+      class="absolute inset-0 w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-olive/80"></div>
 
-      <div class="grid md:grid-cols-3 gap-phi-3 text-center">
-        <div v-for="item in points" :key="item.title">
-          <div
-            class="w-14 h-14 mx-auto mb-4 flex items-center justify-center rounded-full bg-olive/10"
-          >
-            <Icon :name="item.icon" class="text-2xl text-olive" />
-          </div>
-          <h3 class="font-semibold text-olive text-lg mb-2">
-            {{ item.title }}
-          </h3>
-          <p class="text-taupe text-sm leading-relaxed">{{ item.desc }}</p>
+    <div class="relative max-w-4xl mx-auto text-center text-beige">
+      <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
+        Why Customers Love Saadawy
+      </span>
+      <h2 class="text-phi-h2 font-bold mb-phi-3">
+        Why Thousands Choose Saadawy
+      </h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
+        <div v-for="stat in stats" :key="stat.label">
+          <p class="text-3xl md:text-4xl font-bold text-gold mb-1">{{ stat.number }}</p>
+          <p class="text-sm text-beige/80">{{ stat.label }}</p>
         </div>
       </div>
     </div>
@@ -30,21 +26,10 @@
 </template>
 
 <script setup>
-const points = [
-  {
-    title: "Carefully Curated",
-    desc: "Every piece is hand-picked by us before it ever reaches you — no randomness, no filler.",
-    icon: "mdi:check-decagram-outline",
-  },
-  {
-    title: "Always Fresh",
-    desc: "New arrivals every week, so there is always something new to discover.",
-    icon: "mdi:refresh",
-  },
-  {
-    title: "Delivered to Your Door",
-    desc: "Order from anywhere, and we bring it straight to you — no hassle, no long trips.",
-    icon: "mdi:truck-fast-outline",
-  },
-];
+const stats = [
+  { number: '5000+', label: 'Happy Customers' },
+  { number: '2500+', label: 'Products' },
+  { number: '6+', label: 'Categories' },
+  { number: 'Weekly', label: 'New Arrivals' },
+]
 </script>

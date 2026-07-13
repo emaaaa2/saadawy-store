@@ -2,7 +2,7 @@
   <header class="px-6 py-4 bg-olive relative overflow-visible">
     <div class="flex items-center justify-between gap-6">
       <NuxtLink to="/" class="shrink-0">
-        <img src="/logo.svg" alt="Saadawy Store" class="h-24 -my-4" />
+        <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-16" />
       </NuxtLink>
 
       <nav

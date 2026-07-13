@@ -4,9 +4,9 @@
       <span
         class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3"
       >
-        Shop by Category
+        Explore Our Collections
       </span>
-      <h2 class="text-phi-h2 font-bold text-olive">Six worlds, one roof</h2>
+      <h2 class="text-phi-h2 font-bold text-olive">Shop by Category</h2>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

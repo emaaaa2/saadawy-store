@@ -1,5 +1,7 @@
 <template>
   <div >
+        <OfferBar></OfferBar>
+
     <AppHeader />
 
     <main>

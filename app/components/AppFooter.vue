@@ -2,7 +2,7 @@
   <footer class="bg-olive text-beige px-6 pt-phi-2 pb-phi-4">
     <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-phi-3">
       <div class="md:col-span-1">
-        <img src="/logo.svg" alt="Saadawy Store" class="h-24 mb-phi-1" />
+        <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-24 mb-phi-1" />
         <p class="text-sm text-beige/70 leading-relaxed">
           A lifestyle retail store offering a carefully selected range of beauty
           and everyday essentials — cosmetics, perfumes, skincare, haircare,

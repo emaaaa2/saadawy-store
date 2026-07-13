@@ -8,13 +8,10 @@
           New arrivals every week
         </span>
 
-        <h1
-          class="text-4xl md:text-phi-h1 font-bold text-olive leading-tight mb-phi-2"
-        >
-          Everything your home needs,
-          <span class="text-gold">in one place</span>
-        </h1>
-
+        <h1 class="text-4xl md:text-phi-h1 font-bold text-olive leading-tight mb-phi-2">
+  Everything You Love,
+  <span class="text-gold">All In One Place</span>
+</h1>
         <p class="text-phi-lead text-taupe max-w-xl mx-auto md:mx-0 mb-phi-3">
           From skincare to bags, kitchen essentials to hijab and everyday needs
           — carefully selected pieces, all under one roof.
