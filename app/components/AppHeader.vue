@@ -34,7 +34,7 @@
           <input
             type="text"
             placeholder="Search products..."
-            class="bg-transparent text-beige placeholder-beige/60 outline-none text-sm w-40 focus:w-56 transition-all"
+            class="bg-transparent text-beige placeholder-beige/60 outline-none text-sm w-40"
           />
         </div>
 
