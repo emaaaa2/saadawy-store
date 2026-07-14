@@ -10,7 +10,9 @@
       </NuxtLink>
     </div>
 
-    <div class="flex gap-phi-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 scrollbar-hide">
+    <div
+      class="flex gap-phi-2 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6 scrollbar-hide"
+    >
       <div
         v-for="product in products"
         :key="product.id"
@@ -26,6 +28,13 @@
           <div v-else class="w-full h-full flex items-center justify-center">
             <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
           </div>
+
+          <button
+            class="absolute inset-x-2 bottom-2 bg-olive/90 text-beige text-xs font-semibold py-2 rounded-full opacity-0 group-hover:opacity-100 transition"
+            @click="quickView.open(product)"
+          >
+            Quick View
+          </button>
 
           <span
             class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full"
@@ -76,4 +85,7 @@
 
 <script setup>
 import { products } from "~/data/products";
+
+const quickView = useQuickViewStore();
+const cart = useCartStore();
 </script>

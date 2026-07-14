@@ -6,7 +6,6 @@
     <WhyUs></WhyUs>
     <ReviewsSection></ReviewsSection>
     <StoreLocation></StoreLocation>
-    <AppFooter></AppFooter>
-    <WhatsAppButton></WhatsAppButton>
+    
   </div>
 </template>

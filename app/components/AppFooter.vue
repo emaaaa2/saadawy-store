@@ -100,20 +100,19 @@
           </button>
         </form>
 
-        <div class="flex items-center gap-4">
-          <a href="#" aria-label="Instagram" class="hover:text-gold transition">
-            <Icon name="mdi:instagram" class="text-xl" />
-          </a>
-          <a href="#" aria-label="Facebook" class="hover:text-gold transition">
-            <Icon name="mdi:facebook" class="text-xl" />
-          </a>
-          <a href="#" aria-label="TikTok" class="hover:text-gold transition">
-            <Icon name="mdi:music-note" class="text-xl" />
-          </a>
-          <a href="#" aria-label="WhatsApp" class="hover:text-gold transition">
-            <Icon name="mdi:whatsapp" class="text-xl" />
-          </a>
-        </div>
+      <div class="flex flex-col gap-2">
+  <a
+    v-for="channel in channels"
+    :key="channel.name"
+    :href="channel.link"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="flex items-center gap-2 text-sm text-beige/80 hover:text-gold transition"
+  >
+    <Icon :name="channel.icon" class="text-lg" />
+    {{ channel.name }}
+  </a>
+</div>
       </div>
     </div>
 
@@ -133,4 +132,10 @@ function handleSubscribe() {
   alert("Thank you for subscribing!");
   email.value = "";
 }
+const channels = [
+  { name: 'WhatsApp', icon: 'mdi:whatsapp', link: 'https://wa.me/201025287580' },
+  { name: 'Facebook', icon: 'mdi:facebook', link: 'https://facebook.com/saadawy.store' },
+  { name: 'Instagram', icon: 'mdi:instagram', link: 'https://instagram.com/saadawy.store' },
+  { name: 'TikTok', icon: 'mdi:music-note', link: 'https://tiktok.com/@saadawy.store' },
+]
 </script>
