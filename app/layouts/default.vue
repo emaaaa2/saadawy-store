@@ -10,5 +10,6 @@
 <AppFooter />
     <WhatsAppButton />
     <ProductQuickView />
+    <CartSidebar />
   </div>
 </template>

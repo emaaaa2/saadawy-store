@@ -59,14 +59,12 @@
           <Icon name="mdi:account-outline" class="text-2xl" />
         </button>
 
-        <button class="relative hover:text-gold transition" aria-label="Cart">
-          <Icon name="mdi:cart-outline" class="text-2xl" />
-          <span
-            class="absolute -top-2 -right-2 bg-gold text-olive text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full"
-          >
-            0
-          </span>
-        </button>
+        <button class="relative hover:text-gold transition" aria-label="Cart" @click="cartUI.open()">
+  <Icon name="mdi:cart-outline" class="text-2xl" />
+  <span class="absolute -top-2 -right-2 bg-gold text-olive text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+    {{ cart.itemCount }}
+  </span>
+</button>
 
         <button
           class="md:hidden"
@@ -158,4 +156,6 @@
 
 <script setup>
 const isMenuOpen = ref(false);
+const cartUI = useCartUIStore()
+const cart = useCartStore()
 </script>

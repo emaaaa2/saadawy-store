@@ -29,12 +29,18 @@
             <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
           </div>
 
-          <button
-            class="absolute inset-x-2 bottom-2 bg-olive/90 text-beige text-xs font-semibold py-2 rounded-full opacity-0 group-hover:opacity-100 transition"
-            @click="quickView.open(product)"
+          <div
+            class="absolute inset-x-0 bottom-0 flex justify-center pb-3 opacity-0 group-hover:opacity-100 transition"
           >
-            Quick View
-          </button>
+            <button
+              class="flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-full bg-white/95 text-olive hover:bg-gold transition shadow"
+              aria-label="Quick view"
+              @click="quickView.open(product)"
+            >
+              <Icon name="mdi:eye-outline" class="text-sm" />
+              Quick View
+            </button>
+          </div>
 
           <span
             class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full"
@@ -73,6 +79,7 @@
             <button
               class="w-7 h-7 rounded-full bg-olive text-beige flex items-center justify-center hover:bg-gold transition"
               aria-label="Add to cart"
+              @click="cart.addItem(product)"
             >
               <Icon name="mdi:cart-outline" class="text-sm" />
             </button>
