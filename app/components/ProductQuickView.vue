@@ -48,13 +48,13 @@
 
             <div class="mb-4">
               <span
-                v-if="store.product?.salePrice"
+                v-if="store.product?.sale_price"
                 class="text-sm text-taupe line-through mr-2"
               >
                 EGP {{ store.product?.price }}
               </span>
               <span class="text-2xl font-bold text-olive">
-                EGP {{ store.product?.salePrice ?? store.product?.price }}
+                EGP {{ store.product?.sale_price ?? store.product?.price }}
               </span>
             </div>
 

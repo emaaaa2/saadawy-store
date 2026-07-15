@@ -67,13 +67,13 @@
           <div class="flex items-center justify-between">
             <div>
               <span
-                v-if="product.salePrice"
+                v-if="product.sale_price"
                 class="text-xs text-taupe line-through mr-1"
               >
-                EGP {{ product.price }}
+                EGP {{ product.sale_price }}
               </span>
               <span class="font-bold text-olive text-sm">
-                EGP {{ product.salePrice ?? product.price }}
+                EGP {{ product.sale_price ?? product.price }}
               </span>
             </div>
             <button
@@ -91,8 +91,12 @@
 </template>
 
 <script setup>
-import { products } from "~/data/products";
-
 const quickView = useQuickViewStore();
 const cart = useCartStore();
+
+const { data } = await useFetch("/api/products", {
+  query: { limit: 8 },
+});
+
+const products = computed(() => data.value?.products ?? []);
 </script>
