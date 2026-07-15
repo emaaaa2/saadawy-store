@@ -24,8 +24,11 @@
 
 <script setup>
 const isLoading = ref(true)
+const cart = useCartStore()
 
 onMounted(() => {
+  cart.loadFromStorage()
+
   setTimeout(() => {
     isLoading.value = false
   }, 1000)
