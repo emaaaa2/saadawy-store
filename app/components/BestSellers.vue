@@ -61,9 +61,9 @@
         </div>
 
         <div class="p-3">
-          <p class="text-sm font-medium text-olive mb-1 truncate">
-            {{ product.name }}
-          </p>
+         <NuxtLink :to="`/product/${product.slug}`" class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block">
+  {{ product.name }}
+</NuxtLink>
           <div class="flex items-center justify-between">
             <div>
               <span

@@ -8,7 +8,7 @@
         <img
           src="/logo.svg"
           alt="Saadawy Store"
-          class="h-24 animate-pulse"
+          class="h-32 animate-pulse"
         />
         <div class="w-40 h-1 bg-beige/20 rounded-full overflow-hidden">
           <div class="h-full bg-gold rounded-full loading-bar"></div>
