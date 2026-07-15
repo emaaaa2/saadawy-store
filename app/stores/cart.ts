@@ -21,6 +21,9 @@ export const useCartStore = defineStore("cart", {
       } else {
         this.items.push({ ...product, quantity: 1 });
       }
+
+      const toast = useToastStore();
+      toast.show(`${product.name} added to cart`);
     },
     removeItem(productId) {
       this.items = this.items.filter((item) => item.id !== productId);

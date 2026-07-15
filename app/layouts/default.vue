@@ -1,15 +1,14 @@
 <template>
-  <div >
-        <OfferBar></OfferBar>
-
+  <div>
+    <OfferBar />
     <AppHeader />
-
     <main>
       <slot />
     </main>
-<AppFooter />
+    <AppFooter />
     <WhatsAppButton />
     <ProductQuickView />
     <CartSidebar />
+    <AppToast />
   </div>
 </template>
