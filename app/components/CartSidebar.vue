@@ -100,11 +100,13 @@
                   >EGP {{ cart.subtotal }}</span
                 >
               </div>
-              <button
-                class="w-full bg-olive text-beige py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
+              <NuxtLink
+                to="/checkout"
+                class="block w-full text-center bg-olive text-beige py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
+                @click="cartUI.close()"
               >
                 Checkout
-              </button>
+              </NuxtLink>
             </div>
           </template>
         </div>

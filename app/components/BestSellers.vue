@@ -1,6 +1,6 @@
 <template>
-  <section class="px-6 py-phi-3 max-w-6xl mx-auto">
-    <div class="flex items-center justify-between mb-phi-3">
+<section class="px-6 pt-2 pb-phi-3 max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-phi-3">
       <h2 class="text-phi-h2 font-bold text-olive">Best Sellers</h2>
       <NuxtLink
         to="/category/all"
