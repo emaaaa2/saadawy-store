@@ -2,7 +2,11 @@
   <footer class="bg-olive text-beige px-6 pt-phi-2 pb-phi-4">
     <div class="max-w-6xl mx-auto grid md:grid-cols-4 gap-phi-3">
       <div class="md:col-span-1">
-        <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-24 mb-phi-1" />
+        <img
+          src="/logo-trimmed.svg"
+          alt="Saadawy Store"
+          class="h-24 mb-phi-1"
+        />
         <p class="text-sm text-beige/70 leading-relaxed">
           A lifestyle retail store offering a carefully selected range of beauty
           and everyday essentials — cosmetics, perfumes, skincare, haircare,
@@ -100,19 +104,19 @@
           </button>
         </form>
 
-      <div class="flex flex-col gap-2">
-  <a
-    v-for="channel in channels"
-    :key="channel.name"
-    :href="channel.link"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="flex items-center gap-2 text-sm text-beige/80 hover:text-gold transition"
-  >
-    <Icon :name="channel.icon" class="text-lg" />
-    {{ channel.name }}
-  </a>
-</div>
+        <div class="flex flex-col gap-2">
+          <a
+            v-for="channel in channels"
+            :key="channel.name"
+            :href="channel.link"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 text-sm text-beige/80 hover:text-gold transition"
+          >
+            <Icon :name="channel.icon" class="text-lg" />
+            {{ channel.name }}
+          </a>
+        </div>
       </div>
     </div>
 
@@ -133,9 +137,25 @@ function handleSubscribe() {
   email.value = "";
 }
 const channels = [
-  { name: 'WhatsApp', icon: 'mdi:whatsapp', link: 'https://wa.me/201025287580' },
-  { name: 'Facebook', icon: 'mdi:facebook', link: 'https://facebook.com/saadawy.store' },
-  { name: 'Instagram', icon: 'mdi:instagram', link: 'https://instagram.com/saadawy.store' },
-  { name: 'TikTok', icon: 'mdi:music-note', link: 'https://tiktok.com/@saadawy.store' },
-]
+  {
+    name: "WhatsApp",
+    icon: "mdi:whatsapp",
+    link: "https://wa.me/201026051881",
+  },
+  {
+    name: "Facebook",
+    icon: "mdi:facebook",
+    link: "https://www.facebook.com/share/17ssH5Rhek/?mibextid=wwXIfr",
+  },
+  {
+    name: "Instagram",
+    icon: "mdi:instagram",
+    link: "https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn",
+  },
+  {
+    name: "TikTok",
+    icon: "mdi:music-note",
+    link: "https://tiktok.com/@saadawy.store",
+  },
+];
 </script>
