@@ -28,7 +28,10 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: false })
+definePageMeta({
+  layout: false,
+  middleware: 'admin-auth'
+})
 
 const password = ref('')
 const errorMessage = ref('')

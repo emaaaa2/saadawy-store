@@ -59,8 +59,10 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: false })
-
+definePageMeta({
+  layout: false,
+  middleware: 'admin-auth'
+})
 const { data, pending, refresh } = await useFetch('/api/admin/orders')
 const orders = computed(() => data.value?.orders ?? [])
 
@@ -71,4 +73,5 @@ async function updateStatus(orderId, newStatus) {
   })
   refresh()
 }
+
 </script>
