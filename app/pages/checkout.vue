@@ -97,8 +97,11 @@ async function handleSubmit() {
       }
     })
 
-    const message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0ATotal: EGP ${order.total}`
-    const whatsappUrl = `https://wa.me/201025287580?text=${message}`
+let message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0ATotal: EGP ${order.total}`
+
+if (form.value.paymentMethod === 'bank_transfer') {
+  message += `%0A%0APlease transfer to:%0AVodafone Cash: 01000000000%0ABank Account: XXXXXXXXXXXX (Bank Name)%0AThen send me the receipt here.`
+}    const whatsappUrl = `https://wa.me/201025287580?text=${message}`
 
     cart.clearCart()
     window.location.href = whatsappUrl

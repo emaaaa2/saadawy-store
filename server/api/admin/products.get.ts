@@ -10,14 +10,26 @@ export default defineEventHandler(async (event) => {
 
   const client = serverSupabaseServiceRole(event)
 
-  const { data, error } = await client
-    .from('products')
-    .select('*')
-    .order('created_at', { ascending: false })
+  let allProducts = []
+  let from = 0
+  const batchSize = 1000
 
-  if (error) {
-    throw createError({ statusCode: 500, statusMessage: error.message })
+  while (true) {
+    const { data, error } = await client
+      .from('products')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, from + batchSize - 1)
+
+    if (error) {
+      throw createError({ statusCode: 500, statusMessage: error.message })
+    }
+
+    allProducts = allProducts.concat(data)
+
+    if (data.length < batchSize) break
+    from += batchSize
   }
 
-  return { products: data }
+  return { products: allProducts }
 })

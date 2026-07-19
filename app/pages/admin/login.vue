@@ -46,7 +46,7 @@ async function handleLogin() {
       method: 'POST',
       body: { password: password.value }
     })
-    await navigateTo('/admin/orders')
+    await navigateTo('/admin')
   } catch (error) {
     errorMessage.value = 'Incorrect password. Please try again.'
   } finally {

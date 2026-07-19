@@ -37,11 +37,15 @@
           <select v-model="form.category" required class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold">
             <option value="">Select category</option>
             <option value="skincare">Skincare</option>
+            
             <option value="perfume">Perfume</option>
             <option value="bags">Bags</option>
             <option value="kitchen">Kitchen</option>
             <option value="hijab">Hijab & Essentials</option>
             <option value="accessories">Accessories</option>
+            <option value="makeup">Makeup</option>
+<option value="haircare">Haircare</option>
+<option value="uncategorized">Uncategorized</option>
           </select>
         </div>
 

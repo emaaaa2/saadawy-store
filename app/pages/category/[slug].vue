@@ -4,35 +4,48 @@
       <p class="text-sm text-gold font-semibold uppercase tracking-wide mb-2">
         Shop by Category
       </p>
-      <h1 class="text-phi-h2 font-bold text-olive capitalize">
+      <h1 class="text-phi-h2 font-bold text-olive capitalize mb-4">
         {{ categoryName }}
       </h1>
+
+      <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 max-w-sm">
+        <Icon name="mdi:magnify" class="text-olive/40 text-lg shrink-0" />
+        <input
+          v-model="searchQuery"
+          type="text"
+          placeholder="Search in this category..."
+          class="bg-transparent text-olive placeholder-olive/40 outline-none text-sm w-full"
+        />
+        <button
+          v-if="searchQuery"
+          class="text-olive/40 hover:text-olive transition shrink-0"
+          aria-label="Clear search"
+          @click="searchQuery = ''"
+        >
+          <Icon name="mdi:close-circle" class="text-lg" />
+        </button>
+      </div>
     </div>
 
     <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
-      <div
-        v-for="n in 8"
-        :key="n"
-        class="aspect-square bg-olive/5 rounded-2xl animate-pulse"
-      ></div>
+      <div v-for="n in 8" :key="n" class="aspect-square bg-olive/5 rounded-2xl animate-pulse"></div>
     </div>
 
     <div v-else-if="products.length === 0" class="text-center py-phi-4">
-      <Icon
-        name="mdi:package-variant-closed"
-        class="text-5xl text-olive/20 mb-4"
-      />
-      <p class="text-olive font-semibold mb-1">
-        No products yet in this category
-      </p>
-      <p class="text-sm text-taupe">
-        Check back soon, we're adding new items every week.
-      </p>
+      <Icon name="mdi:package-variant-closed" class="text-5xl text-olive/20 mb-4" />
+      <p class="text-olive font-semibold mb-1">No products yet in this category</p>
+      <p class="text-sm text-taupe">Check back soon, we're adding new items every week.</p>
     </div>
 
-    <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
+    <div v-else-if="filteredProducts.length === 0" class="text-center py-phi-4">
+      <Icon name="mdi:magnify-close" class="text-5xl text-olive/20 mb-4" />
+      <p class="text-olive font-semibold mb-1">No matches for "{{ searchQuery }}"</p>
+      <p class="text-sm text-taupe">Try a different search term.</p>
+    </div>
+
+    <div v-else v-fade-in class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
       <div
-        v-for="product in products"
+        v-for="product in filteredProducts"
         :key="product.id"
         class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition"
       >
@@ -68,18 +81,12 @@
         </div>
 
         <div class="p-3">
-          <NuxtLink
-            :to="`/product/${product.slug}`"
-            class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block"
-          >
+          <NuxtLink :to="`/product/${product.slug}`" class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block">
             {{ product.name }}
           </NuxtLink>
           <div class="flex items-center justify-between">
             <div>
-              <span
-                v-if="product.sale_price"
-                class="text-xs text-taupe line-through mr-1"
-              >
+              <span v-if="product.sale_price" class="text-xs text-taupe line-through mr-1">
                 EGP {{ product.price }}
               </span>
               <span class="font-bold text-olive text-sm">
@@ -101,17 +108,27 @@
 </template>
 
 <script setup>
-const route = useRoute();
-const quickView = useQuickViewStore();
-const cart = useCartStore();
+const route = useRoute()
+const quickView = useQuickViewStore()
+const cart = useCartStore()
 
 const categoryName = computed(() => {
-  return route.params.slug.replace(/-/g, " ");
-});
+  return route.params.slug.replace(/-/g, ' ')
+})
 
-const { data, pending } = await useFetch("/api/products", {
-  query: { category: route.params.slug },
-});
+const { data, pending } = await useFetch('/api/products', {
+  query: { category: route.params.slug }
+})
 
-const products = computed(() => data.value?.products ?? []);
+const products = computed(() => data.value?.products ?? [])
+
+const searchQuery = ref('')
+
+const filteredProducts = computed(() => {
+  if (!searchQuery.value.trim()) return products.value
+
+  return products.value.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
+  )
+})
 </script>

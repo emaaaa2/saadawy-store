@@ -22,6 +22,8 @@
               >Skincare</NuxtLink
             >
           </li>
+          <li><NuxtLink to="/category/makeup" class="hover:text-gold transition">Makeup</NuxtLink></li>
+<li><NuxtLink to="/category/haircare" class="hover:text-gold transition">Haircare</NuxtLink></li>
           <li>
             <NuxtLink to="/category/perfume" class="hover:text-gold transition"
               >Perfume</NuxtLink

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const orderNumber = `SDW-${Date.now().toString().slice(-6)}`
 
-  const { data, error } = await client
+  const { error } = await client
     .from('orders')
     .insert({
       order_number: orderNumber,
@@ -18,8 +18,6 @@ export default defineEventHandler(async (event) => {
       total: body.total,
       status: 'pending'
     })
-    .select()
-    .single()
 
   if (error) {
     throw createError({
@@ -28,5 +26,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  return { order: data }
+  return {
+    order: {
+      order_number: orderNumber,
+      customer_name: body.customerName,
+      total: body.total
+    }
+  }
 })
