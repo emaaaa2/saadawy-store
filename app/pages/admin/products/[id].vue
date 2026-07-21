@@ -1,7 +1,6 @@
 <template>
-  <div class="min-h-screen bg-beige px-6 py-8">
-    <div class="max-w-lg mx-auto">
-      <div class="flex items-center gap-3 mb-8">
+<div class="px-8 py-8 max-w-lg mx-auto">
+        <div class="flex items-center gap-3 mb-8">
         <NuxtLink to="/admin/products" class="text-olive/60 hover:text-olive">
           <Icon name="mdi:arrow-left" class="text-xl" />
         </NuxtLink>
@@ -78,12 +77,11 @@
         </button>
       </form>
     </div>
-  </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: false,
+  layout: 'admin',
   middleware: 'admin-auth'
 })
 

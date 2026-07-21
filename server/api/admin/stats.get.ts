@@ -46,9 +46,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: stockError.message })
   }
 
-  return {
-    topSelling,
-    lowStock,
-    totalOrders: orders.length
-  }
+  const { count: totalProducts } = await client
+  .from('products')
+  .select('*', { count: 'exact', head: true })
+
+const pendingCount = orders.filter((o) => o.status === 'pending').length
+
+
+return {
+  topSelling,
+  lowStock,
+  totalOrders: orders.length,
+  totalProducts,
+  pendingCount
+}
 })

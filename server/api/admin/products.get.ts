@@ -9,27 +9,40 @@ export default defineEventHandler(async (event) => {
   }
 
   const client = serverSupabaseServiceRole(event)
+  const query = getQuery(event)
 
-  let allProducts = []
-  let from = 0
-  const batchSize = 1000
+  const page = Number(query.page) || 1
+  const limit = Number(query.limit) || 50
+  const search = query.search
+  const category = query.category
 
-  while (true) {
-    const { data, error } = await client
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(from, from + batchSize - 1)
+  const from = (page - 1) * limit
+  const to = from + limit - 1
 
-    if (error) {
-      throw createError({ statusCode: 500, statusMessage: error.message })
-    }
+  let dbQuery = client
+    .from('products')
+    .select('*', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(from, to)
 
-    allProducts = allProducts.concat(data)
-
-    if (data.length < batchSize) break
-    from += batchSize
+  if (search) {
+    dbQuery = dbQuery.ilike('name', `%${search}%`)
   }
 
-  return { products: allProducts }
+  if (category && category !== 'all') {
+    dbQuery = dbQuery.eq('category', category)
+  }
+
+  const { data, error, count } = await dbQuery
+
+  if (error) {
+    throw createError({ statusCode: 500, statusMessage: error.message })
+  }
+
+  return {
+    products: data,
+    total: count,
+    page,
+    totalPages: Math.ceil((count ?? 0) / limit)
+  }
 })

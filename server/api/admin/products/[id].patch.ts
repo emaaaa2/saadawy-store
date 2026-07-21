@@ -12,18 +12,20 @@ export default defineEventHandler(async (event) => {
   const productId = getRouterParam(event, 'id')
   const body = await readBody(event)
 
+  const updates = {}
+
+  if (body.name !== undefined) updates.name = body.name
+  if (body.description !== undefined) updates.description = body.description
+  if (body.price !== undefined) updates.price = body.price
+  if (body.salePrice !== undefined) updates.sale_price = body.salePrice || null
+  if (body.image !== undefined) updates.image = body.image
+  if (body.category !== undefined) updates.category = body.category
+  if (body.badge !== undefined) updates.badge = body.badge || null
+  if (body.stock !== undefined) updates.stock = body.stock
+
   const { data, error } = await client
     .from('products')
-    .update({
-      name: body.name,
-      description: body.description,
-      price: body.price,
-      sale_price: body.salePrice || null,
-      image: body.image,
-      category: body.category,
-      badge: body.badge || null,
-      stock: body.stock
-    })
+    .update(updates)
     .eq('id', productId)
     .select()
     .single()
