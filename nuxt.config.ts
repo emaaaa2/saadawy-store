@@ -2,9 +2,11 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
   modules: ["@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@nuxtjs/tailwindcss", "@pinia/nuxt", "@nuxtjs/supabase"],
+  
   runtimeConfig: {
-    adminPassword: process.env.ADMIN_PASSWORD
-  },
+  adminPassword: process.env.ADMIN_PASSWORD,
+  sessionSecret: process.env.SESSION_SECRET
+},
   supabase: {
     redirectOptions: {
       login: '/login',

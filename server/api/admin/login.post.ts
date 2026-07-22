@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  setCookie(event, 'admin_session', config.adminPassword, {
+  setCookie(event, 'admin_session', config.sessionSecret, {
     httpOnly: true,
     maxAge: 60 * 60 * 24 * 7,
     sameSite: 'strict'
