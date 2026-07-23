@@ -3,7 +3,10 @@
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-olive">Products</h1>
       <div class="flex items-center gap-3">
-        <NuxtLink to="/admin/orders" class="text-sm text-olive/70 hover:text-gold transition">
+        <NuxtLink
+          to="/admin/orders"
+          class="text-sm text-olive/70 hover:text-gold transition"
+        >
           View Orders
         </NuxtLink>
         <NuxtLink
@@ -16,7 +19,9 @@
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3 mb-4">
-      <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 flex-1">
+      <div
+        class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 flex-1"
+      >
         <Icon name="mdi:magnify" class="text-olive/40 text-lg shrink-0" />
         <input
           v-model="searchQuery"
@@ -55,7 +60,10 @@
       Showing {{ products.length }} of {{ totalCount }} products
     </p>
 
-    <div v-if="selectedIds.length > 0" class="flex items-center gap-3 bg-olive text-beige rounded-2xl px-5 py-3 mb-4">
+    <div
+      v-if="selectedIds.length > 0"
+      class="flex items-center gap-3 bg-olive text-beige rounded-2xl px-5 py-3 mb-4"
+    >
       <span class="text-sm font-medium">{{ selectedIds.length }} selected</span>
 
       <select
@@ -80,18 +88,29 @@
         Delete Selected
       </button>
 
-      <button class="text-sm text-beige/60 hover:text-beige transition" @click="selectedIds = []">
+      <button
+        class="text-sm text-beige/60 hover:text-beige transition"
+        @click="selectedIds = []"
+      >
         Cancel
       </button>
     </div>
 
-    <div v-if="pending" class="text-center py-12 text-olive/50">Loading products...</div>
+    <div v-if="pending" class="text-center py-12 text-olive/50">
+      Loading products...
+    </div>
 
-    <div v-else-if="products.length === 0" class="text-center py-12 text-olive/50">
+    <div
+      v-else-if="products.length === 0"
+      class="text-center py-12 text-olive/50"
+    >
       No products match your search.
     </div>
 
-    <div v-else class="bg-white rounded-2xl overflow-hidden border border-olive/10">
+    <div
+      v-else
+      class="bg-white rounded-2xl overflow-hidden border border-olive/10"
+    >
       <div
         v-for="product in products"
         :key="product.id"
@@ -104,7 +123,9 @@
           @change="toggleSelect(product.id)"
         />
 
-        <div class="w-14 h-14 rounded-lg bg-champagne shrink-0 flex items-center justify-center overflow-hidden">
+        <div
+          class="w-14 h-14 rounded-lg bg-champagne shrink-0 flex items-center justify-center overflow-hidden"
+        >
           <img
             v-if="product.image"
             :src="product.image"
@@ -114,10 +135,15 @@
           <Icon v-else name="mdi:image-outline" class="text-xl text-olive/30" />
         </div>
 
-        <div class="flex-1 min-w-0">
-          <p class="font-medium text-olive truncate">{{ product.name }}</p>
-          <p class="text-sm text-taupe capitalize">{{ product.category }}</p>
-        </div>
+       <div class="flex-1 min-w-0">
+  <div class="flex items-center gap-2 mb-0.5">
+    <span class="inline-flex items-center bg-olive/10 text-olive text-xs font-mono font-semibold px-2 py-0.5 rounded-md">
+      {{ product.sku }}
+    </span>
+  </div>
+  <p class="font-medium text-olive truncate">{{ product.name }}</p>
+  <p class="text-sm text-taupe capitalize">{{ product.category }}</p>
+</div>
 
         <div class="flex items-center gap-2 shrink-0">
           <button
@@ -127,7 +153,10 @@
           >
             <Icon name="mdi:minus" class="text-xs text-olive" />
           </button>
-          <span class="w-8 text-center text-sm font-medium" :class="product.stock === 0 ? 'text-red-500' : 'text-olive'">
+          <span
+            class="w-8 text-center text-sm font-medium"
+            :class="product.stock === 0 ? 'text-red-500' : 'text-olive'"
+          >
             {{ product.stock }}
           </span>
           <button
@@ -138,7 +167,9 @@
           </button>
         </div>
 
-        <p class="font-bold text-olive text-sm shrink-0">EGP {{ product.sale_price ?? product.price }}</p>
+        <p class="font-bold text-olive text-sm shrink-0">
+          EGP {{ product.sale_price ?? product.price }}
+        </p>
 
         <div class="flex items-center gap-2 shrink-0">
           <NuxtLink
@@ -159,7 +190,10 @@
       </div>
     </div>
 
-    <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-6">
+    <div
+      v-if="totalPages > 1"
+      class="flex items-center justify-center gap-2 mt-6"
+    >
       <button
         :disabled="currentPage === 1"
         class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
@@ -167,7 +201,9 @@
       >
         Previous
       </button>
-      <span class="text-sm text-olive/70">Page {{ currentPage }} of {{ totalPages }}</span>
+      <span class="text-sm text-olive/70"
+        >Page {{ currentPage }} of {{ totalPages }}</span
+      >
       <button
         :disabled="currentPage === totalPages"
         class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
@@ -181,81 +217,85 @@
 
 <script setup>
 definePageMeta({
-  layout: 'admin',
-  middleware: 'admin-auth'
-})
+  layout: "admin",
+  middleware: "admin-auth",
+});
 
-const currentPage = ref(1)
-const searchQuery = ref('')
-const selectedCategory = ref('all')
-const selectedIds = ref([])
+const currentPage = ref(1);
+const searchQuery = ref("");
+const selectedCategory = ref("all");
+const selectedIds = ref([]);
 
-const { data, pending, refresh } = await useFetch('/api/admin/products', {
+const { data, pending, refresh } = await useFetch("/api/admin/products", {
   query: {
     page: currentPage,
     search: searchQuery,
-    category: selectedCategory
+    category: selectedCategory,
   },
-  watch: [currentPage, searchQuery, selectedCategory]
-})
+  watch: [currentPage, searchQuery, selectedCategory],
+});
 
-const products = computed(() => data.value?.products ?? [])
-const totalPages = computed(() => data.value?.totalPages ?? 1)
-const totalCount = computed(() => data.value?.total ?? 0)
+const products = computed(() => data.value?.products ?? []);
+const totalPages = computed(() => data.value?.totalPages ?? 1);
+const totalCount = computed(() => data.value?.total ?? 0);
 
 function toggleSelect(id) {
-  const index = selectedIds.value.indexOf(id)
+  const index = selectedIds.value.indexOf(id);
   if (index === -1) {
-    selectedIds.value.push(id)
+    selectedIds.value.push(id);
   } else {
-    selectedIds.value.splice(index, 1)
+    selectedIds.value.splice(index, 1);
   }
 }
 
 async function bulkUpdateCategory(newCategory) {
-  if (!newCategory) return
+  if (!newCategory) return;
 
   await Promise.all(
     selectedIds.value.map((id) =>
       $fetch(`/api/admin/products/${id}`, {
-        method: 'PATCH',
-        body: { category: newCategory }
-      })
-    )
-  )
+        method: "PATCH",
+        body: { category: newCategory },
+      }),
+    ),
+  );
 
-  selectedIds.value = []
-  refresh()
+  selectedIds.value = [];
+  refresh();
 }
 
 async function bulkDelete() {
-  const confirmed = confirm(`Delete ${selectedIds.value.length} products? This cannot be undone.`)
-  if (!confirmed) return
+  const confirmed = confirm(
+    `Delete ${selectedIds.value.length} products? This cannot be undone.`,
+  );
+  if (!confirmed) return;
 
   await Promise.all(
-    selectedIds.value.map((id) => $fetch(`/api/admin/products/${id}`, { method: 'DELETE' }))
-  )
+    selectedIds.value.map((id) =>
+      $fetch(`/api/admin/products/${id}`, { method: "DELETE" }),
+    ),
+  );
 
-  selectedIds.value = []
-  refresh()
+  selectedIds.value = [];
+  refresh();
 }
 
 async function adjustStock(product, delta) {
-  const newStock = Math.max(0, product.stock + delta)
+  const newStock = Math.max(0, product.stock + delta);
 
   await $fetch(`/api/admin/products/${product.id}`, {
-    method: 'PATCH',
-    body: { stock: newStock }
-  })
+    method: "PATCH",
+    body: { stock: newStock },
+  });
 
-  await refresh()
+  await refresh();
 }
 
 async function handleDelete(product) {
-  const confirmed = confirm(`Delete "${product.name}"? This cannot be undone.`)
-  if (!confirmed) return
+  const confirmed = confirm(`Delete "${product.name}"? This cannot be undone.`);
+  if (!confirmed) return;
 
-  await $fetch(`/api/admin/products/${product.id}`, { method: 'DELETE' })
-  refresh()
+  await $fetch(`/api/admin/products/${product.id}`, { method: "DELETE" });
+  refresh();
 }
 </script>

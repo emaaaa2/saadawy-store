@@ -83,9 +83,13 @@
           Items ({{ order.items.length }})
         </p>
         <div class="space-y-1 mb-3">
-          <p v-for="item in order.items" :key="item.id" class="text-sm text-olive/80">
-            {{ item.name }} × {{ item.quantity }} — EGP {{ (item.sale_price ?? item.price) * item.quantity }}
-          </p>
+ <p v-for="item in order.items" :key="item.id" class="flex items-center gap-2 text-sm text-olive/80 py-1">
+  <span class="inline-flex items-center bg-gold/10 text-gold text-xs font-mono font-semibold px-2 py-0.5 rounded-md shrink-0">
+    {{ item.sku }}
+  </span>
+  <span class="flex-1">{{ item.name }} × {{ item.quantity }}</span>
+  <span class="font-medium text-olive shrink-0">EGP {{ (item.sale_price ?? item.price) * item.quantity }}</span>
+</p>
         </div>
         <p class="text-xs font-semibold text-olive/60 uppercase tracking-wide mb-1">Address</p>
         <p class="text-sm text-olive/80">{{ order.address }}</p>
