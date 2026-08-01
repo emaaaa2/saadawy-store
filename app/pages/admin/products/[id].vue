@@ -16,8 +16,18 @@
         </div>
 
         <div>
+          <label class="block text-sm font-medium text-olive mb-1">Brand (optional)</label>
+          <input v-model="form.brand" type="text" placeholder="e.g. Dove" class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold" />
+        </div>
+
+        <div>
           <label class="block text-sm font-medium text-olive mb-1">Description</label>
           <textarea v-model="form.description" rows="3" class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-olive mb-1">Ingredients / How to Use (optional)</label>
+          <textarea v-model="form.usageInfo" rows="3" class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"></textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -91,7 +101,9 @@ const isSubmitting = ref(false)
 
 const form = ref({
   name: '',
+  brand: '',
   description: '',
+  usageInfo: '',
   price: null,
   salePrice: null,
   category: '',
@@ -106,7 +118,9 @@ if (!isNew.value) {
     const p = data.value.product
     form.value = {
       name: p.name,
+      brand: p.brand ?? '',
       description: p.description,
+      usageInfo: p.usage_info ?? '',
       price: p.price,
       salePrice: p.sale_price,
       category: p.category,

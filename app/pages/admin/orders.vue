@@ -26,8 +26,8 @@
       No orders in this category.
     </div>
 
-    <div v-else class="bg-white rounded-2xl overflow-hidden border border-olive/10">
-      <table class="w-full text-sm">
+    <div v-else class="bg-white rounded-2xl border border-olive/10 overflow-x-auto">
+      <table class="w-full text-sm min-w-[640px]">
         <thead>
           <tr class="border-b border-olive/10 text-left text-olive/50 text-xs uppercase tracking-wide">
             <th class="px-5 py-3 font-medium">Order</th>
@@ -69,6 +69,7 @@
           :class="statusStyles[order.status]"
           @change="updateStatus(order.id, $event.target.value)"
         >
+          <option value="awaiting_payment">Awaiting Payment</option>
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="delivered">Delivered</option>
@@ -116,6 +117,7 @@ const expandedId = ref(null)
 
 const tabs = [
   { value: 'all', label: 'All' },
+  { value: 'awaiting_payment', label: 'Awaiting Payment' },
   { value: 'pending', label: 'Pending' },
   { value: 'confirmed', label: 'Confirmed' },
   { value: 'delivered', label: 'Delivered' },
@@ -123,6 +125,7 @@ const tabs = [
 ]
 
 const statusStyles = {
+  awaiting_payment: 'bg-taupe/10 text-taupe border-taupe/30',
   pending: 'bg-gold/10 text-gold border-gold/30',
   confirmed: 'bg-sage/10 text-sage border-sage/30',
   delivered: 'bg-green-50 text-green-600 border-green-200',

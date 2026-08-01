@@ -1,5 +1,6 @@
 <template>
-  <section class="px-6 py-phi-3 max-w-6xl mx-auto">
+  <section class="bg-white px-6 py-phi-3">
+    <div class="max-w-6xl mx-auto">
     <div class="text-center mb-phi-3">
       <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
         Customer Reviews
@@ -50,6 +51,7 @@
           <p class="text-xs text-taupe">{{ review.date }}</p>
         </div>
       </div>
+    </div>
     </div>
   </section>
 </template>

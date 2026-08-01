@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="lg:hidden flex items-center justify-between bg-olive px-4 py-3 sticky top-0 z-40">
+    <div class="lg:hidden fixed inset-x-0 top-0 flex items-center justify-between bg-olive px-4 py-3 z-40">
       <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-10" />
       <button aria-label="Menu" @click="isOpen = !isOpen">
         <Icon :name="isOpen ? 'mdi:close' : 'mdi:menu'" class="text-2xl text-beige" />

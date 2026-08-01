@@ -1,3 +1,7 @@
+body {
+  background-color: #FBF4EB;
+}
+
 .fade-in-hidden {
   opacity: 0;
   transform: translateY(50px);

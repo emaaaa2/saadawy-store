@@ -1,6 +1,6 @@
 <template>
-  <section class="px-6 py-phi-3 max-w-6xl mx-auto">
-    <div class="grid md:grid-cols-2 gap-phi-3 items-center bg-beige border border-olive/10 rounded-3xl overflow-hidden">
+  <section class="bg-white px-6 py-phi-3">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-phi-3 items-center bg-beige border border-olive/10 rounded-3xl overflow-hidden">
       <div class="p-8 md:p-phi-3">
         <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
           Visit Us

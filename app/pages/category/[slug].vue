@@ -44,10 +44,11 @@
     </div>
 
     <div v-else v-fade-in class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
-      <div
+      <NuxtLink
         v-for="product in filteredProducts"
         :key="product.id"
-        class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition"
+        :to="`/product/${product.slug}`"
+        class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
       >
         <div class="relative aspect-square bg-champagne overflow-hidden">
           <img
@@ -73,17 +74,29 @@
           </span>
 
           <button
+            class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center hover:text-gold transition"
+            :aria-label="wishlist.isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            @click.stop.prevent="wishlist.toggle(product)"
+          >
+            <Icon
+              :name="wishlist.isInWishlist(product.id) ? 'mdi:heart' : 'mdi:heart-outline'"
+              class="text-lg"
+              :class="wishlist.isInWishlist(product.id) ? 'text-gold' : ''"
+            />
+          </button>
+
+          <button
             class="absolute inset-x-2 bottom-2 bg-olive/90 text-beige text-xs font-semibold py-2 rounded-full opacity-0 group-hover:opacity-100 transition"
-            @click="quickView.open(product)"
+            @click.stop.prevent="quickView.open(product)"
           >
             Quick View
           </button>
         </div>
 
         <div class="p-3">
-          <NuxtLink :to="`/product/${product.slug}`" class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block">
+          <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
             {{ product.name }}
-          </NuxtLink>
+          </p>
           <div class="flex items-center justify-between">
             <div>
               <span v-if="product.sale_price" class="text-xs text-taupe line-through mr-1">
@@ -96,13 +109,13 @@
             <button
               class="w-7 h-7 rounded-full bg-olive text-beige flex items-center justify-center hover:bg-gold transition"
               aria-label="Add to cart"
-              @click="cart.addItem(product)"
+              @click.stop.prevent="cart.addItem(product)"
             >
               <Icon name="mdi:cart-outline" class="text-sm" />
             </button>
           </div>
         </div>
-      </div>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -111,6 +124,7 @@
 const route = useRoute()
 const quickView = useQuickViewStore()
 const cart = useCartStore()
+const wishlist = useWishlistStore()
 
 const categoryName = computed(() => {
   return route.params.slug.replace(/-/g, ' ')
@@ -128,7 +142,7 @@ const filteredProducts = computed(() => {
   if (!searchQuery.value.trim()) return products.value
 
   return products.value.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.value.trim().toLowerCase())
+    (product.name ?? '').toLowerCase().includes(searchQuery.value.trim().toLowerCase())
   )
 })
 </script>

@@ -1,7 +1,7 @@
 <template>
-<section class="px-6 pt-phi-2 pb-phi-3 max-w-6xl mx-auto">
-      <div class="flex items-center justify-between mb-phi-3">
-      <h2 class="text-phi-h2 font-bold text-olive">Best Sellers</h2>
+  <section class="px-6 pt-phi-2 pb-phi-3 max-w-6xl mx-auto">
+    <div class="flex items-center justify-between mb-phi-3">
+      <h2 class="text-phi-h2 font-bold text-olive">New Arrivals</h2>
       <NuxtLink
         to="/category/all"
         class="text-sm font-semibold text-gold hover:underline"
@@ -45,6 +45,7 @@
           </div>
 
           <span
+            v-if="product.badge"
             class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full"
             :class="{
               'bg-olive text-beige': product.badge === 'Best Seller',
@@ -77,7 +78,7 @@
                 v-if="product.sale_price"
                 class="text-xs text-taupe line-through mr-1"
               >
-                EGP {{ product.sale_price }}
+                EGP {{ product.price }}
               </span>
               <span class="font-bold text-olive text-sm">
                 EGP {{ product.sale_price ?? product.price }}
@@ -106,7 +107,7 @@ const cart = useCartStore();
 const wishlist = useWishlistStore();
 
 const { data } = await useFetch("/api/products", {
-  query: { limit: 8 },
+  query: { limit: 8, page: 2 },
 });
 
 const products = computed(() => data.value?.products ?? []);

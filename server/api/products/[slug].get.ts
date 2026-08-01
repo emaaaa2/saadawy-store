@@ -1,16 +1,13 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseClient } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  requireAdminSession(event, config.sessionSecret)
-
-  const client = serverSupabaseServiceRole(event)
-  const productId = getRouterParam(event, 'id')
+  const client = await serverSupabaseClient(event)
+  const slug = getRouterParam(event, 'slug')
 
   const { data, error } = await client
     .from('products')
     .select('*')
-    .eq('id', productId)
+    .eq('slug', slug)
     .single()
 
   if (error) {

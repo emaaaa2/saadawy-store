@@ -1,35 +1,39 @@
 <template>
-  <section class="px-6 py-phi-4 max-w-6xl mx-auto">
-    <div class="text-center mb-phi-4">
-      <span
-        class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3"
-      >
-        Explore Our Collections
-      </span>
-      <h2 class="text-phi-h2 font-bold text-olive">Shop by Category</h2>
-    </div>
+  <section class="bg-white px-6 py-phi-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-phi-4">
+        <span
+          class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3"
+        >
+          Explore Our Collections
+        </span>
+        <h2 class="text-phi-h2 font-bold text-olive">Shop by Category</h2>
+      </div>
 
-<div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3">
-       <NuxtLink
-  v-for="cat in categories"
-  :key="cat.slug"
-  :to="`/category/${cat.slug}`"
-  class="group bg-beige border border-olive/15 rounded-xl overflow-hidden hover:border-gold hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
->
-  <div class="relative aspect-square bg-champagne/40 overflow-hidden">
-    <img
-      v-if="cat.image"
-      :src="cat.image"
-      :alt="cat.name"
-      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-    />
-    <div v-else class="w-full h-full flex items-center justify-center">
-      <Icon :name="cat.icon" class="text-2xl text-olive/40 transition-transform duration-300 group-hover:scale-125" />
-    </div>
-  </div>
+      <div class="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6">
+        <NuxtLink
+          v-for="cat in categories"
+          :key="cat.slug"
+          :to="`/category/${cat.slug}`"
+          class="group flex flex-col items-center gap-2.5"
+        >
+          <div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-champagne/40 ring-1 ring-olive/10 shadow-sm group-hover:ring-2 group-hover:ring-gold group-hover:shadow-lg transition-all duration-300">
+            <img
+              v-if="cat.image"
+              :src="cat.image"
+              :alt="cat.name"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div v-else class="absolute inset-0 flex items-center justify-center">
+              <Icon :name="cat.icon" class="text-2xl text-olive/40 transition-transform duration-300 group-hover:scale-125" />
+            </div>
+          </div>
 
-  <p class="font-medium text-olive text-xs text-center py-2 px-1 truncate">{{ cat.name }}</p>
-</NuxtLink>
+          <p class="text-xs md:text-sm font-medium text-olive text-center leading-tight group-hover:text-gold transition">
+            {{ cat.name }}
+          </p>
+        </NuxtLink>
+      </div>
     </div>
   </section>
 </template>

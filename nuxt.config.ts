@@ -5,7 +5,14 @@ export default defineNuxtConfig({
   
   runtimeConfig: {
   adminPassword: process.env.ADMIN_PASSWORD,
-  sessionSecret: process.env.SESSION_SECRET
+  sessionSecret: process.env.SESSION_SECRET,
+   paymobSecretKey: process.env.PAYMOB_SECRET_KEY,
+  paymobCardIntegrationId: process.env.PAYMOB_CARD_INTEGRATION_ID,
+  paymobHmacSecret: process.env.PAYMOB_HMAC_SECRET,
+  public: {
+    paymobPublicKey: process.env.PAYMOB_PUBLIC_KEY,
+    siteUrl: process.env.SITE_URL
+  }
 },
   supabase: {
     redirectOptions: {
@@ -16,7 +23,7 @@ export default defineNuxtConfig({
     }
   },
   app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
+    pageTransition: { name: 'page'},
     head: {
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },

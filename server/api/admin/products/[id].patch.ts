@@ -2,20 +2,34 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = getCookie(event, 'admin_session')
-
-if (session !== config.sessionSecret) {
-      throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireAdminSession(event, config.sessionSecret)
 
   const client = serverSupabaseServiceRole(event)
   const productId = getRouterParam(event, 'id')
   const body = await readBody(event)
 
+  if (body.name !== undefined && (typeof body.name !== 'string' || !body.name.trim())) {
+    throw createError({ statusCode: 400, statusMessage: 'Name cannot be empty' })
+  }
+
+  if (body.price !== undefined && (typeof body.price !== 'number' || !Number.isFinite(body.price) || body.price <= 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid price' })
+  }
+
+  if (body.salePrice !== undefined && body.salePrice !== null && body.salePrice !== '' && (typeof body.salePrice !== 'number' || body.salePrice <= 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid sale price' })
+  }
+
+  if (body.stock !== undefined && (!Number.isInteger(body.stock) || body.stock < 0)) {
+    throw createError({ statusCode: 400, statusMessage: 'Invalid stock' })
+  }
+
   const updates = {}
 
   if (body.name !== undefined) updates.name = body.name
+  if (body.brand !== undefined) updates.brand = body.brand || null
   if (body.description !== undefined) updates.description = body.description
+  if (body.usageInfo !== undefined) updates.usage_info = body.usageInfo || null
   if (body.price !== undefined) updates.price = body.price
   if (body.salePrice !== undefined) updates.sale_price = body.salePrice || null
   if (body.image !== undefined) updates.image = body.image

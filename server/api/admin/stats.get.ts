@@ -2,17 +2,13 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const session = getCookie(event, 'admin_session')
-
-if (session !== config.sessionSecret) {
-      throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
-  }
+  requireAdminSession(event, config.sessionSecret)
 
   const client = serverSupabaseServiceRole(event)
 
   const { data: orders, error: ordersError } = await client
     .from('orders')
-    .select('items')
+    .select('items, status')
 
   if (ordersError) {
     throw createError({ statusCode: 500, statusMessage: ordersError.message })

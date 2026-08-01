@@ -64,9 +64,9 @@
         </div>
 
         <div v-else class="space-y-3">
-          <div v-for="(product, index) in stats.topSelling" :key="product.id" class="flex items-center justify-between text-sm">
-            <span class="text-olive/80">{{ index + 1 }}. {{ product.name }}</span>
-            <span class="font-bold text-olive">{{ product.sold }} sold</span>
+          <div v-for="(product, index) in stats.topSelling" :key="product.id" class="flex items-center justify-between gap-2 text-sm">
+            <span class="text-olive/80 truncate min-w-0">{{ index + 1 }}. {{ product.name }}</span>
+            <span class="font-bold text-olive shrink-0">{{ product.sold }} sold</span>
           </div>
         </div>
       </div>
@@ -83,7 +83,7 @@
 
   <div v-else class="space-y-3 max-h-64 overflow-y-auto pr-1">
     <div v-for="product in stats.lowStock" :key="product.id" class="flex items-center justify-between text-sm gap-2">
-      <span class="text-olive/80 truncate">{{ product.name }}</span>
+      <span class="text-olive/80 truncate min-w-0">{{ product.name }}</span>
       <span class="font-bold shrink-0" :class="product.stock === 0 ? 'text-red-500' : 'text-gold'">
         {{ product.stock === 0 ? 'Out of stock' : `${product.stock} left` }}
       </span>

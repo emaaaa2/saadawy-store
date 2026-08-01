@@ -6,7 +6,7 @@
       </NuxtLink>
 
       <nav
-        class="hidden lg:flex flex-nowrap items-center gap-5 text-beige font-medium text-md flex-1 whitespace-nowrap"
+        class="hidden xl:flex flex-nowrap items-center justify-center gap-5 text-beige font-medium text-md flex-1 whitespace-nowrap"
       >
         <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
         <NuxtLink to="/category/skincare" class="hover:text-gold transition">Skincare</NuxtLink>
@@ -19,7 +19,7 @@
       </nav>
 
       <div class="flex items-center gap-5 text-beige shrink-0">
-        <div class="hidden lg:flex items-center bg-beige/10 rounded-full px-4 py-2 gap-2 relative">
+        <div class="hidden xl:flex items-center bg-beige/10 rounded-full px-4 py-2 gap-2 relative">
           <Icon name="mdi:magnify" class="text-beige text-xl" />
           <input
             v-model="searchQuery"
@@ -67,13 +67,19 @@
           </div>
         </div>
 
-        <button class="lg:hidden hover:text-gold transition" aria-label="Search" @click="isMenuOpen = true">
+        <button class="xl:hidden hover:text-gold transition" aria-label="Search" @click="isMenuOpen = true">
           <Icon name="mdi:magnify" class="text-2xl" />
         </button>
 
-        <button class="hidden sm:block hover:text-gold transition" aria-label="Wishlist">
+        <NuxtLink to="/wishlist" class="hidden sm:block relative hover:text-gold transition" aria-label="Wishlist">
           <Icon name="mdi:heart-outline" class="text-2xl" />
-        </button>
+          <span
+            v-if="wishlist.count > 0"
+            class="absolute -top-2 -right-2 bg-gold text-olive text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full"
+          >
+            {{ wishlist.count }}
+          </span>
+        </NuxtLink>
 
         <button class="hidden sm:block hover:text-gold transition" aria-label="Account">
           <Icon name="mdi:account-outline" class="text-2xl" />
@@ -86,13 +92,13 @@
           </span>
         </button>
 
-        <button class="lg:hidden" aria-label="Menu" @click="isMenuOpen = !isMenuOpen">
+        <button class="xl:hidden" aria-label="Menu" @click="isMenuOpen = !isMenuOpen">
           <Icon :name="isMenuOpen ? 'mdi:close' : 'mdi:menu'" class="text-2xl" />
         </button>
       </div>
     </div>
 
-    <div v-if="isMenuOpen" class="lg:hidden pt-4 mt-4 border-t border-beige/20 text-beige">
+    <div v-if="isMenuOpen" class="xl:hidden pt-4 mt-4 border-t border-beige/20 text-beige">
       <div class="flex items-center gap-2 bg-beige/10 rounded-full px-4 py-2.5 mb-4">
         <Icon name="mdi:magnify" class="text-lg shrink-0" />
         <input
@@ -116,10 +122,10 @@
       </nav>
 
       <div class="flex items-center gap-6 pt-4 mt-4 border-t border-beige/20">
-        <button class="flex items-center gap-2 hover:text-gold transition" @click="isMenuOpen = false" aria-label="Wishlist">
+        <NuxtLink to="/wishlist" class="flex items-center gap-2 hover:text-gold transition" @click="isMenuOpen = false" aria-label="Wishlist">
           <Icon name="mdi:heart-outline" class="text-xl" />
-          <span>Wishlist</span>
-        </button>
+          <span>Wishlist ({{ wishlist.count }})</span>
+        </NuxtLink>
         <button class="flex items-center gap-2 hover:text-gold transition" @click="isMenuOpen = false" aria-label="Account">
           <Icon name="mdi:account-outline" class="text-xl" />
           <span>Account</span>
@@ -133,6 +139,7 @@
 const isMenuOpen = ref(false);
 const cartUI = useCartUIStore();
 const cart = useCartStore();
+const wishlist = useWishlistStore();
 
 const searchQuery = ref("");
 const searchResults = ref([]);

@@ -18,6 +18,19 @@
             <Icon name="mdi:close" class="text-lg" />
           </button>
 
+          <button
+            v-if="store.product"
+            class="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
+            :aria-label="wishlist.isInWishlist(store.product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            @click="wishlist.toggle(store.product)"
+          >
+            <Icon
+              :name="wishlist.isInWishlist(store.product.id) ? 'mdi:heart' : 'mdi:heart-outline'"
+              class="text-lg"
+              :class="wishlist.isInWishlist(store.product.id) ? 'text-gold' : ''"
+            />
+          </button>
+
           <div
             class="aspect-square bg-champagne flex items-center justify-center"
           >
@@ -78,6 +91,7 @@
 <script setup>
 const store = useQuickViewStore();
 const cart = useCartStore();
+const wishlist = useWishlistStore();
 </script>
 
 <style scoped>

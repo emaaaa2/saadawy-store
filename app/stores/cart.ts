@@ -15,14 +15,23 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     addItem(product) {
+      const toast = useToastStore()
       const existing = this.items.find(item => item.id === product.id)
+
       if (existing) {
+        if (existing.quantity >= product.stock) {
+          toast.show(`Only ${product.stock} of ${product.name} available`)
+          return
+        }
         existing.quantity++
       } else {
+        if (product.stock < 1) {
+          toast.show(`${product.name} is out of stock`)
+          return
+        }
         this.items.push({ ...product, quantity: 1 })
       }
 
-      const toast = useToastStore()
       toast.show(`${product.name} added to cart`)
 
       this.saveToStorage()
@@ -33,7 +42,14 @@ export const useCartStore = defineStore('cart', {
     },
     increaseQty(productId) {
       const item = this.items.find(item => item.id === productId)
-      if (item) item.quantity++
+      if (item) {
+        if (item.quantity >= item.stock) {
+          const toast = useToastStore()
+          toast.show(`Only ${item.stock} of ${item.name} available`)
+          return
+        }
+        item.quantity++
+      }
       this.saveToStorage()
     },
     decreaseQty(productId) {

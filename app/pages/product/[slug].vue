@@ -38,6 +38,18 @@
         >
           {{ product.badge }}
         </span>
+
+        <button
+          class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
+          :aria-label="wishlist.isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+          @click="wishlist.toggle(product)"
+        >
+          <Icon
+            :name="wishlist.isInWishlist(product.id) ? 'mdi:heart' : 'mdi:heart-outline'"
+            class="text-xl"
+            :class="wishlist.isInWishlist(product.id) ? 'text-gold' : ''"
+          />
+        </button>
       </div>
 
       <div>
@@ -58,6 +70,15 @@
         <p class="text-olive/70 leading-relaxed mb-6">
           {{ product.description }}
         </p>
+
+        <p v-if="product.brand" class="text-sm text-olive mb-4">
+          <span class="font-semibold">Brand:</span> {{ product.brand }}
+        </p>
+
+        <div v-if="product.usage_info" class="mb-6">
+          <h3 class="text-sm font-semibold text-olive mb-1">Ingredients / How to Use</h3>
+          <p class="text-sm text-olive/70 leading-relaxed whitespace-pre-line">{{ product.usage_info }}</p>
+        </div>
 
         <div class="flex items-center gap-2 mb-8">
           <Icon
@@ -81,7 +102,7 @@
             <span class="w-8 text-center text-sm">{{ quantity }}</span>
             <button
               class="w-10 h-10 flex items-center justify-center text-olive hover:bg-olive/5 transition"
-              @click="quantity++"
+              @click="quantity = Math.min(product.stock, quantity + 1)"
             >
               <Icon name="mdi:plus" class="text-sm" />
             </button>
@@ -98,16 +119,86 @@
         </div>
       </div>
     </div>
+
+    <div v-if="relatedProducts.length > 0" class="mt-phi-4">
+      <h2 class="text-phi-h2 font-bold text-olive mb-phi-2">You May Also Like</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
+        <NuxtLink
+          v-for="related in relatedProducts"
+          :key="related.id"
+          :to="`/product/${related.slug}`"
+          class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
+        >
+          <div class="relative aspect-square bg-champagne overflow-hidden">
+            <img
+              v-if="related.image"
+              :src="related.image"
+              :alt="related.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
+            </div>
+
+            <button
+              class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center hover:text-gold transition"
+              :aria-label="wishlist.isInWishlist(related.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+              @click.stop.prevent="wishlist.toggle(related)"
+            >
+              <Icon
+                :name="wishlist.isInWishlist(related.id) ? 'mdi:heart' : 'mdi:heart-outline'"
+                class="text-lg"
+                :class="wishlist.isInWishlist(related.id) ? 'text-gold' : ''"
+              />
+            </button>
+          </div>
+
+          <div class="p-3">
+            <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
+              {{ related.name }}
+            </p>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-olive text-sm">
+                EGP {{ related.sale_price ?? related.price }}
+              </span>
+              <button
+                class="w-7 h-7 rounded-full bg-olive text-beige flex items-center justify-center hover:bg-gold transition"
+                aria-label="Add to cart"
+                @click.stop.prevent="cart.addItem(related)"
+              >
+                <Icon name="mdi:cart-outline" class="text-sm" />
+              </button>
+            </div>
+          </div>
+        </NuxtLink>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 const route = useRoute()
 const cart = useCartStore()
+const wishlist = useWishlistStore()
 const quantity = ref(1)
 
 const { data, pending } = await useFetch(`/api/products/${route.params.slug}`)
 const product = computed(() => data.value?.product ?? null)
+
+const relatedData = ref(null)
+if (product.value) {
+  const { data: related } = await useFetch('/api/products', {
+    query: { category: product.value.category, limit: 5 }
+  })
+  relatedData.value = related.value
+}
+
+const relatedProducts = computed(() => {
+  return (relatedData.value?.products ?? [])
+    .filter((p) => p.id !== product.value?.id)
+    .slice(0, 4)
+})
 
 function handleAddToCart() {
   for (let i = 0; i < quantity.value; i++) {

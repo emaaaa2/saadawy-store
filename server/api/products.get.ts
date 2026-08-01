@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   const query = getQuery(event)
   const page = Number(query.page) || 1
-  const limit = Number(query.limit) || 24
+  const limit = Math.min(Number(query.limit) || 24, 100)
   const category = query.category as string | undefined
   const search = query.search as string | undefined
 
