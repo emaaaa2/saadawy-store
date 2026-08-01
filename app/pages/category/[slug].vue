@@ -31,13 +31,13 @@
       <div v-for="n in 8" :key="n" class="aspect-square bg-olive/5 rounded-2xl animate-pulse"></div>
     </div>
 
-    <div v-else-if="products.length === 0" class="text-center py-phi-4">
+    <div v-else-if="products.length === 0 && !searchQuery" class="text-center py-phi-4">
       <Icon name="mdi:package-variant-closed" class="text-5xl text-olive/20 mb-4" />
       <p class="text-olive font-semibold mb-1">No products yet in this category</p>
       <p class="text-sm text-taupe">Check back soon, we're adding new items every week.</p>
     </div>
 
-    <div v-else-if="filteredProducts.length === 0" class="text-center py-phi-4">
+    <div v-else-if="products.length === 0" class="text-center py-phi-4">
       <Icon name="mdi:magnify-close" class="text-5xl text-olive/20 mb-4" />
       <p class="text-olive font-semibold mb-1">No matches for "{{ searchQuery }}"</p>
       <p class="text-sm text-taupe">Try a different search term.</p>
@@ -45,7 +45,7 @@
 
     <div v-else v-fade-in class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
       <NuxtLink
-        v-for="product in filteredProducts"
+        v-for="product in products"
         :key="product.id"
         :to="`/product/${product.slug}`"
         class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
@@ -117,6 +117,24 @@
         </div>
       </NuxtLink>
     </div>
+
+    <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-phi-3">
+      <button
+        :disabled="currentPage === 1"
+        class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
+        @click="currentPage--"
+      >
+        Previous
+      </button>
+      <span class="text-sm text-olive/70">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        :disabled="currentPage === totalPages"
+        class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
+        @click="currentPage++"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </template>
 
@@ -130,19 +148,29 @@ const categoryName = computed(() => {
   return route.params.slug.replace(/-/g, ' ')
 })
 
+const currentPage = ref(1)
+const searchQuery = ref('')
+const categorySlug = computed(() => route.params.slug)
+
+watch(categorySlug, () => {
+  currentPage.value = 1
+  searchQuery.value = ''
+})
+
+watch(searchQuery, () => {
+  currentPage.value = 1
+})
+
 const { data, pending } = await useFetch('/api/products', {
-  query: { category: route.params.slug }
+  query: {
+    category: categorySlug,
+    search: searchQuery,
+    page: currentPage,
+    limit: 24
+  },
+  watch: [currentPage, searchQuery, categorySlug]
 })
 
 const products = computed(() => data.value?.products ?? [])
-
-const searchQuery = ref('')
-
-const filteredProducts = computed(() => {
-  if (!searchQuery.value.trim()) return products.value
-
-  return products.value.filter((product) =>
-    (product.name ?? '').toLowerCase().includes(searchQuery.value.trim().toLowerCase())
-  )
-})
+const totalPages = computed(() => data.value?.totalPages ?? 1)
 </script>
