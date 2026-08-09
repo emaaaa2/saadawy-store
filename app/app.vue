@@ -9,7 +9,7 @@
           <div class="absolute inset-0 rounded-full loading-ring-track"></div>
           <div class="absolute inset-0 rounded-full loading-ring-spin"></div>
           <img
-            src="/logo.svg"
+            src="/logo-beige.svg"
             alt="Saadawy Store"
             class="h-20 relative z-10 loading-logo"
           />

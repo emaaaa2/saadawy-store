@@ -9,6 +9,25 @@
         >
           View Orders
         </NuxtLink>
+        <a
+          href="/api/admin/products/export"
+          class="text-sm text-olive/70 hover:text-gold transition"
+        >
+          Export CSV
+        </a>
+        <button
+          class="text-sm text-olive/70 hover:text-gold transition"
+          @click="fileInput?.click()"
+        >
+          Import CSV
+        </button>
+        <input
+          ref="fileInput"
+          type="file"
+          accept=".csv"
+          class="hidden"
+          @change="handleImport"
+        />
         <NuxtLink
           to="/admin/products/new"
           class="bg-olive text-beige px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gold hover:text-olive transition"
@@ -16,6 +35,19 @@
           + Add Product
         </NuxtLink>
       </div>
+    </div>
+
+    <div v-if="importResult" class="mb-6 bg-white border border-olive/10 rounded-2xl p-4 text-sm">
+      <p class="font-semibold text-olive mb-1">
+        Import done: {{ importResult.upserted }} of {{ importResult.totalRows }} rows saved.
+      </p>
+      <p v-if="importResult.errors.length > 0" class="text-red-500 mb-1">
+        {{ importResult.errors.length }} row(s) skipped:
+      </p>
+      <ul v-if="importResult.errors.length > 0" class="text-taupe list-disc list-inside max-h-32 overflow-y-auto">
+        <li v-for="err in importResult.errors" :key="err.row">Row {{ err.row }}: {{ err.message }}</li>
+      </ul>
+      <button class="text-gold hover:underline mt-2" @click="importResult = null">Dismiss</button>
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3 mb-4">
@@ -225,6 +257,23 @@ const currentPage = ref(1);
 const searchQuery = ref("");
 const selectedCategory = ref("all");
 const selectedIds = ref([]);
+const fileInput = ref(null);
+const importResult = ref(null);
+
+async function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const csv = await file.text();
+
+  importResult.value = await $fetch("/api/admin/products/import", {
+    method: "POST",
+    body: { csv },
+  });
+
+  e.target.value = "";
+  refresh();
+}
 
 const { data, pending, refresh } = await useFetch("/api/admin/products", {
   query: {

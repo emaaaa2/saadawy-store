@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="lg:hidden fixed inset-x-0 top-0 flex items-center justify-between bg-olive px-4 py-3 z-40">
-      <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-10" />
+      <img src="/logo-trimmed-beige.svg" alt="Saadawy Store" class="h-10" />
       <button aria-label="Menu" @click="isOpen = !isOpen">
         <Icon :name="isOpen ? 'mdi:close' : 'mdi:menu'" class="text-2xl text-beige" />
       </button>
@@ -17,7 +17,7 @@
       class="w-64 bg-olive h-screen flex flex-col px-4 py-6 shrink-0 fixed lg:sticky top-0 z-50 transition-transform duration-300"
       :class="isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
     >
-      <img src="/logo-trimmed.svg" alt="Saadawy Store" class="h-12 mx-auto mb-8 hidden lg:block" />
+      <img src="/logo-trimmed-beige.svg" alt="Saadawy Store" class="h-12 mx-auto mb-8 hidden lg:block" />
 
       <nav class="flex-1 space-y-1">
         <NuxtLink
@@ -64,6 +64,16 @@
         >
           <Icon name="mdi:chart-line" class="text-lg" />
           Reports
+        </NuxtLink>
+
+        <NuxtLink
+          to="/admin/newsletter"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition"
+          :class="route.path === '/admin/newsletter' ? 'bg-gold text-olive' : 'text-beige/80 hover:bg-beige/10'"
+          @click="isOpen = false"
+        >
+          <Icon name="mdi:email-outline" class="text-lg" />
+          Newsletter
         </NuxtLink>
       </nav>
 

@@ -12,8 +12,7 @@
         <div class="flex items-start gap-3 mb-4">
           <Icon name="mdi:map-marker-outline" class="text-2xl text-gold shrink-0 mt-0.5" />
           <p class="text-olive/80 leading-relaxed">
-            برج الحرمين، الشارع الجديد، شبرا الخيمة، بجوار مستشفى وادي الطب
-          </p>
+برج الحرميين بجوار مستشفى وادي الطب, الشارع الجديد, شبرا الخيمة, محافظة القليوبية          </p>
         </div>
 
         <div class="flex items-start gap-3 mb-6">
@@ -24,7 +23,7 @@
         </div>
 
         <a
-          href="https://www.google.com/maps/search/?api=1&query=%D8%A8%D8%B1%D8%AC%20%D8%A7%D9%84%D8%AD%D8%B1%D9%85%D9%8A%D9%86%20%D8%A7%D9%84%D8%B4%D8%A7%D8%B1%D8%B9%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%20%D8%B4%D8%A8%D8%B1%D8%A7%20%D8%A7%D9%84%D8%AE%D9%8A%D9%85%D8%A9%20%D9%85%D8%B3%D8%AA%D8%B4%D9%81%D9%89%20%D9%88%D8%A7%D8%AF%D9%8A%20%D8%A7%D9%84%D8%B7%D8%A8"
+          href="https://maps.app.goo.gl/52oY7s4JVhZtr1g37"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 bg-olive text-beige px-6 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
@@ -36,7 +35,7 @@
 
       <div class="h-64 md:h-full min-h-[300px]">
         <iframe
-          src="https://www.google.com/maps?q=%D8%A8%D8%B1%D8%AC%20%D8%A7%D9%84%D8%AD%D8%B1%D9%85%D9%8A%D9%86%20%D8%A7%D9%84%D8%B4%D8%A7%D8%B1%D8%B9%20%D8%A7%D9%84%D8%AC%D8%AF%D9%8A%D8%AF%20%D8%B4%D8%A8%D8%B1%D8%A7%20%D8%A7%D9%84%D8%AE%D9%8A%D9%85%D8%A9%20%D9%85%D8%B3%D8%AA%D8%B4%D9%81%D9%89%20%D9%88%D8%A7%D8%AF%D9%8A%20%D8%A7%D9%84%D8%B7%D8%A8&output=embed"
+          src="https://www.google.com/maps?q=30.1331467,31.2787858&output=embed"
           class="w-full h-full border-0"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"

@@ -39,7 +39,7 @@
       <div class="flex items-start gap-3 justify-center mb-3">
         <Icon name="mdi:map-marker-outline" class="text-xl text-gold shrink-0 mt-0.5" />
         <p class="text-olive/80 text-left">
-          برج الحرمين، الشارع الجديد، شبرا الخيمة، بجوار مستشفى وادي الطب
+          برج الحرميين، بجوار مستشفى وادي الطب، الشارع الجديد، بهتيم، قسم ثان شبرا الخيمة، محافظة القليوبية
         </p>
       </div>
       <div class="flex items-center gap-3 justify-center">

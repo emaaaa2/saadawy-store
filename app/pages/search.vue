@@ -7,7 +7,7 @@
       <h1 class="text-phi-h2 font-bold text-olive">
         "{{ route.query.q }}"
       </h1>
-      <p class="text-sm text-taupe mt-1">{{ products.length }} products found</p>
+      <p class="text-sm text-taupe mt-1">{{ total }} products found</p>
     </div>
 
     <div v-if="pending" class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
@@ -77,6 +77,24 @@
         </div>
       </NuxtLink>
     </div>
+
+    <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-phi-3">
+      <button
+        :disabled="currentPage === 1"
+        class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
+        @click="currentPage--"
+      >
+        Previous
+      </button>
+      <span class="text-sm text-olive/70">Page {{ currentPage }} of {{ totalPages }}</span>
+      <button
+        :disabled="currentPage === totalPages"
+        class="px-4 py-2 rounded-full text-sm border border-olive/20 disabled:opacity-30 hover:bg-olive/5 transition"
+        @click="currentPage++"
+      >
+        Next
+      </button>
+    </div>
   </div>
 </template>
 
@@ -86,9 +104,19 @@ const quickView = useQuickViewStore()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 
+const currentPage = ref(1)
+const searchTerm = computed(() => route.query.q)
+
+watch(searchTerm, () => {
+  currentPage.value = 1
+})
+
 const { data, pending } = await useFetch('/api/products', {
-  query: { search: route.query.q }
+  query: { search: searchTerm, page: currentPage, limit: 24 },
+  watch: [currentPage, searchTerm]
 })
 
 const products = computed(() => data.value?.products ?? [])
+const total = computed(() => data.value?.total ?? 0)
+const totalPages = computed(() => data.value?.totalPages ?? 1)
 </script>

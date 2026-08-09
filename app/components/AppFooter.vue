@@ -4,7 +4,7 @@
       <div class="grid md:grid-cols-4 gap-phi-3 pb-phi-3 border-b border-beige/10">
         <div class="md:col-span-1">
           <img
-            src="/logo-trimmed.svg"
+            src="/logo-trimmed-beige.svg"
             alt="Saadawy Store"
             class="h-20 mb-phi-1"
           />
@@ -66,7 +66,8 @@
             />
             <button
               type="submit"
-              class="w-8 h-8 shrink-0 rounded-full bg-gold text-olive flex items-center justify-center hover:bg-beige transition"
+              :disabled="isSubscribing"
+              class="w-8 h-8 shrink-0 rounded-full bg-gold text-olive flex items-center justify-center hover:bg-beige transition disabled:opacity-50"
               aria-label="Subscribe"
             >
               <Icon name="mdi:send-outline" class="text-sm" />
@@ -98,11 +99,29 @@
 
 <script setup>
 const email = ref("");
+const isSubscribing = ref(false);
+const toast = useToastStore();
 
-function handleSubscribe() {
-  console.log("Subscribed with:", email.value);
-  alert("Thank you for subscribing!");
-  email.value = "";
+async function handleSubscribe() {
+  isSubscribing.value = true;
+
+  try {
+    const { alreadySubscribed } = await $fetch("/api/newsletter", {
+      method: "POST",
+      body: { email: email.value },
+    });
+
+    toast.show(
+      alreadySubscribed
+        ? "You're already subscribed!"
+        : "Thank you for subscribing!"
+    );
+    email.value = "";
+  } catch (error) {
+    toast.show("Something went wrong. Please try again.");
+  } finally {
+    isSubscribing.value = false;
+  }
 }
 const channels = [
   {

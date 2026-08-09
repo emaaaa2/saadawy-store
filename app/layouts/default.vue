@@ -1,6 +1,5 @@
 <template>
   <div>
-    <OfferBar />
     <AppHeader />
     <main>
       <slot />
