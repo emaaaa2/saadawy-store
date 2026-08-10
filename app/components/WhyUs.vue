@@ -1,5 +1,5 @@
 <template>
-  <section class="relative px-6 py-phi-4 overflow-hidden">
+  <section class="relative px-6 py-8 md:py-phi-4 overflow-hidden">
     <img
       src="/images/pic.jpg"
       alt=""
@@ -11,7 +11,7 @@
       <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
         Why Customers Love Saadawy
       </span>
-      <h2 class="text-phi-h2 font-bold mb-phi-3">
+      <h2 class="text-xl md:text-phi-h2 font-bold mb-4 md:mb-phi-3">
         Why Thousands Choose Saadawy
       </h2>
 

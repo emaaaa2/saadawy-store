@@ -1,23 +1,23 @@
 <template>
-  <section class="bg-white px-6 py-phi-4">
+  <section class="bg-white px-6 py-8 md:py-phi-4">
     <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-phi-4">
+      <div class="text-center mb-6 md:mb-phi-4">
         <span
           class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3"
         >
           Explore Our Collections
         </span>
-        <h2 class="text-phi-h2 font-bold text-olive">Shop by Category</h2>
+        <h2 class="text-xl md:text-phi-h2 font-bold text-olive">Shop by Category</h2>
       </div>
 
-      <div class="grid grid-cols-4 md:grid-cols-8 gap-4 md:gap-6">
+      <div class="grid grid-cols-4 md:grid-cols-8 gap-3 md:gap-6">
         <NuxtLink
           v-for="cat in categories"
           :key="cat.slug"
           :to="`/category/${cat.slug}`"
           class="group flex flex-col items-center gap-2.5"
         >
-          <div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-champagne/40 ring-1 ring-olive/10 shadow-sm group-hover:ring-2 group-hover:ring-gold group-hover:shadow-lg transition-all duration-300">
+          <div class="category-circle relative rounded-xl overflow-hidden bg-champagne/40 ring-1 ring-olive/10 shadow-sm group-hover:ring-2 group-hover:ring-gold group-hover:shadow-lg transition-all duration-300">
             <img
               v-if="cat.image"
               :src="cat.image"
@@ -25,11 +25,11 @@
               class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
             <div v-else class="absolute inset-0 flex items-center justify-center">
-              <Icon :name="cat.icon" class="text-2xl text-olive/40 transition-transform duration-300 group-hover:scale-125" />
+              <Icon :name="cat.icon" class="text-3xl text-olive/40 transition-transform duration-300 group-hover:scale-125" />
             </div>
           </div>
 
-          <p class="text-xs md:text-sm font-medium text-olive text-center leading-tight group-hover:text-gold transition">
+          <p class="text-xs md:text-base font-medium text-olive text-center leading-tight group-hover:text-gold transition">
             {{ cat.name }}
           </p>
         </NuxtLink>
@@ -50,3 +50,16 @@ const categories = [
   { slug: 'accessories', name: 'Accessories', icon: 'mdi:necklace', image: '/images/hijab2.jpg' },
 ]
 </script>
+
+<style scoped>
+.category-circle {
+  width: 5rem;
+  height: 5rem;
+}
+@media (min-width: 768px) {
+  .category-circle {
+    width: 7rem;
+    height: 7rem;
+  }
+}
+</style>

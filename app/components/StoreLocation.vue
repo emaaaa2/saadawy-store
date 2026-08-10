@@ -1,11 +1,11 @@
 <template>
-  <section class="bg-white px-6 py-phi-3">
+  <section class="bg-white px-6 py-6 md:py-phi-3">
     <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-phi-3 items-center bg-beige border border-olive/10 rounded-3xl overflow-hidden">
-      <div class="p-8 md:p-phi-3">
+      <div class="p-6 md:p-phi-3">
         <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
           Visit Us
         </span>
-        <h2 class="text-phi-h2 font-bold text-olive mb-4">
+        <h2 class="text-xl md:text-phi-h2 font-bold text-olive mb-4">
           Our Store Location
         </h2>
 

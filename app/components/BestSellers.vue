@@ -1,7 +1,7 @@
 <template>
-<section class="px-6 pt-phi-2 pb-phi-3 max-w-6xl mx-auto">
-      <div class="flex items-center justify-between mb-phi-3">
-      <h2 class="text-phi-h2 font-bold text-olive">Best Sellers</h2>
+<section class="px-6 pt-6 md:pt-phi-2 pb-8 md:pb-phi-3 max-w-6xl mx-auto">
+      <div class="flex items-center justify-between mb-4 md:mb-phi-3">
+      <h2 class="text-xl md:text-phi-h2 font-bold text-olive">Best Sellers</h2>
       <NuxtLink
         to="/category/all"
         class="text-sm font-semibold text-gold hover:underline"

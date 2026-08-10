@@ -1,5 +1,5 @@
 <template>
-  <section class="bg-beige px-6 pt-phi-2 pb-phi-3">
+  <section class="px-6 pt-4 md:pt-phi-2 pb-6 md:pb-phi-3">
     <div
       class="max-w-6xl mx-auto relative rounded-3xl overflow-hidden shadow-lg aspect-[4/5] sm:aspect-[16/9] md:aspect-[21/9]"
       @mouseenter="pause"
@@ -29,7 +29,7 @@
             {{ slide.badge }}
           </span>
 
-          <h1 class="text-3xl md:text-phi-h1 font-bold text-beige leading-tight mb-4">
+          <h1 class="text-2xl md:text-phi-h1 font-bold text-beige leading-tight mb-3 md:mb-4">
             {{ slide.title }}
             <span class="text-gold">{{ slide.titleGold }}</span>
           </h1>

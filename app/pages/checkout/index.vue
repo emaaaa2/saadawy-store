@@ -163,6 +163,14 @@ async function handleSubmit() {
         })
 
         const config = useRuntimeConfig()
+        sessionStorage.setItem('lastOrder', JSON.stringify({
+          orderNumber: order.order_number,
+          customerName: form.value.customerName,
+          phone: form.value.phone,
+          address: form.value.address,
+          items: cart.items,
+          total: order.total
+        }))
         cart.clearCart()
         window.location.href = `https://accept.paymob.com/unifiedcheckout/?publicKey=${config.public.paymobPublicKey}&clientSecret=${clientSecret}`
         return
@@ -173,7 +181,11 @@ async function handleSubmit() {
       }
     }
 
-    let message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0ATotal: EGP ${order.total}`
+    const itemsList = cart.items
+      .map((item) => `- ${item.name} x${item.quantity}`)
+      .join('%0A')
+
+    let message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0APhone: ${form.value.phone}%0AAddress: ${encodeURIComponent(form.value.address)}%0A%0AItems:%0A${itemsList}%0A%0ATotal: EGP ${order.total}`
 
     if (form.value.paymentMethod === 'bank_transfer') {
       message += `%0A%0APlease transfer to:%0AVodafone Cash: 01000000000%0ABank Account: XXXXXXXXXXXX (Bank Name)%0AThen send me the receipt here.`

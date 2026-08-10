@@ -1,11 +1,11 @@
 <template>
-  <section class="bg-white px-6 py-phi-3">
+  <section class="bg-white px-6 py-6 md:py-phi-3">
     <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-phi-3">
+    <div class="text-center mb-4 md:mb-phi-3">
       <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
         Customer Reviews
       </span>
-      <h2 class="text-phi-h2 font-bold text-olive">
+      <h2 class="text-xl md:text-phi-h2 font-bold text-olive">
         What Our Customers Say
       </h2>
     </div>
