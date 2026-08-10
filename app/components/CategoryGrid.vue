@@ -58,8 +58,8 @@ const categories = [
 }
 @media (min-width: 768px) {
   .category-circle {
-    width: 7rem;
-    height: 7rem;
+    width: 7rem !important;
+    height: 7rem !important;
   }
 }
 </style>
