@@ -10,6 +10,9 @@
     <div v-fade-in>
       <NewCollection />
     </div>
+    <!-- <div v-fade-in>
+      <InstagramGallery />
+    </div> -->
     <div v-fade-in>
       <WhyUs />
     </div>
