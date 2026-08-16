@@ -17,7 +17,10 @@
           :to="`/category/${cat.slug}`"
           class="group flex flex-col items-center gap-2.5"
         >
-          <div class="category-circle relative rounded-xl overflow-hidden bg-champagne/40 ring-1 ring-olive/10 shadow-sm group-hover:ring-2 group-hover:ring-gold group-hover:shadow-lg transition-all duration-300">
+          <div
+            class="relative rounded-xl overflow-hidden bg-champagne/40 ring-1 ring-olive/10 shadow-sm group-hover:ring-2 group-hover:ring-gold group-hover:shadow-lg transition-all duration-300"
+            :style="circleStyle"
+          >
             <img
               v-if="cat.image"
               :src="cat.image"
@@ -49,17 +52,24 @@ const categories = [
   { slug: 'hijab', name: 'Hijab & Essentials', icon: 'mdi:tshirt-crew-outline', image: '/images/hijab.jpg' },
   { slug: 'accessories', name: 'Accessories', icon: 'mdi:necklace', image: '/images/hijab2.jpg' },
 ]
-</script>
 
-<style scoped>
-.category-circle {
-  width: 5rem;
-  height: 5rem;
+const isDesktop = ref(false);
+
+function updateIsDesktop() {
+  isDesktop.value = window.innerWidth >= 768;
 }
-@media (min-width: 768px) {
-  .category-circle {
-    width: 7rem !important;
-    height: 7rem !important;
-  }
-}
-</style>
+
+onMounted(() => {
+  updateIsDesktop();
+  window.addEventListener("resize", updateIsDesktop);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateIsDesktop);
+});
+
+const circleStyle = computed(() => {
+  const size = isDesktop.value ? "7rem" : "4.5rem";
+  return { width: size, height: size };
+});
+</script>

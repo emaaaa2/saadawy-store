@@ -12,7 +12,7 @@
 
     <div class="relative -mx-6">
     <div
-      class="flex gap-phi-2 overflow-x-auto snap-x snap-mandatory pb-4 px-6 scrollbar-hide"
+      class="flex gap-phi-2 overflow-x-auto snap-x snap-mandatory scroll-pl-6 pb-4 px-6 scrollbar-hide"
     >
       <NuxtLink
         v-for="product in products"

@@ -1,6 +1,6 @@
 <template>
   <header class="bg-white relative overflow-visible border-b border-olive/10">
-    <div class="px-1">
+    <div class="px-6">
       <div
         class="max-w-6xl mx-auto py-3 min-h-[124px] grid grid-cols-[1fr_auto_1fr] items-center gap-4"
       >
@@ -33,7 +33,7 @@
             <img
               src="/logo-trimmed.svg"
               alt="Saadawy Store"
-              class="h-28 lg:h-32 w-auto max-w-none"
+              class="h-16 lg:h-24 w-auto max-w-none"
             />
           </NuxtLink>
         </div>
