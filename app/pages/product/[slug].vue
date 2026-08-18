@@ -56,7 +56,30 @@
         <p class="text-sm text-gold font-semibold uppercase tracking-wide mb-2 capitalize">
           {{ product.category }}
         </p>
-        <h1 class="text-phi-h2 font-bold text-olive mb-4">{{ product.name }}</h1>
+        <h1 class="text-phi-h2 font-bold text-olive mb-2">{{ product.name }}</h1>
+
+        <button
+          class="flex items-center gap-2 mb-4 hover:opacity-80 transition"
+          @click="scrollToReviews"
+        >
+          <div class="flex gap-0.5">
+            <Icon
+              v-for="star in 5"
+              :key="star"
+              name="mdi:star"
+              class="text-base"
+              :class="star <= Math.round(averageRating) ? 'text-gold' : 'text-olive/15'"
+            />
+          </div>
+          <span class="text-sm text-taupe">
+            <template v-if="reviewCount > 0">
+              {{ averageRating.toFixed(1) }} ({{ reviewCount }} review{{ reviewCount > 1 ? "s" : "" }})
+            </template>
+            <template v-else>
+              Be the first to review
+            </template>
+          </span>
+        </button>
 
         <div class="mb-6">
           <span v-if="product.sale_price" class="text-lg text-taupe line-through mr-2">
@@ -174,6 +197,10 @@
         </NuxtLink>
       </div>
     </div>
+
+    <div id="reviews">
+      <ProductReviews v-if="product" ref="productReviewsEl" :product-id="product.id" />
+    </div>
   </div>
 </template>
 
@@ -199,6 +226,28 @@ const relatedProducts = computed(() => {
     .filter((p) => p.id !== product.value?.id)
     .slice(0, 4)
 })
+
+const reviewsSummary = ref(null)
+if (product.value) {
+  const { data: reviewsData } = await useFetch('/api/reviews', {
+    query: { productId: product.value.id, limit: 50 }
+  })
+  reviewsSummary.value = reviewsData.value
+}
+
+const reviewCount = computed(() => reviewsSummary.value?.reviews?.length ?? 0)
+const averageRating = computed(() => {
+  const reviews = reviewsSummary.value?.reviews ?? []
+  if (reviews.length === 0) return 0
+  return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+})
+
+const productReviewsEl = ref(null)
+
+function scrollToReviews() {
+  document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  productReviewsEl.value?.openForm()
+}
 
 function handleAddToCart() {
   for (let i = 0; i < quantity.value; i++) {

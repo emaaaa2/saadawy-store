@@ -1,5 +1,7 @@
 <template>
   <div>
+        <CartReminder />
+
     <AppHeader />
     <main>
       <slot />

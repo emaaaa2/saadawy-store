@@ -75,6 +75,16 @@
           <Icon name="mdi:email-outline" class="text-lg" />
           Newsletter
         </NuxtLink>
+
+        <NuxtLink
+          to="/admin/reviews"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition"
+          :class="route.path === '/admin/reviews' ? 'bg-gold text-olive' : 'text-beige/80 hover:bg-beige/10'"
+          @click="isOpen = false"
+        >
+          <Icon name="mdi:star-outline" class="text-lg" />
+          Reviews
+        </NuxtLink>
       </nav>
 
       <NuxtLink
