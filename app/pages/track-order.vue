@@ -119,6 +119,11 @@
 </template>
 
 <script setup>
+useSeoMeta({
+  title: "Track Your Order",
+  description: "Track your Saadawy Store order status using your order number and phone number.",
+});
+
 const form = ref({ orderNumber: "", phone: "" });
 const order = ref(null);
 const isLoading = ref(false);
