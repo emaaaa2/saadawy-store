@@ -28,10 +28,12 @@
 const isLoading = ref(true)
 const cart = useCartStore()
 const wishlist = useWishlistStore()
+const recentlyViewed = useRecentlyViewedStore()
 
 onMounted(() => {
   cart.loadFromStorage()
   wishlist.loadFromStorage()
+  recentlyViewed.loadFromStorage()
 
   setTimeout(() => {
     isLoading.value = false

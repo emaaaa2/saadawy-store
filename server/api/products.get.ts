@@ -8,6 +8,7 @@ export default defineEventHandler(async (event) => {
   const limit = Math.min(Number(query.limit) || 24, 100)
   const category = query.category as string | undefined
   const search = query.search as string | undefined
+  const sort = query.sort as string | undefined
 
   const from = (page - 1) * limit
   const to = from + limit - 1
@@ -16,7 +17,16 @@ export default defineEventHandler(async (event) => {
     .from('products')
     .select('*', { count: 'exact' })
     .range(from, to)
-    .order('created_at', { ascending: false })
+
+  if (sort === 'price_asc') {
+    dbQuery = dbQuery.order('price', { ascending: true })
+  } else if (sort === 'price_desc') {
+    dbQuery = dbQuery.order('price', { ascending: false })
+  } else if (sort === 'name_asc') {
+    dbQuery = dbQuery.order('name', { ascending: true })
+  } else {
+    dbQuery = dbQuery.order('created_at', { ascending: false })
+  }
 
   if (category) {
     dbQuery = dbQuery.eq('category', category)

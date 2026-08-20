@@ -8,22 +8,37 @@
         {{ categoryName }}
       </h1>
 
-      <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 max-w-sm">
-        <Icon name="mdi:magnify" class="text-olive/40 text-lg shrink-0" />
-        <input
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search in this category..."
-          class="bg-transparent text-olive placeholder-olive/40 outline-none text-sm w-full"
-        />
-        <button
-          v-if="searchQuery"
-          class="text-olive/40 hover:text-olive transition shrink-0"
-          aria-label="Clear search"
-          @click="searchQuery = ''"
-        >
-          <Icon name="mdi:close-circle" class="text-lg" />
-        </button>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 max-w-sm w-full">
+          <Icon name="mdi:magnify" class="text-olive/40 text-lg shrink-0" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search in this category..."
+            class="bg-transparent text-olive placeholder-olive/40 outline-none text-sm w-full"
+          />
+          <button
+            v-if="searchQuery"
+            class="text-olive/40 hover:text-olive transition shrink-0"
+            aria-label="Clear search"
+            @click="searchQuery = ''"
+          >
+            <Icon name="mdi:close-circle" class="text-lg" />
+          </button>
+        </div>
+
+        <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 shrink-0">
+          <Icon name="mdi:sort" class="text-olive/40 text-lg shrink-0" />
+          <select
+            v-model="sortBy"
+            class="bg-transparent text-olive outline-none text-sm cursor-pointer"
+          >
+            <option value="newest">Newest</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -148,8 +163,16 @@ const categoryName = computed(() => {
   return route.params.slug.replace(/-/g, ' ')
 })
 
+useSeoMeta({
+  title: () => `Shop ${categoryName.value}`,
+  description: () => `Browse our ${categoryName.value} collection at Saadawy Store — quality products, fair prices, fast delivery across Egypt.`,
+  ogTitle: () => `Shop ${categoryName.value} | Saadawy Store`,
+  ogDescription: () => `Browse our ${categoryName.value} collection at Saadawy Store.`
+})
+
 const currentPage = ref(1)
 const searchQuery = ref('')
+const sortBy = ref('newest')
 const categorySlug = computed(() => route.params.slug)
 
 watch(categorySlug, () => {
@@ -157,7 +180,7 @@ watch(categorySlug, () => {
   searchQuery.value = ''
 })
 
-watch(searchQuery, () => {
+watch([searchQuery, sortBy], () => {
   currentPage.value = 1
 })
 
@@ -165,10 +188,11 @@ const { data, pending } = await useFetch('/api/products', {
   query: {
     category: categorySlug,
     search: searchQuery,
+    sort: sortBy,
     page: currentPage,
     limit: 24
   },
-  watch: [currentPage, searchQuery, categorySlug]
+  watch: [currentPage, searchQuery, sortBy, categorySlug]
 })
 
 const products = computed(() => data.value?.products ?? [])

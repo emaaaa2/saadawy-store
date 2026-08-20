@@ -32,6 +32,7 @@
           <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">Customer Service</h4>
           <ul class="space-y-2.5 text-sm text-beige/80">
             <li><NuxtLink to="/about" class="hover:text-gold transition">About Us</NuxtLink></li>
+            <li><NuxtLink to="/track-order" class="hover:text-gold transition">Track Order</NuxtLink></li>
             <li><NuxtLink to="/contact" class="hover:text-gold transition">Contact</NuxtLink></li>
             <li><NuxtLink to="/wishlist" class="hover:text-gold transition">Wishlist</NuxtLink></li>
             <li>

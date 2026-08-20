@@ -12,6 +12,31 @@
 
     <p class="text-sm text-taupe mb-4">{{ total }} total subscribers</p>
 
+    <div class="bg-white rounded-2xl border border-olive/10 p-5 mb-6">
+      <h2 class="font-semibold text-olive mb-3">Send a Campaign</h2>
+      <div class="space-y-3">
+        <input
+          v-model="campaign.subject"
+          type="text"
+          placeholder="Subject (e.g. New arrivals this week!)"
+          class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
+        />
+        <textarea
+          v-model="campaign.message"
+          rows="5"
+          placeholder="Write your message to subscribers..."
+          class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
+        ></textarea>
+        <button
+          :disabled="isSending || !campaign.subject.trim() || !campaign.message.trim()"
+          class="bg-olive text-beige px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gold hover:text-olive transition disabled:opacity-50"
+          @click="handleSendCampaign"
+        >
+          {{ isSending ? "Sending..." : `Send to ${total} Subscriber${total === 1 ? "" : "s"}` }}
+        </button>
+      </div>
+    </div>
+
     <div v-if="pending" class="text-center py-12 text-olive/50">Loading...</div>
 
     <div v-else-if="subscribers.length === 0" class="text-center py-12 text-olive/50">
@@ -92,5 +117,29 @@ async function handleRemove(sub) {
 
   await $fetch(`/api/admin/newsletter/${sub.id}`, { method: 'DELETE' })
   refresh()
+}
+
+const campaign = ref({ subject: '', message: '' })
+const isSending = ref(false)
+const toast = useToastStore()
+
+async function handleSendCampaign() {
+  const confirmed = confirm(`Send this email to ${total.value} subscriber${total.value === 1 ? '' : 's'}?`)
+  if (!confirmed) return
+
+  isSending.value = true
+
+  try {
+    const result = await $fetch('/api/admin/newsletter/send', {
+      method: 'POST',
+      body: campaign.value
+    })
+    toast.show(`Sent to ${result.sent} of ${result.total} subscribers${result.failed ? ` (${result.failed} failed)` : ''}`)
+    campaign.value = { subject: '', message: '' }
+  } catch (error) {
+    toast.show(error.data?.statusMessage || 'Something went wrong. Please try again.')
+  } finally {
+    isSending.value = false
+  }
 }
 </script>

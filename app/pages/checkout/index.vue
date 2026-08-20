@@ -25,9 +25,44 @@
             >EGP {{ (item.sale_price ?? item.price) * item.quantity }}</span
           >
         </div>
+        <div class="flex items-center gap-2 pt-3 border-t border-olive/10">
+          <input
+            v-model="couponCode"
+            type="text"
+            placeholder="Coupon code"
+            :disabled="!!appliedCoupon"
+            class="flex-1 border border-olive/20 rounded-lg px-3 py-2 outline-none focus:border-gold text-sm uppercase disabled:bg-olive/5 disabled:text-olive/50"
+          />
+          <button
+            v-if="!appliedCoupon"
+            type="button"
+            :disabled="isApplyingCoupon || !couponCode.trim()"
+            class="text-sm font-semibold text-olive px-4 py-2 rounded-lg border border-olive/20 hover:bg-olive/5 transition disabled:opacity-50 shrink-0"
+            @click="handleApplyCoupon"
+          >
+            {{ isApplyingCoupon ? "..." : "Apply" }}
+          </button>
+          <button
+            v-else
+            type="button"
+            class="text-sm font-semibold text-red-500 px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition shrink-0"
+            @click="removeCoupon"
+          >
+            Remove
+          </button>
+        </div>
+        <p v-if="couponError" class="text-xs text-red-500 mt-1">{{ couponError }}</p>
+        <p v-if="appliedCoupon" class="text-xs text-sage mt-1">
+          Coupon "{{ appliedCoupon.code }}" applied — you saved EGP {{ appliedCoupon.discount }}
+        </p>
+
+        <div v-if="appliedCoupon" class="flex justify-between pt-3 text-sm text-olive/70">
+          <span>Discount</span>
+          <span>- EGP {{ appliedCoupon.discount }}</span>
+        </div>
         <div class="flex justify-between pt-3 font-bold text-olive">
           <span>Total</span>
-          <span>EGP {{ cart.subtotal }}</span>
+          <span>EGP {{ finalTotal }}</span>
         </div>
       </div>
 
@@ -137,6 +172,40 @@ const form = ref({
   paymentMethod: "",
 });
 
+const couponCode = ref("");
+const appliedCoupon = ref(null);
+const couponError = ref("");
+const isApplyingCoupon = ref(false);
+
+const finalTotal = computed(() => {
+  return appliedCoupon.value
+    ? Math.max(0, cart.subtotal - appliedCoupon.value.discount)
+    : cart.subtotal;
+});
+
+async function handleApplyCoupon() {
+  couponError.value = "";
+  isApplyingCoupon.value = true;
+
+  try {
+    const result = await $fetch("/api/coupons/validate", {
+      method: "POST",
+      body: { code: couponCode.value.trim(), subtotal: cart.subtotal },
+    });
+    appliedCoupon.value = result;
+  } catch (error) {
+    couponError.value = error.data?.statusMessage || "Invalid coupon code";
+  } finally {
+    isApplyingCoupon.value = false;
+  }
+}
+
+function removeCoupon() {
+  appliedCoupon.value = null;
+  couponCode.value = "";
+  couponError.value = "";
+}
+
 async function handleSubmit() {
   isSubmitting.value = true
 
@@ -149,7 +218,8 @@ async function handleSubmit() {
         address: form.value.address,
         paymentMethod: form.value.paymentMethod,
         items: cart.items,
-        total: cart.subtotal
+        total: cart.subtotal,
+        couponCode: appliedCoupon.value?.code || undefined
       }
     })
 

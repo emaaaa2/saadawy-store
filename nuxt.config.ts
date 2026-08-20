@@ -9,6 +9,8 @@ export default defineNuxtConfig({
    paymobSecretKey: process.env.PAYMOB_SECRET_KEY,
   paymobCardIntegrationId: process.env.PAYMOB_CARD_INTEGRATION_ID,
   paymobHmacSecret: process.env.PAYMOB_HMAC_SECRET,
+  resendApiKey: process.env.RESEND_API_KEY,
+  newsletterFromEmail: process.env.NEWSLETTER_FROM_EMAIL,
   public: {
     paymobPublicKey: process.env.PAYMOB_PUBLIC_KEY,
     siteUrl: process.env.SITE_URL
@@ -25,6 +27,13 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page'},
     head: {
+      titleTemplate: '%s | Saadawy Store',
+      meta: [
+        { name: 'description', content: 'Saadawy Store — cosmetics, perfumes, skincare, haircare, bags, kitchen essentials and more, all in one place. Based in Shubra El-Kheima, Egypt.' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'Saadawy Store' },
+        { name: 'twitter:card', content: 'summary_large_image' }
+      ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap' }

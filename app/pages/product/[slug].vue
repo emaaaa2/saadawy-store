@@ -199,7 +199,41 @@
     </div>
 
     <div id="reviews">
-      <ProductReviews v-if="product" ref="productReviewsEl" :product-id="product.id" />
+      <ProductReviews v-if="product" :product-id="product.id" :open-trigger="reviewFormTrigger" />
+    </div>
+
+    <div v-if="recentItems.length > 0" class="mt-phi-4">
+      <h2 class="text-phi-h2 font-bold text-olive mb-phi-2">Recently Viewed</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
+        <NuxtLink
+          v-for="item in recentItems"
+          :key="item.id"
+          :to="`/product/${item.slug}`"
+          class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
+        >
+          <div class="relative aspect-square bg-champagne overflow-hidden">
+            <img
+              v-if="item.image"
+              :src="item.image"
+              :alt="item.name"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center">
+              <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
+            </div>
+          </div>
+
+          <div class="p-3">
+            <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
+              {{ item.name }}
+            </p>
+            <span class="font-bold text-olive text-sm">
+              EGP {{ item.sale_price ?? item.price }}
+            </span>
+          </div>
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
@@ -208,10 +242,23 @@
 const route = useRoute()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
+const recentlyViewed = useRecentlyViewedStore()
 const quantity = ref(1)
 
 const { data, pending } = await useFetch(`/api/products/${route.params.slug}`)
 const product = computed(() => data.value?.product ?? null)
+
+useSeoMeta({
+  title: () => product.value?.name ?? 'Product',
+  ogTitle: () => product.value?.name,
+  description: () => product.value
+    ? `${product.value.name} — EGP ${product.value.sale_price ?? product.value.price}. ${product.value.description ?? 'Shop now at Saadawy Store.'}`
+    : undefined,
+  ogDescription: () => product.value
+    ? `${product.value.name} — EGP ${product.value.sale_price ?? product.value.price}`
+    : undefined,
+  ogImage: () => product.value?.image || '/images/pic.jpg'
+})
 
 const relatedData = ref(null)
 if (product.value) {
@@ -242,11 +289,11 @@ const averageRating = computed(() => {
   return reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
 })
 
-const productReviewsEl = ref(null)
+const reviewFormTrigger = ref(0)
 
 function scrollToReviews() {
   document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  productReviewsEl.value?.openForm()
+  reviewFormTrigger.value++
 }
 
 function handleAddToCart() {
@@ -254,4 +301,12 @@ function handleAddToCart() {
     cart.addItem(product.value)
   }
 }
+
+const recentItems = computed(() => {
+  return recentlyViewed.items.filter((item) => item.id !== product.value?.id).slice(0, 4)
+})
+
+watch(product, (value) => {
+  if (value) recentlyViewed.track(value)
+}, { immediate: true })
 </script>

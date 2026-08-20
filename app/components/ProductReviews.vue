@@ -111,6 +111,7 @@
 <script setup>
 const props = defineProps({
   productId: { type: String, required: true },
+  openTrigger: { type: Number, default: 0 },
 });
 
 const toast = useToastStore();
@@ -126,6 +127,13 @@ const averageRating = computed(() => {
 });
 
 const showForm = ref(false);
+
+watch(
+  () => props.openTrigger,
+  (value) => {
+    if (value > 0) showForm.value = true;
+  }
+);
 const isSubmitting = ref(false);
 const form = ref({
   customerName: "",
@@ -157,9 +165,4 @@ async function handleSubmit() {
   }
 }
 
-function openForm() {
-  showForm.value = true;
-}
-
-defineExpose({ openForm });
 </script>

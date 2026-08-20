@@ -53,12 +53,13 @@
             </span>
           </NuxtLink>
 
-          <button
+          <NuxtLink
+            to="/track-order"
             class="hidden sm:block hover:text-gold transition"
-            aria-label="Account"
+            aria-label="Track Order"
           >
-            <Icon name="mdi:account-outline" class="text-2xl" />
-          </button>
+            <Icon name="mdi:truck-outline" class="text-2xl" />
+          </NuxtLink>
 
           <button
             class="relative hover:text-gold transition"
@@ -288,14 +289,15 @@
           <Icon name="mdi:heart-outline" class="text-xl" />
           <span>Wishlist ({{ wishlist.count }})</span>
         </NuxtLink>
-        <button
+        <NuxtLink
+          to="/track-order"
           class="flex items-center gap-2 hover:text-gold transition"
           @click="isMenuOpen = false"
-          aria-label="Account"
+          aria-label="Track Order"
         >
-          <Icon name="mdi:account-outline" class="text-xl" />
-          <span>Account</span>
-        </button>
+          <Icon name="mdi:truck-outline" class="text-xl" />
+          <span>Track Order</span>
+        </NuxtLink>
       </div>
     </div>
   </header>

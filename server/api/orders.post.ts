@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -39,10 +39,39 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  const total = verifiedItems.reduce(
+  const subtotal = verifiedItems.reduce(
     (sum, item) => sum + (item.sale_price ?? item.price) * item.quantity,
     0
   )
+
+  let discount = 0
+  let couponCode: string | null = null
+  let couponRow = null
+  const serviceClient = serverSupabaseServiceRole(event)
+
+  if (body.couponCode) {
+    const code = String(body.couponCode).trim().toUpperCase()
+    const { data: coupon } = await serviceClient
+      .from('coupons')
+      .select('*')
+      .eq('code', code)
+      .single()
+
+    if (!coupon) {
+      throw createError({ statusCode: 400, statusMessage: 'Invalid coupon code' })
+    }
+
+    const result = calculateDiscount(coupon, subtotal)
+    if (!result.valid) {
+      throw createError({ statusCode: 400, statusMessage: result.reason })
+    }
+
+    discount = result.discount
+    couponCode = coupon.code
+    couponRow = coupon
+  }
+
+  const total = Math.max(0, subtotal - discount)
 
   const reserved = []
 
@@ -80,6 +109,8 @@ export default defineEventHandler(async (event) => {
       payment_method: body.paymentMethod,
       items: verifiedItems,
       total,
+      discount,
+      coupon_code: couponCode,
       status
     })
 
@@ -91,6 +122,13 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: error.message
     })
+  }
+
+  if (couponRow) {
+    await serviceClient
+      .from('coupons')
+      .update({ used_count: couponRow.used_count + 1 })
+      .eq('id', couponRow.id)
   }
 
   return {

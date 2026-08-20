@@ -1,21 +1,25 @@
 <template>
   <transition name="slide-down">
-    <div v-if="showReminder" class="bg-gold/15 border-b border-gold/30 px-4 py-2.5">
-      <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2 text-sm text-olive">
-          <Icon name="mdi:cart-outline" class="text-lg shrink-0" />
-          <span>You have {{ cart.itemCount }} item{{ cart.itemCount > 1 ? 's' : '' }} waiting in your cart</span>
+    <div v-if="showReminder" class="bg-olive shadow-md px-4 py-3">
+      <div class="max-w-6xl mx-auto flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
+            <Icon name="mdi:cart-outline" class="text-lg text-gold" />
+          </div>
+          <p class="text-sm text-beige truncate">
+            You have {{ cart.itemCount }} item{{ cart.itemCount > 1 ? "s" : "" }} waiting in your cart
+          </p>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
           <button
-            class="text-sm font-semibold text-olive hover:text-gold transition underline"
+            class="text-sm font-semibold bg-gold text-olive px-4 py-1.5 rounded-full hover:bg-beige transition"
             @click="cartUI.open(); showReminder = false"
           >
             View Cart
           </button>
           <button
-            class="text-olive/50 hover:text-olive transition"
+            class="w-8 h-8 flex items-center justify-center rounded-full text-beige/60 hover:text-beige hover:bg-beige/10 transition"
             aria-label="Dismiss"
             @click="dismissReminder"
           >

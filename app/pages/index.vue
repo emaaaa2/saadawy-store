@@ -24,3 +24,13 @@
     </div>
   </div>
 </template>
+
+<script setup>
+useSeoMeta({
+  title: 'Cosmetics, Perfumes, Skincare & Everyday Essentials',
+  ogTitle: 'Saadawy Store',
+  description: 'Shop cosmetics, perfumes, skincare, haircare, bags, kitchen essentials and more, all in one place. Fast delivery across Egypt.',
+  ogDescription: 'Shop cosmetics, perfumes, skincare, haircare, bags, kitchen essentials and more, all in one place. Fast delivery across Egypt.',
+  ogImage: '/images/pic.jpg'
+})
+</script>

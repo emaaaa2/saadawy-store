@@ -32,6 +32,12 @@
       <NuxtLink to="/" class="bg-olive text-beige px-6 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition">
         Back to Home
       </NuxtLink>
+
+      <div v-if="paymentSucceeded || paymentPending" class="mt-4">
+        <NuxtLink to="/track-order" class="text-sm text-gold hover:underline">
+          Track Your Order
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>
