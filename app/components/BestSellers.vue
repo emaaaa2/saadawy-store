@@ -3,7 +3,7 @@
       <div class="flex items-center justify-between mb-4 md:mb-phi-3">
       <h2 class="text-xl md:text-phi-h2 font-bold text-olive">Best Sellers</h2>
       <NuxtLink
-        to="/category/all"
+        to="/best-sellers"
         class="text-sm font-semibold text-gold hover:underline"
       >
         View All
@@ -44,15 +44,8 @@
             </button>
           </div>
 
-          <span
-            class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full"
-            :class="{
-              'bg-olive text-beige': product.badge === 'Best Seller',
-              'bg-gold text-beige': product.badge === 'New',
-              'bg-rose text-olive': product.badge === 'Sale',
-            }"
-          >
-            {{ product.badge }}
+          <span class="absolute top-2 left-2 text-xs font-bold px-2 py-1 rounded-full bg-olive text-beige">
+            Best Seller
           </span>
           <button
             class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center hover:text-gold transition"
@@ -105,7 +98,7 @@ const quickView = useQuickViewStore();
 const cart = useCartStore();
 const wishlist = useWishlistStore();
 
-const { data } = await useFetch("/api/products", {
+const { data } = await useFetch("/api/products/best-sellers", {
   query: { limit: 8 },
 });
 

@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-4 md:mb-phi-3">
       <h2 class="text-xl md:text-phi-h2 font-bold text-olive">New Arrivals</h2>
       <NuxtLink
-        to="/category/all"
+        to="/new-arrivals"
         class="text-sm font-semibold text-gold hover:underline"
       >
         View All
