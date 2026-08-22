@@ -6,12 +6,15 @@
         class="fixed inset-0 z-[200] loading-bg flex flex-col items-center justify-center gap-6 pointer-events-none"
       >
         <div class="relative flex items-center justify-center w-44 h-44">
-          <div class="absolute inset-0 rounded-full loading-ring-track"></div>
-          <div class="absolute inset-0 rounded-full loading-ring-spin"></div>
           <img
-            src="/logo-beige.svg"
+            src="/logo-icon-petals-beige.svg"
             alt="Saadawy Store"
-            class="h-20 relative z-10 loading-logo"
+            class="h-28 relative z-10 loading-logo-petals"
+          />
+          <img
+            src="/logo-icon-frame-beige.svg"
+            alt=""
+            class="h-28 absolute z-20 loading-logo-frame"
           />
         </div>
         <p class="loading-tagline">Saadawy Store</p>
@@ -60,20 +63,12 @@ onMounted(() => {
   background: radial-gradient(circle at center, #4d6055 0%, #3a4a41 100%);
 }
 
-.loading-logo {
-  animation: breathe 1.8s ease-in-out infinite;
+.loading-logo-petals {
   filter: drop-shadow(0 0 10px rgba(176, 141, 87, 0.25));
 }
 
-.loading-ring-track {
-  border: 1px solid rgba(251, 244, 235, 0.12);
-}
-
-.loading-ring-spin {
-  background: conic-gradient(from 0deg, transparent 0%, #E6D3A3 8%, #B08D57 20%, transparent 38%);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
-  animation: spin 2.4s linear infinite;
+.loading-logo-frame {
+  animation: spin-logo 1.8s linear infinite;
   filter: drop-shadow(0 0 6px rgba(176, 141, 87, 0.4));
 }
 
@@ -86,12 +81,7 @@ onMounted(() => {
   opacity: 0.85;
 }
 
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.94; }
-  50% { transform: scale(1.05); opacity: 1; }
-}
-
-@keyframes spin {
+@keyframes spin-logo {
   to { transform: rotate(360deg); }
 }
 </style>
