@@ -7,12 +7,12 @@
       >
         <div class="relative flex items-center justify-center w-44 h-44">
           <img
-            src="/logo-icon-petals-beige.svg"
+            src="/logo-icon-petals-olive.svg"
             alt="Saadawy Store"
             class="h-28 relative z-10 loading-logo-petals"
           />
           <img
-            src="/logo-icon-frame-beige.svg"
+            src="/logo-icon-frame-olive.svg"
             alt=""
             class="h-28 absolute z-20 loading-logo-frame"
           />
@@ -60,25 +60,25 @@ onMounted(() => {
 }
 
 .loading-bg {
-  background: radial-gradient(circle at center, #4d6055 0%, #3a4a41 100%);
+  background: #ffffff;
 }
 
 .loading-logo-petals {
-  filter: drop-shadow(0 0 10px rgba(176, 141, 87, 0.25));
+  filter: drop-shadow(0 0 10px rgba(68, 86, 76, 0.15));
 }
 
 .loading-logo-frame {
   animation: spin-logo 1.8s linear infinite;
-  filter: drop-shadow(0 0 6px rgba(176, 141, 87, 0.4));
+  filter: drop-shadow(0 0 6px rgba(176, 141, 87, 0.3));
 }
 
 .loading-tagline {
-  color: #E6D3A3;
+  color: #44564c;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  opacity: 0.85;
+  opacity: 0.7;
 }
 
 @keyframes spin-logo {

@@ -54,6 +54,12 @@
         >
           <Icon name="mdi:package-variant" class="text-lg" />
           Products
+          <span
+            v-if="lowStockCount > 0"
+            class="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+          >
+            {{ lowStockCount }}
+          </span>
         </NuxtLink>
 
         <NuxtLink
@@ -112,6 +118,7 @@
 const route = useRoute()
 const isOpen = ref(false)
 const pendingCount = ref(0)
+const lowStockCount = ref(0)
 
 async function checkPendingOrders() {
   try {
@@ -122,11 +129,24 @@ async function checkPendingOrders() {
   }
 }
 
+async function checkLowStock() {
+  try {
+    const stats = await $fetch('/api/admin/stats')
+    lowStockCount.value = stats.lowStock?.length ?? 0
+  } catch (error) {
+    console.error('Failed to check low stock:', error)
+  }
+}
+
 let intervalId = null
 
 onMounted(() => {
   checkPendingOrders()
-  intervalId = setInterval(checkPendingOrders, 30000)
+  checkLowStock()
+  intervalId = setInterval(() => {
+    checkPendingOrders()
+    checkLowStock()
+  }, 30000)
 })
 
 onUnmounted(() => {

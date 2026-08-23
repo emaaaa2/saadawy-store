@@ -35,7 +35,7 @@ export default defineEventHandler(async (event) => {
   const { data: lowStock, error: stockError } = await client
     .from('products')
     .select('id, name, stock')
-    .lte('stock', 5)
+    .lte('stock', 2)
     .order('stock', { ascending: true })
 
   if (stockError) {
