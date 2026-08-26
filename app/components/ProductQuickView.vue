@@ -35,10 +35,11 @@
             class="aspect-square bg-champagne flex items-center justify-center"
           >
             <img
-              v-if="store.product?.image"
+              v-if="store.product?.image && !failedImages.has(store.product.image)"
               :src="store.product.image"
               :alt="store.product.name"
               class="w-full h-full object-cover"
+              @error="failedImages.add(store.product.image)"
             />
             <Icon
               v-else
@@ -92,6 +93,7 @@
 const store = useQuickViewStore();
 const cart = useCartStore();
 const wishlist = useWishlistStore();
+const failedImages = reactive(new Set());
 </script>
 
 <style scoped>

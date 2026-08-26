@@ -16,40 +16,72 @@
     </div>
 
     <div v-else class="grid md:grid-cols-2 gap-phi-3">
-      <div class="relative aspect-square bg-champagne rounded-2xl overflow-hidden">
-        <img
-          v-if="product.image"
-          :src="product.image"
-          :alt="product.name"
-          class="w-full h-full object-cover"
-        />
-        <div v-else class="w-full h-full flex items-center justify-center">
-          <Icon name="mdi:image-outline" class="text-6xl text-olive/30" />
+      <div>
+        <div class="relative aspect-square bg-champagne rounded-2xl overflow-hidden">
+          <img
+            v-if="galleryImages[activeImageIndex] && !failedImages.has(galleryImages[activeImageIndex])"
+            :src="galleryImages[activeImageIndex]"
+            :alt="product.name"
+            class="w-full h-full object-cover"
+            @error="failedImages.add(galleryImages[activeImageIndex])"
+          />
+          <div v-else class="w-full h-full flex items-center justify-center">
+            <Icon name="mdi:image-outline" class="text-6xl text-olive/30" />
+          </div>
+
+          <span
+            v-if="product.badge"
+            class="absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full"
+            :class="{
+              'bg-olive text-beige': product.badge === 'Best Seller',
+              'bg-gold text-beige': product.badge === 'New',
+              'bg-rose text-olive': product.badge === 'Sale',
+            }"
+          >
+            {{ product.badge }}
+          </span>
+
+          <button
+            class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
+            :aria-label="wishlist.isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            @click="wishlist.toggle(product)"
+          >
+            <Icon
+              :name="wishlist.isInWishlist(product.id) ? 'mdi:heart' : 'mdi:heart-outline'"
+              class="text-xl"
+              :class="wishlist.isInWishlist(product.id) ? 'text-gold' : ''"
+            />
+          </button>
+
+          <template v-if="galleryImages.length > 1">
+            <button
+              class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
+              aria-label="Previous image"
+              @click="activeImageIndex = (activeImageIndex - 1 + galleryImages.length) % galleryImages.length"
+            >
+              <Icon name="mdi:chevron-left" class="text-2xl" />
+            </button>
+            <button
+              class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
+              aria-label="Next image"
+              @click="activeImageIndex = (activeImageIndex + 1) % galleryImages.length"
+            >
+              <Icon name="mdi:chevron-right" class="text-2xl" />
+            </button>
+          </template>
         </div>
 
-        <span
-          v-if="product.badge"
-          class="absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full"
-          :class="{
-            'bg-olive text-beige': product.badge === 'Best Seller',
-            'bg-gold text-beige': product.badge === 'New',
-            'bg-rose text-olive': product.badge === 'Sale',
-          }"
-        >
-          {{ product.badge }}
-        </span>
-
-        <button
-          class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-          :aria-label="wishlist.isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
-          @click="wishlist.toggle(product)"
-        >
-          <Icon
-            :name="wishlist.isInWishlist(product.id) ? 'mdi:heart' : 'mdi:heart-outline'"
-            class="text-xl"
-            :class="wishlist.isInWishlist(product.id) ? 'text-gold' : ''"
-          />
-        </button>
+        <div v-if="galleryImages.length > 1" class="grid grid-cols-5 gap-2 mt-3">
+          <button
+            v-for="(img, index) in galleryImages"
+            :key="index"
+            class="aspect-square rounded-lg overflow-hidden border-2 transition"
+            :class="index === activeImageIndex ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'"
+            @click="activeImageIndex = index"
+          >
+            <img :src="img" :alt="`${product.name} ${index + 1}`" class="w-full h-full object-cover" />
+          </button>
+        </div>
       </div>
 
       <div>
@@ -155,10 +187,11 @@
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
             <img
-              v-if="related.image"
+              v-if="related.image && !failedImages.has(related.image)"
               :src="related.image"
               :alt="related.name"
               class="w-full h-full object-cover"
+              @error="failedImages.add(related.image)"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
               <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
@@ -214,10 +247,11 @@
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
             <img
-              v-if="item.image"
+              v-if="item.image && !failedImages.has(item.image)"
               :src="item.image"
               :alt="item.name"
               class="w-full h-full object-cover"
+              @error="failedImages.add(item.image)"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
               <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
@@ -245,8 +279,22 @@ const wishlist = useWishlistStore()
 const recentlyViewed = useRecentlyViewedStore()
 const quantity = ref(1)
 
+const failedImages = reactive(new Set())
+
 const { data, pending } = await useFetch(`/api/products/${route.params.slug}`)
 const product = computed(() => data.value?.product ?? null)
+
+const activeImageIndex = ref(0)
+const galleryImages = computed(() => {
+  if (!product.value) return []
+  const extra = product.value.images ?? []
+  const all = product.value.image ? [product.value.image, ...extra] : extra
+  return [...new Set(all)]
+})
+
+watch(product, () => {
+  activeImageIndex.value = 0
+})
 
 useSeoMeta({
   title: () => product.value?.name ?? 'Product',

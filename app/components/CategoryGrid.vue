@@ -22,10 +22,11 @@
             :style="circleStyle"
           >
             <img
-              v-if="cat.image"
+              v-if="cat.image && !failedImages.has(cat.image)"
               :src="cat.image"
               :alt="cat.name"
               class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              @error="failedImages.add(cat.image)"
             />
             <div v-else class="absolute inset-0 flex items-center justify-center">
               <Icon :name="cat.icon" class="text-3xl text-olive/40 transition-transform duration-300 group-hover:scale-125" />
@@ -54,6 +55,7 @@ const categories = [
 ]
 
 const isDesktop = ref(false);
+const failedImages = reactive(new Set());
 
 function updateIsDesktop() {
   isDesktop.value = window.innerWidth >= 768;

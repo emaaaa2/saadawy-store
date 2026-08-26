@@ -44,10 +44,11 @@
                   class="w-16 h-16 rounded-lg bg-champagne shrink-0 flex items-center justify-center overflow-hidden"
                 >
                   <img
-                    v-if="item.image"
+                    v-if="item.image && !failedImages.has(item.image)"
                     :src="item.image"
                     :alt="item.name"
                     class="w-full h-full object-cover"
+                    @error="failedImages.add(item.image)"
                   />
                   <Icon
                     v-else
@@ -118,6 +119,7 @@
 <script setup>
 const cartUI = useCartUIStore();
 const cart = useCartStore();
+const failedImages = reactive(new Set());
 </script>
 
 <style scoped>

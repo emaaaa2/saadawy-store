@@ -67,10 +67,11 @@
       >
         <div class="relative aspect-square bg-champagne overflow-hidden">
           <img
-            v-if="product.image"
+            v-if="product.image && !failedImages.has(product.image)"
             :src="product.image"
             :alt="product.name"
             class="w-full h-full object-cover"
+            @error="failedImages.add(product.image)"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
             <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
@@ -158,6 +159,7 @@ const route = useRoute()
 const quickView = useQuickViewStore()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
+const failedImages = reactive(new Set())
 
 const categoryName = computed(() => {
   return route.params.slug.replace(/-/g, ' ')
