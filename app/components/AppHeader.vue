@@ -149,10 +149,11 @@
                   class="w-14 h-14 bg-champagne shrink-0 flex items-center justify-center overflow-hidden"
                 >
                   <img
-                    v-if="product.image"
+                    v-if="product.image && !failedSearchImages.has(product.image)"
                     :src="product.image"
                     :alt="product.name"
                     class="w-full h-full object-cover"
+                    @error="failedSearchImages.add(product.image)"
                   />
                   <Icon
                     v-else
@@ -312,6 +313,7 @@ const wishlist = useWishlistStore();
 const searchQuery = ref("");
 const searchResults = ref([]);
 const searchPending = ref(false);
+const failedSearchImages = reactive(new Set());
 const searchOpen = ref(false);
 const searchInputEl = ref(null);
 let debounceTimer = null;

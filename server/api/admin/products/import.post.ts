@@ -1,12 +1,13 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 import Papa from 'papaparse'
 
-function toSlug(name: string) {
-  return name
+function toSlug(sku: string, name: string) {
+  const namePart = name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[/?#%"'\\]/g, '')
     .replace(/\s+/g, '-')
+  return `${sku}-${namePart}`
 }
 
 export default defineEventHandler(async (event) => {
@@ -22,11 +23,30 @@ export default defineEventHandler(async (event) => {
 
   const parsed = Papa.parse(body.csv, { header: true, skipEmptyLines: true })
 
+  const skusInFile: string[] = parsed.data
+    .map((raw: any) => raw?.sku && String(raw.sku).trim())
+    .filter(Boolean)
+
+  const existingImages = new Map<string, string>()
+  const chunkSize = 200
+  for (let i = 0; i < skusInFile.length; i += chunkSize) {
+    const chunk = skusInFile.slice(i, i + chunkSize)
+    const { data } = await client.from('products').select('sku, image').in('sku', chunk)
+    for (const p of data ?? []) {
+      if (p.image) existingImages.set(p.sku, p.image)
+    }
+  }
+
   const errors: { row: number; message: string }[] = []
   const rows = []
 
   parsed.data.forEach((raw: any, index: number) => {
     const rowNumber = index + 2 // +1 for 0-index, +1 for header row
+
+    if (!raw || typeof raw !== 'object') {
+      errors.push({ row: rowNumber, message: 'Malformed row' })
+      return
+    }
 
     if (!raw.sku || !String(raw.sku).trim()) {
       errors.push({ row: rowNumber, message: 'Missing SKU' })
@@ -37,6 +57,8 @@ export default defineEventHandler(async (event) => {
       errors.push({ row: rowNumber, message: `SKU ${raw.sku}: missing name` })
       return
     }
+
+    const name = String(raw.name).trim()
 
     const price = Number(raw.price)
     if (!Number.isFinite(price) || price <= 0) {
@@ -58,14 +80,14 @@ export default defineEventHandler(async (event) => {
 
     rows.push({
       sku: String(raw.sku).trim(),
-      name: raw.name,
-      slug: toSlug(raw.name),
+      name,
+      slug: toSlug(String(raw.sku).trim(), name),
       description: raw.description || null,
       price,
       sale_price: salePrice,
       category: raw.category || 'uncategorized',
       badge: raw.badge || null,
-      image: raw.image || null,
+      image: raw.image || existingImages.get(String(raw.sku).trim()) || null,
       stock,
       brand: raw.brand || null,
       usage_info: raw.usage_info || null
@@ -83,7 +105,8 @@ export default defineEventHandler(async (event) => {
       .upsert(batch, { onConflict: 'sku' })
 
     if (error) {
-      throw createError({ statusCode: 500, statusMessage: error.message })
+      errors.push({ row: i + 2, message: `Rows ${i + 2}-${i + batch.length + 1}: ${error.message}` })
+      continue
     }
 
     upserted += batch.length

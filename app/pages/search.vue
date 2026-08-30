@@ -25,14 +25,15 @@
         v-for="product in products"
         :key="product.id"
         :to="`/product/${product.slug}`"
-        class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
+        class="group block"
       >
         <div class="relative aspect-square bg-champagne overflow-hidden">
           <img
-            v-if="product.image"
+            v-if="product.image && !failedImages.has(product.image)"
             :src="product.image"
             :alt="product.name"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+            @error="failedImages.add(product.image)"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
             <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
@@ -50,12 +51,18 @@
             />
           </button>
 
-          <button
-            class="absolute inset-x-2 bottom-2 bg-olive/90 text-beige text-xs font-semibold py-2 rounded-full opacity-0 group-hover:opacity-100 transition"
-            @click.stop.prevent="quickView.open(product)"
+          <div
+            class="absolute inset-x-0 bottom-0 flex justify-center pb-3 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
           >
-            Quick View
-          </button>
+            <button
+              class="flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-full bg-white/95 text-olive hover:bg-gold hover:text-beige transition shadow-md"
+              aria-label="Quick view"
+              @click.stop.prevent="quickView.open(product)"
+            >
+              <Icon name="mdi:eye-outline" class="text-sm" />
+              Quick View
+            </button>
+          </div>
         </div>
 
         <div class="p-3">
@@ -119,4 +126,5 @@ const { data, pending } = await useFetch('/api/products', {
 const products = computed(() => data.value?.products ?? [])
 const total = computed(() => data.value?.total ?? 0)
 const totalPages = computed(() => data.value?.totalPages ?? 1)
+const failedImages = reactive(new Set())
 </script>

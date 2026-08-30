@@ -183,14 +183,14 @@
           v-for="related in relatedProducts"
           :key="related.id"
           :to="`/product/${related.slug}`"
-          class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
+          class="group block"
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
             <img
               v-if="related.image && !failedImages.has(related.image)"
               :src="related.image"
               :alt="related.name"
-              class="w-full h-full object-cover"
+              class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
               @error="failedImages.add(related.image)"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
@@ -243,14 +243,14 @@
           v-for="item in recentItems"
           :key="item.id"
           :to="`/product/${item.slug}`"
-          class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition block"
+          class="group block"
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
             <img
               v-if="item.image && !failedImages.has(item.image)"
               :src="item.image"
               :alt="item.name"
-              class="w-full h-full object-cover"
+              class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
               @error="failedImages.add(item.image)"
             />
             <div v-else class="w-full h-full flex items-center justify-center">

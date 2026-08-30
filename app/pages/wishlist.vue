@@ -12,14 +12,14 @@
       <div
         v-for="product in wishlist.items"
         :key="product.id"
-        class="group bg-white rounded-2xl overflow-hidden border border-olive/10 hover:shadow-lg transition"
+        class="group"
       >
         <div class="relative aspect-square bg-champagne overflow-hidden">
           <img
             v-if="product.image && !failedImages.has(product.image)"
             :src="product.image"
             :alt="product.name"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
             @error="failedImages.add(product.image)"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
