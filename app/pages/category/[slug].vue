@@ -27,6 +27,22 @@
           </button>
         </div>
 
+        <div
+          v-if="subcategoryOptions.length"
+          class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 shrink-0"
+        >
+          <Icon name="mdi:tag-outline" class="text-olive/40 text-lg shrink-0" />
+          <select
+            v-model="subcategory"
+            class="bg-transparent text-olive outline-none text-sm cursor-pointer"
+          >
+            <option value="">All Types</option>
+            <option v-for="opt in subcategoryOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
         <div class="flex items-center bg-white border border-olive/15 rounded-full px-4 py-2.5 gap-2 shrink-0">
           <Icon name="mdi:sort" class="text-olive/40 text-lg shrink-0" />
           <select
@@ -181,26 +197,34 @@ useSeoMeta({
 const currentPage = ref(1)
 const searchQuery = ref('')
 const sortBy = ref('newest')
+const subcategory = ref(typeof route.query.subcategory === 'string' ? route.query.subcategory : '')
 const categorySlug = computed(() => route.params.slug)
+const subcategoryOptions = computed(() => categorySubcategories[categorySlug.value] ?? [])
 
 watch(categorySlug, () => {
   currentPage.value = 1
   searchQuery.value = ''
+  subcategory.value = typeof route.query.subcategory === 'string' ? route.query.subcategory : ''
 })
 
-watch([searchQuery, sortBy], () => {
+watch(() => route.query.subcategory, (val) => {
+  subcategory.value = typeof val === 'string' ? val : ''
+})
+
+watch([searchQuery, sortBy, subcategory], () => {
   currentPage.value = 1
 })
 
 const { data, pending } = await useFetch('/api/products', {
   query: {
     category: categorySlug,
+    subcategory,
     search: searchQuery,
     sort: sortBy,
     page: currentPage,
     limit: 24
   },
-  watch: [currentPage, searchQuery, sortBy, categorySlug]
+  watch: [currentPage, searchQuery, sortBy, subcategory, categorySlug]
 })
 
 const products = computed(() => data.value?.products ?? [])

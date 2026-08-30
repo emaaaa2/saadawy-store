@@ -186,30 +186,27 @@
     </Transition>
 
     <nav
-      class="hidden lg:flex items-center justify-center gap-20 text-olive font-semibold text-lg px-1 py-4"
+      class="hidden lg:flex items-center justify-between flex-wrap gap-y-2 text-olive font-semibold text-base max-w-6xl mx-auto px-6 py-4"
     >
       <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
-      <NuxtLink to="/category/skincare" class="hover:text-gold transition"
-        >Skincare</NuxtLink
-      >
-      <NuxtLink to="/category/perfume" class="hover:text-gold transition"
-        >Perfume</NuxtLink
-      >
-      <NuxtLink to="/category/makeup" class="hover:text-gold transition"
-        >Makeup</NuxtLink
-      >
-      <NuxtLink to="/category/haircare" class="hover:text-gold transition"
-        >Haircare</NuxtLink
-      >
-      <NuxtLink to="/category/bags" class="hover:text-gold transition"
-        >Bags</NuxtLink
-      >
-      <NuxtLink to="/category/kitchen" class="hover:text-gold transition"
-        >Kitchen</NuxtLink
-      >
-      <NuxtLink to="/category/hijab" class="hover:text-gold transition"
-        >Hijab & Essentials</NuxtLink
-      >
+      <div v-for="cat in navCategories" :key="cat.slug" class="relative group">
+        <NuxtLink :to="`/category/${cat.slug}`" class="hover:text-gold transition">{{
+          cat.label
+        }}</NuxtLink>
+        <div
+          class="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-200 z-50"
+        >
+          <div class="bg-white border border-olive/10 rounded-xl shadow-lg py-2 min-w-[180px] text-sm font-normal">
+            <NuxtLink
+              v-for="sub in cat.subcategories"
+              :key="sub.value"
+              :to="`/category/${cat.slug}?subcategory=${sub.value}`"
+              class="block px-4 py-2 text-olive hover:bg-beige/50 hover:text-gold transition"
+              >{{ sub.label }}</NuxtLink
+            >
+          </div>
+        </div>
+      </div>
     </nav>
 
     <div
@@ -278,6 +275,12 @@
           @click="isMenuOpen = false"
           >Hijab & Essentials</NuxtLink
         >
+        <NuxtLink
+          to="/category/accessories"
+          class="hover:text-gold transition"
+          @click="isMenuOpen = false"
+          >Accessories</NuxtLink
+        >
       </nav>
 
       <div class="flex items-center gap-6 pt-4 mt-4 border-t border-olive/10">
@@ -317,6 +320,23 @@ const failedSearchImages = reactive(new Set());
 const searchOpen = ref(false);
 const searchInputEl = ref(null);
 let debounceTimer = null;
+
+const navCategoryLabels = {
+  skincare: "Skincare",
+  perfume: "Perfume",
+  makeup: "Makeup",
+  haircare: "Haircare",
+  bags: "Bags",
+  kitchen: "Kitchen",
+  hijab: "Hijab & Essentials",
+  accessories: "Accessories",
+};
+
+const navCategories = Object.entries(navCategoryLabels).map(([slug, label]) => ({
+  slug,
+  label,
+  subcategories: categorySubcategories[slug] ?? [],
+}));
 
 watch(searchQuery, (newValue) => {
   clearTimeout(debounceTimer);

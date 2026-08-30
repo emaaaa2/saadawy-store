@@ -86,6 +86,7 @@ export default defineEventHandler(async (event) => {
       price,
       sale_price: salePrice,
       category: raw.category || 'uncategorized',
+      subcategory: raw.subcategory || null,
       badge: raw.badge || null,
       image: raw.image || existingImages.get(String(raw.sku).trim()) || null,
       stock,

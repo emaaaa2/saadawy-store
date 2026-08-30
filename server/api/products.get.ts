@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
   const page = Number(query.page) || 1
   const limit = Math.min(Number(query.limit) || 24, 100)
   const category = query.category as string | undefined
+  const subcategory = query.subcategory as string | undefined
   const search = query.search as string | undefined
   const sort = query.sort as string | undefined
 
@@ -30,6 +31,10 @@ export default defineEventHandler(async (event) => {
 
   if (category) {
     dbQuery = dbQuery.eq('category', category)
+  }
+
+  if (subcategory) {
+    dbQuery = dbQuery.eq('subcategory', subcategory)
   }
 
   if (search) {
