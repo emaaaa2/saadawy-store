@@ -1,4 +1,4 @@
-import { serverSupabaseClient } from '#supabase/server'
+import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const client = await serverSupabaseClient(event)
@@ -50,8 +50,36 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  const productIds = (data ?? []).map((p) => p.id)
+  let products = data
+
+  if (productIds.length > 0) {
+    const serviceClient = serverSupabaseServiceRole(event)
+    const { data: reviews } = await serviceClient
+      .from('reviews')
+      .select('product_id, rating')
+      .eq('approved', true)
+      .in('product_id', productIds)
+
+    const ratingsByProduct = new Map<string, number[]>()
+    for (const r of reviews ?? []) {
+      if (!r.product_id) continue
+      if (!ratingsByProduct.has(r.product_id)) ratingsByProduct.set(r.product_id, [])
+      ratingsByProduct.get(r.product_id)!.push(r.rating)
+    }
+
+    products = (data ?? []).map((p) => {
+      const ratings = ratingsByProduct.get(p.id)
+      return {
+        ...p,
+        rating: ratings ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null,
+        reviewCount: ratings ? ratings.length : 0
+      }
+    })
+  }
+
   return {
-    products: data,
+    products,
     total: count,
     page,
     totalPages: Math.ceil((count ?? 0) / limit)

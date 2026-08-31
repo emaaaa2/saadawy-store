@@ -66,7 +66,32 @@ export default defineEventHandler(async (event) => {
 
   const total = ranked.length
   const from = (page - 1) * limit
-  const paged = ranked.slice(from, from + limit)
+  let paged = ranked.slice(from, from + limit)
+
+  const productIds = paged.map((p) => p.id)
+  if (productIds.length > 0) {
+    const { data: reviews } = await serviceClient
+      .from('reviews')
+      .select('product_id, rating')
+      .eq('approved', true)
+      .in('product_id', productIds)
+
+    const ratingsByProduct = new Map()
+    for (const r of reviews ?? []) {
+      if (!r.product_id) continue
+      if (!ratingsByProduct.has(r.product_id)) ratingsByProduct.set(r.product_id, [])
+      ratingsByProduct.get(r.product_id).push(r.rating)
+    }
+
+    paged = paged.map((p) => {
+      const ratings = ratingsByProduct.get(p.id)
+      return {
+        ...p,
+        rating: ratings ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null,
+        reviewCount: ratings ? ratings.length : 0
+      }
+    })
+  }
 
   return {
     products: paged,

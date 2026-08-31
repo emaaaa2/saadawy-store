@@ -116,6 +116,16 @@
           <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
             {{ product.name }}
           </p>
+          <div v-if="product.reviewCount" class="flex items-center gap-1 mb-1">
+            <Icon
+              v-for="star in 5"
+              :key="star"
+              name="mdi:star"
+              class="text-xs"
+              :class="star <= Math.round(product.rating) ? 'text-gold' : 'text-olive/15'"
+            />
+            <span class="text-xs text-taupe">({{ product.reviewCount }})</span>
+          </div>
           <div class="flex items-center justify-between">
             <div>
               <span v-if="product.sale_price" class="text-xs text-taupe line-through mr-1">
