@@ -126,6 +126,16 @@ const slides = [
       "Everything you need to complete your look, from everyday basics to bold statement pieces.",
     ctaLink: "/category/makeup",
   },
+  {
+    image: "/images/hero.png",
+    alt: "Free shipping offer",
+    badge: "On us",
+    title: "Free Shipping",
+    titleGold: `On Orders Over EGP ${FREE_SHIPPING_THRESHOLD}`,
+    description:
+      "Shop your favorites and get them delivered to your door, free of charge, on qualifying orders.",
+    ctaLink: "/",
+  },
 ];
 
 const activeIndex = ref(0);

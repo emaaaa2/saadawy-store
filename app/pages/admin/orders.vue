@@ -93,7 +93,8 @@
 </p>
         </div>
         <p class="text-xs font-semibold text-olive/60 uppercase tracking-wide mb-1">Address</p>
-        <p class="text-sm text-olive/80">{{ order.address }}</p>
+        <p class="text-sm text-olive/80 mb-2">{{ order.governorate ? `${order.governorate} — ` : '' }}{{ order.address }}</p>
+        <p class="text-xs text-olive/60">Shipping: {{ order.shipping_fee ? `EGP ${order.shipping_fee}` : 'Free' }}</p>
       </td>
     </tr>
   </template>

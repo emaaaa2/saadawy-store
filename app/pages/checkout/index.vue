@@ -60,6 +60,11 @@
           <span>Discount</span>
           <span>- EGP {{ appliedCoupon.discount }}</span>
         </div>
+        <div v-if="form.governorate" class="flex justify-between pt-3 text-sm text-olive/70">
+          <span>Shipping</span>
+          <span>{{ shippingFee === 0 ? 'Free' : `EGP ${shippingFee}` }}</span>
+        </div>
+        <p v-else class="text-xs text-taupe pt-3">Select a governorate to see shipping cost</p>
         <div class="flex justify-between pt-3 font-bold text-olive">
           <span>Total</span>
           <span>EGP {{ finalTotal }}</span>
@@ -88,6 +93,19 @@
             required
             class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
           />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-olive mb-1"
+            >Governorate</label
+          >
+          <select
+            v-model="form.governorate"
+            required
+            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-white"
+          >
+            <option value="" disabled>Select your governorate</option>
+            <option v-for="g in governorates" :key="g.value" :value="g.value">{{ g.label }}</option>
+          </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-olive mb-1"
@@ -168,6 +186,7 @@ const isSubmitting = ref(false);
 const form = ref({
   customerName: "",
   phone: "",
+  governorate: "",
   address: "",
   paymentMethod: "",
 });
@@ -177,10 +196,15 @@ const appliedCoupon = ref(null);
 const couponError = ref("");
 const isApplyingCoupon = ref(false);
 
+const shippingFee = computed(() => {
+  return estimateShipping(form.value.governorate, cart.subtotal) ?? 0;
+});
+
 const finalTotal = computed(() => {
-  return appliedCoupon.value
+  const afterDiscount = appliedCoupon.value
     ? Math.max(0, cart.subtotal - appliedCoupon.value.discount)
     : cart.subtotal;
+  return afterDiscount + shippingFee.value;
 });
 
 async function handleApplyCoupon() {
@@ -215,6 +239,7 @@ async function handleSubmit() {
       body: {
         customerName: form.value.customerName,
         phone: form.value.phone,
+        governorate: form.value.governorate,
         address: form.value.address,
         paymentMethod: form.value.paymentMethod,
         items: cart.items,

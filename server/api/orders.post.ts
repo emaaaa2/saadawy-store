@@ -71,7 +71,14 @@ export default defineEventHandler(async (event) => {
     couponRow = coupon
   }
 
-  const total = Math.max(0, subtotal - discount)
+  const governorate = typeof body.governorate === 'string' ? body.governorate.trim() : ''
+  if (!governorate) {
+    throw createError({ statusCode: 400, statusMessage: 'Governorate is required' })
+  }
+
+  const afterDiscount = Math.max(0, subtotal - discount)
+  const shippingFee = calculateShipping(governorate, afterDiscount)
+  const total = afterDiscount + shippingFee
 
   const reserved = []
 
@@ -105,11 +112,13 @@ export default defineEventHandler(async (event) => {
       order_number: orderNumber,
       customer_name: body.customerName,
       phone: body.phone,
+      governorate,
       address: body.address,
       payment_method: body.paymentMethod,
       items: verifiedItems,
       total,
       discount,
+      shipping_fee: shippingFee,
       coupon_code: couponCode,
       status
     })
