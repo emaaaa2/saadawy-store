@@ -101,6 +101,16 @@
           <Icon name="mdi:ticket-percent-outline" class="text-lg" />
           Coupons
         </NuxtLink>
+
+        <NuxtLink
+          to="/admin/shipping"
+          class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition"
+          :class="route.path === '/admin/shipping' ? 'bg-gold text-olive' : 'text-beige/80 hover:bg-beige/10'"
+          @click="isOpen = false"
+        >
+          <Icon name="mdi:truck-outline" class="text-lg" />
+          Shipping
+        </NuxtLink>
       </nav>
 
       <NuxtLink

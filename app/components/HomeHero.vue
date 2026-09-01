@@ -85,6 +85,9 @@
 </template>
 
 <script setup>
+const { data: shippingSettings } = await useFetch('/api/shipping-settings')
+const freeShippingThreshold = shippingSettings.value?.free_shipping_threshold ?? DEFAULT_SHIPPING_SETTINGS.free_shipping_threshold
+
 const slides = [
   {
     image: "/images/pic.jpg",
@@ -131,7 +134,7 @@ const slides = [
     alt: "Free shipping offer",
     badge: "On us",
     title: "Free Shipping",
-    titleGold: `On Orders Over EGP ${FREE_SHIPPING_THRESHOLD}`,
+    titleGold: `On Orders Over EGP ${freeShippingThreshold}`,
     description:
       "Shop your favorites and get them delivered to your door, free of charge, on qualifying orders.",
     ctaLink: "/",

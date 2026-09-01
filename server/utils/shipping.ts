@@ -1,5 +1,3 @@
-export const FREE_SHIPPING_THRESHOLD = 500
-
 export const GOVERNORATE_TIERS: Record<string, 1 | 2 | 3> = {
   'Cairo': 1,
   'Giza': 1,
@@ -30,14 +28,23 @@ export const GOVERNORATE_TIERS: Record<string, 1 | 2 | 3> = {
   'South Sinai': 3
 }
 
-const TIER_FEES: Record<1 | 2 | 3, number> = {
-  1: 50,
-  2: 70,
-  3: 100
+export interface ShippingSettings {
+  tier1_fee: number
+  tier2_fee: number
+  tier3_fee: number
+  free_shipping_threshold: number
 }
 
-export function calculateShipping(governorate: string, subtotal: number): number {
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0
+export const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
+  tier1_fee: 50,
+  tier2_fee: 70,
+  tier3_fee: 100,
+  free_shipping_threshold: 500
+}
+
+export function calculateShipping(governorate: string, subtotal: number, settings: ShippingSettings): number {
+  if (subtotal >= settings.free_shipping_threshold) return 0
   const tier = GOVERNORATE_TIERS[governorate] ?? 3
-  return TIER_FEES[tier]
+  const fees = { 1: settings.tier1_fee, 2: settings.tier2_fee, 3: settings.tier3_fee }
+  return fees[tier]
 }

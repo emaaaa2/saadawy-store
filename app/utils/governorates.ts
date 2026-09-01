@@ -28,8 +28,6 @@ export const governorates = [
   { value: 'South Sinai', label: 'جنوب سيناء' },
 ]
 
-const TIER_FEES = { 1: 50, 2: 70, 3: 100 }
-
 const GOVERNORATE_TIERS = {
   Cairo: 1, Giza: 1, Qalyubia: 1,
   Alexandria: 2, Dakahlia: 2, Sharqia: 2, Monufia: 2, Gharbia: 2, Beheira: 2,
@@ -38,11 +36,18 @@ const GOVERNORATE_TIERS = {
   Aswan: 3, 'Red Sea': 3, 'New Valley': 3, Matrouh: 3, 'North Sinai': 3, 'South Sinai': 3,
 }
 
-export const FREE_SHIPPING_THRESHOLD = 500
+export const DEFAULT_SHIPPING_SETTINGS = {
+  tier1_fee: 50,
+  tier2_fee: 70,
+  tier3_fee: 100,
+  free_shipping_threshold: 500,
+}
 
-export function estimateShipping(governorate, subtotal) {
+// settings: { tier1_fee, tier2_fee, tier3_fee, free_shipping_threshold }
+export function estimateShipping(governorate, subtotal, settings = DEFAULT_SHIPPING_SETTINGS) {
   if (!governorate) return null
-  if (subtotal >= FREE_SHIPPING_THRESHOLD) return 0
+  if (subtotal >= settings.free_shipping_threshold) return 0
   const tier = GOVERNORATE_TIERS[governorate] ?? 3
-  return TIER_FEES[tier]
+  const fees = { 1: settings.tier1_fee, 2: settings.tier2_fee, 3: settings.tier3_fee }
+  return fees[tier]
 }

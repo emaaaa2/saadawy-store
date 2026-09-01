@@ -76,8 +76,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Governorate is required' })
   }
 
+  const { data: shippingSettings } = await serviceClient
+    .from('shipping_settings')
+    .select('tier1_fee, tier2_fee, tier3_fee, free_shipping_threshold')
+    .eq('id', 1)
+    .single()
+
   const afterDiscount = Math.max(0, subtotal - discount)
-  const shippingFee = calculateShipping(governorate, afterDiscount)
+  const shippingFee = calculateShipping(governorate, afterDiscount, shippingSettings ?? DEFAULT_SHIPPING_SETTINGS)
   const total = afterDiscount + shippingFee
 
   const reserved = []

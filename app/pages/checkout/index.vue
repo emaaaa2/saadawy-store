@@ -183,6 +183,8 @@
 const cart = useCartStore();
 const isSubmitting = ref(false);
 
+const { data: shippingSettings } = await useFetch('/api/shipping-settings');
+
 const form = ref({
   customerName: "",
   phone: "",
@@ -196,15 +198,18 @@ const appliedCoupon = ref(null);
 const couponError = ref("");
 const isApplyingCoupon = ref(false);
 
+const afterDiscount = computed(() => {
+  return appliedCoupon.value
+    ? Math.max(0, cart.subtotal - appliedCoupon.value.discount)
+    : cart.subtotal;
+});
+
 const shippingFee = computed(() => {
-  return estimateShipping(form.value.governorate, cart.subtotal) ?? 0;
+  return estimateShipping(form.value.governorate, afterDiscount.value, shippingSettings.value) ?? 0;
 });
 
 const finalTotal = computed(() => {
-  const afterDiscount = appliedCoupon.value
-    ? Math.max(0, cart.subtotal - appliedCoupon.value.discount)
-    : cart.subtotal;
-  return afterDiscount + shippingFee.value;
+  return afterDiscount.value + shippingFee.value;
 });
 
 async function handleApplyCoupon() {
