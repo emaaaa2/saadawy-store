@@ -18,10 +18,14 @@
     <div v-else class="grid md:grid-cols-2 gap-phi-3">
       <div>
         <div class="relative aspect-square bg-champagne rounded-2xl overflow-hidden">
-          <img
+          <NuxtImg
             v-if="galleryImages[activeImageIndex] && !failedImages.has(galleryImages[activeImageIndex])"
             :src="galleryImages[activeImageIndex]"
             :alt="product.name"
+            width="600"
+            height="600"
+            sizes="(min-width: 768px) 50vw, 100vw"
+            loading="eager"
             class="w-full h-full object-cover"
             @error="failedImages.add(galleryImages[activeImageIndex])"
           />
@@ -79,7 +83,7 @@
             :class="index === activeImageIndex ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'"
             @click="activeImageIndex = index"
           >
-            <img :src="img" :alt="`${product.name} ${index + 1}`" class="w-full h-full object-cover" />
+            <NuxtImg :src="img" :alt="`${product.name} ${index + 1}`" width="100" height="100" loading="lazy" class="w-full h-full object-cover" />
           </button>
         </div>
       </div>
@@ -186,10 +190,14 @@
           class="group block"
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
-            <img
+            <NuxtImg
               v-if="related.image && !failedImages.has(related.image)"
               :src="related.image"
               :alt="related.name"
+              width="300"
+              height="300"
+              sizes="(min-width: 768px) 25vw, 50vw"
+              loading="lazy"
               class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
               @error="failedImages.add(related.image)"
             />
@@ -256,10 +264,14 @@
           class="group block"
         >
           <div class="relative aspect-square bg-champagne overflow-hidden">
-            <img
+            <NuxtImg
               v-if="item.image && !failedImages.has(item.image)"
               :src="item.image"
               :alt="item.name"
+              width="300"
+              height="300"
+              sizes="(min-width: 768px) 25vw, 50vw"
+              loading="lazy"
               class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
               @error="failedImages.add(item.image)"
             />

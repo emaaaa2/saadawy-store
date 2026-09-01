@@ -21,10 +21,14 @@
         class="snap-start shrink-0 w-[45%] sm:w-[30%] lg:w-[22%] group block"
       >
         <div class="relative aspect-square bg-champagne overflow-hidden">
-          <img
+          <NuxtImg
             v-if="product.image && !failedImages.has(product.image)"
             :src="product.image"
             :alt="product.name"
+            width="300"
+            height="300"
+            sizes="(min-width: 768px) 22vw, 45vw"
+            loading="lazy"
             class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
             @error="failedImages.add(product.image)"
           />

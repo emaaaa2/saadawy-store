@@ -16,6 +16,11 @@ export default defineNuxtConfig({
     siteUrl: process.env.SITE_URL
   }
 },
+  image: {
+    domains: ['ocphzlgprdftniseamiw.supabase.co'],
+    format: ['webp'],
+    quality: 80,
+  },
   supabase: {
     redirectOptions: {
       login: '/login',
