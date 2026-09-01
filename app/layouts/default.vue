@@ -11,5 +11,6 @@
     <ProductQuickView />
     <CartSidebar />
     <AppToast />
+    <WelcomeOfferPopup />
   </div>
 </template>

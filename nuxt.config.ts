@@ -17,6 +17,10 @@ export default defineNuxtConfig({
   }
 },
   image: {
+    // Local dev's sharp/ipx pipeline can be flaky depending on machine setup.
+    // Skip image processing in dev (serves originals as-is); full optimization
+    // still runs in production.
+    provider: process.env.NODE_ENV === 'production' ? 'ipx' : 'none',
     domains: ['ocphzlgprdftniseamiw.supabase.co'],
     format: ['webp'],
     quality: 80,
