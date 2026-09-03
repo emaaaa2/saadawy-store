@@ -130,6 +130,9 @@
             />
             <span class="text-xs text-taupe">({{ product.reviewCount }})</span>
           </div>
+          <p v-if="product.stock > 0 && product.stock < 3" class="text-xs font-semibold text-red-500 mb-1">
+            Only {{ product.stock }} left!
+          </p>
           <div class="flex items-center justify-between">
             <div>
               <span v-if="product.sale_price" class="text-xs text-taupe line-through mr-1">

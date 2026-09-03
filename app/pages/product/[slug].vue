@@ -15,7 +15,18 @@
       <NuxtLink to="/" class="text-gold hover:underline text-sm">Back to homepage</NuxtLink>
     </div>
 
-    <div v-else class="grid md:grid-cols-2 gap-phi-3">
+    <div v-else>
+      <nav class="flex items-center flex-wrap gap-1.5 text-sm text-taupe mb-4">
+        <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
+        <Icon name="mdi:chevron-right" class="text-base shrink-0" />
+        <NuxtLink :to="`/category/${product.category}`" class="capitalize hover:text-gold transition">
+          {{ product.category }}
+        </NuxtLink>
+        <Icon name="mdi:chevron-right" class="text-base shrink-0" />
+        <span class="text-olive truncate max-w-[200px] sm:max-w-none">{{ product.name }}</span>
+      </nav>
+
+      <div class="grid md:grid-cols-2 gap-phi-3">
       <div>
         <div class="relative aspect-square bg-champagne rounded-2xl overflow-hidden">
           <NuxtImg
@@ -148,6 +159,9 @@
           <span class="text-sm" :class="product.stock > 0 ? 'text-sage' : 'text-red-400'">
             {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
           </span>
+          <span v-if="product.stock > 0 && product.stock < 3" class="text-sm font-semibold text-red-500">
+            — Only {{ product.stock }} left!
+          </span>
         </div>
 
         <div class="flex items-center gap-3">
@@ -176,6 +190,7 @@
             Add to Cart
           </button>
         </div>
+      </div>
       </div>
     </div>
 
