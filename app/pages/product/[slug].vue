@@ -394,4 +394,49 @@ const recentItems = computed(() => {
 watch(product, (value) => {
   if (value) recentlyViewed.track(value)
 }, { immediate: true })
+
+const config = useRuntimeConfig()
+const siteUrl = config.public.siteUrl || 'https://saadawystore.com'
+
+useHead(() => {
+  if (!product.value) return {}
+
+  const p = product.value
+  const price = p.sale_price ?? p.price
+  const image = p.image ? (p.image.startsWith('http') ? p.image : `${siteUrl}${p.image}`) : `${siteUrl}/images/pic.jpg`
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: p.name,
+    image,
+    description: p.description || p.name,
+    sku: p.sku,
+    brand: p.brand ? { '@type': 'Brand', name: p.brand } : undefined,
+    offers: {
+      '@type': 'Offer',
+      url: `${siteUrl}/product/${p.slug}`,
+      priceCurrency: 'EGP',
+      price,
+      availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
+    }
+  }
+
+  if (reviewCount.value > 0) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: averageRating.value.toFixed(1),
+      reviewCount: reviewCount.value
+    }
+  }
+
+  return {
+    script: [
+      {
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(schema)
+      }
+    ]
+  }
+})
 </script>
