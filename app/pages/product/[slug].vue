@@ -33,8 +33,8 @@
             v-if="galleryImages[activeImageIndex] && !failedImages.has(galleryImages[activeImageIndex])"
             :src="galleryImages[activeImageIndex]"
             :alt="product.name"
-            width="600"
-            height="600"
+            :width="600"
+            :height="600"
             sizes="(min-width: 768px) 50vw, 100vw"
             loading="eager"
             class="w-full h-full object-cover"
@@ -94,7 +94,7 @@
             :class="index === activeImageIndex ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'"
             @click="activeImageIndex = index"
           >
-            <NuxtImg :src="img" :alt="`${product.name} ${index + 1}`" width="100" height="100" loading="lazy" class="w-full h-full object-cover" />
+            <NuxtImg :src="img" :alt="`${product.name} ${index + 1}`" :width="100" :height="100" loading="lazy" class="w-full h-full object-cover" />
           </button>
         </div>
       </div>
@@ -209,8 +209,8 @@
               v-if="related.image && !failedImages.has(related.image)"
               :src="related.image"
               :alt="related.name"
-              width="300"
-              height="300"
+              :width="300"
+              :height="300"
               sizes="(min-width: 768px) 25vw, 50vw"
               loading="lazy"
               class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
@@ -283,8 +283,8 @@
               v-if="item.image && !failedImages.has(item.image)"
               :src="item.image"
               :alt="item.name"
-              width="300"
-              height="300"
+              :width="300"
+              :height="300"
               sizes="(min-width: 768px) 25vw, 50vw"
               loading="lazy"
               class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
