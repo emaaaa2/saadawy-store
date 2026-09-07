@@ -21,7 +21,6 @@
             :alt="product.name"
             :width="400"
             :height="400"
-            sizes="(min-width: 768px) 25vw, 50vw"
             loading="lazy"
             class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
             @error="failedImages.add(product.image)"
