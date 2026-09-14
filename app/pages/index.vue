@@ -2,6 +2,9 @@
   <div>
     <HomeHero />
     <div v-fade-in>
+      <QuizBanner />
+    </div>
+    <div v-fade-in>
       <CategoryGrid />
     </div>
     <div v-fade-in>

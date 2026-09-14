@@ -189,6 +189,7 @@
       class="hidden lg:flex items-center justify-between flex-wrap gap-y-2 text-olive font-semibold text-base max-w-6xl mx-auto px-6 py-4"
     >
       <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
+      <NuxtLink to="/quiz" class="hover:text-gold transition">Beauty Quiz</NuxtLink>
       <div v-for="cat in navCategories" :key="cat.slug" class="relative group">
         <NuxtLink :to="`/category/${cat.slug}`" class="hover:text-gold transition">{{
           cat.label
@@ -232,6 +233,12 @@
           class="hover:text-gold transition"
           @click="isMenuOpen = false"
           >Home</NuxtLink
+        >
+        <NuxtLink
+          to="/quiz"
+          class="hover:text-gold transition"
+          @click="isMenuOpen = false"
+          >Beauty Quiz</NuxtLink
         >
         <NuxtLink
           to="/category/skincare"
