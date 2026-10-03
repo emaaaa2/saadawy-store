@@ -90,7 +90,7 @@
         class="border-b border-olive/10 pb-4 last:border-0"
       >
         <div class="flex items-center justify-between mb-1">
-          <p class="font-semibold text-olive text-sm">{{ review.customer_name }}</p>
+          <p dir="auto" class="font-semibold text-olive text-sm">{{ review.customer_name }}</p>
           <div class="flex gap-0.5">
             <Icon
               v-for="star in 5"
@@ -102,7 +102,7 @@
           </div>
         </div>
         <p v-if="review.location" class="text-xs text-taupe mb-2">{{ review.location }}</p>
-        <p class="text-sm text-olive/80 leading-relaxed">{{ review.comment }}</p>
+        <p dir="auto" class="text-sm text-olive/80 leading-relaxed">{{ review.comment }}</p>
       </div>
     </div>
   </div>

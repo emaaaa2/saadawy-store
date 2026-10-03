@@ -1,13 +1,13 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'reviews')
 
   const client = serverSupabaseServiceRole(event)
 
   const { data, error } = await client
     .from('reviews')
-    .select('*')
+    .select('*, product:products(id, name, slug)')
     .order('created_at', { ascending: false })
 
   if (error) {

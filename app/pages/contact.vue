@@ -8,9 +8,9 @@
       Have a question about a product or your order? We're here to help.
     </p>
 
-    <div class="grid sm:grid-cols-2 gap-phi-2">
+    <div class="grid gap-phi-2" :class="{ 'sm:grid-cols-2': settings.instagramUrl }">
       <a
-        href="https://wa.me/201026051881"
+        :href="`https://wa.me/${toWhatsAppNumber(settings.whatsappSupport)}`"
         target="_blank"
         rel="noopener noreferrer"
         class="flex flex-col items-center gap-3 bg-beige border border-olive/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
@@ -21,8 +21,9 @@
           <p class="text-sm text-taupe">Fastest way to reach us</p>
         </div>
       </a>
-<a    
-        href="https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn"
+      <a
+        v-if="settings.instagramUrl"
+        :href="settings.instagramUrl"
         target="_blank"
         rel="noopener noreferrer"
         class="flex flex-col items-center gap-3 bg-beige border border-olive/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
@@ -36,16 +37,23 @@
     </div>
 
     <div class="mt-phi-3 pt-phi-3 border-t border-olive/10">
-      <div class="flex items-start gap-3 justify-center mb-3">
+      <div v-if="settings.address" class="flex items-start gap-3 justify-center mb-3">
         <Icon name="mdi:map-marker-outline" class="text-xl text-gold shrink-0 mt-0.5" />
-        <p class="text-olive/80 text-left">
-          برج الحرميين، بجوار مستشفى وادي الطب، الشارع الجديد، بهتيم، قسم ثان شبرا الخيمة، محافظة القليوبية
-        </p>
+        <p class="text-olive/80 text-left">{{ settings.address }}</p>
       </div>
-      <div class="flex items-center gap-3 justify-center">
+      <div v-if="settings.openingHours" class="flex items-center gap-3 justify-center">
         <Icon name="mdi:clock-outline" class="text-xl text-gold" />
-        <p class="text-olive/80">Open daily: 10:00 AM – 2:00 AM</p>
+        <p class="text-olive/80">{{ settings.openingHours }}</p>
       </div>
     </div>
   </div>
 </template>
+
+<script setup>
+const settings = useStoreSettings()
+
+useSeoMeta({
+  title: 'Contact Us',
+  description: 'Reach Saadawy Store on WhatsApp or Instagram, or visit our store in Shubra El-Kheima.'
+})
+</script>

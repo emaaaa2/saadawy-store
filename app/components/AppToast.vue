@@ -3,10 +3,28 @@
     <transition name="slide-up">
       <div
         v-if="toast.isVisible"
-        class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[150] bg-olive text-beige px-5 py-3 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium"
+        role="status"
+        class="fixed left-1/2 -translate-x-1/2 z-[150] w-max max-w-[calc(100vw-2rem)] sm:max-w-md text-beige pl-4 py-2.5 rounded-2xl shadow-lg flex items-center gap-2.5 text-sm font-medium transition-[bottom] duration-200"
+        :class="[
+          toast.type === 'error' ? 'bg-red-700' : 'bg-olive',
+          toast.action ? 'pr-2' : 'pr-5',
+          ctaVisible ? 'bottom-24 md:bottom-6' : 'bottom-6',
+        ]"
       >
-        <Icon name="mdi:check-circle" class="text-gold text-lg" />
-        {{ toast.message }}
+        <Icon
+          :name="toast.type === 'error' ? 'mdi:alert-circle' : 'mdi:check-circle'"
+          class="text-lg shrink-0"
+          :class="toast.type === 'error' ? 'text-white' : 'text-gold'"
+        />
+        <span dir="auto" class="line-clamp-2 min-w-0">{{ toast.message }}</span>
+        <button
+          v-if="toast.action === 'cart'"
+          type="button"
+          class="shrink-0 bg-gold text-olive text-xs font-bold px-3.5 py-2 rounded-xl hover:bg-champagne transition"
+          @click="openCart"
+        >
+          View cart
+        </button>
       </div>
     </transition>
   </Teleport>
@@ -14,6 +32,14 @@
 
 <script setup>
 const toast = useToastStore()
+const cartUI = useCartUIStore()
+// Set by the product page while its fixed Add to Cart bar is showing on phones.
+const ctaVisible = useState('mobile-cta-visible', () => false)
+
+function openCart() {
+  toast.hide()
+  cartUI.open()
+}
 </script>
 
 <style scoped>

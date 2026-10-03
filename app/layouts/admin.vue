@@ -1,8 +1,22 @@
 <template>
-  <div class="flex bg-beige min-h-screen">
+  <div class="min-h-screen bg-stone-100 text-stone-800 font-body">
     <AdminSidebar />
-    <main class="flex-1 overflow-x-hidden pt-16 lg:pt-0">
-      <slot />
-    </main>
+    <div class="lg:pl-64 min-w-0">
+      <AdminTopbar />
+      <main class="px-4 sm:px-6 lg:px-8 py-6 lg:py-8 max-w-7xl mx-auto">
+        <slot />
+      </main>
+    </div>
+    <AdminConfirmDialog />
+    <AppToast />
   </div>
 </template>
+
+<script setup>
+const isNavOpen = useState('admin-nav-open', () => false)
+const route = useRoute()
+
+watch(() => route.fullPath, () => { isNavOpen.value = false })
+
+useHead({ titleTemplate: '%s · Saadawy Admin' })
+</script>

@@ -35,9 +35,10 @@
             <li><NuxtLink to="/track-order" class="hover:text-gold transition">Track Order</NuxtLink></li>
             <li><NuxtLink to="/contact" class="hover:text-gold transition">Contact</NuxtLink></li>
             <li><NuxtLink to="/wishlist" class="hover:text-gold transition">Wishlist</NuxtLink></li>
+            <li><NuxtLink to="/returns" class="hover:text-gold transition">Returns & Exchanges</NuxtLink></li>
             <li>
               <a
-                href="https://wa.me/201026051881"
+                :href="supportWhatsApp"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="hover:text-gold transition"
@@ -91,8 +92,12 @@
         </div>
       </div>
 
-      <div class="pt-phi-1 text-sm text-beige/60 text-center">
-        © {{ new Date().getFullYear() }} Saadawy Store. All rights reserved.
+      <div class="pt-phi-1 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-beige/60">
+        <p>© {{ new Date().getFullYear() }} Saadawy Store. All rights reserved.</p>
+        <nav class="flex items-center gap-4" aria-label="Store policies">
+          <NuxtLink to="/privacy" class="hover:text-gold transition">Privacy Policy</NuxtLink>
+          <NuxtLink to="/terms" class="hover:text-gold transition">Terms & Conditions</NuxtLink>
+        </nav>
       </div>
     </div>
   </footer>
@@ -124,26 +129,15 @@ async function handleSubscribe() {
     isSubscribing.value = false;
   }
 }
-const channels = [
-  {
-    name: "WhatsApp",
-    icon: "mdi:whatsapp",
-    link: "https://wa.me/201026051881",
-  },
-  {
-    name: "Facebook",
-    icon: "mdi:facebook",
-    link: "https://www.facebook.com/share/17ssH5Rhek/?mibextid=wwXIfr",
-  },
-  {
-    name: "Instagram",
-    icon: "mdi:instagram",
-    link: "https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn",
-  },
-  {
-    name: "TikTok",
-    icon: "mdi:music-note",
-    link: "https://tiktok.com/@saadawy.store",
-  },
-];
+const settings = useStoreSettings();
+const supportWhatsApp = computed(() => `https://wa.me/${toWhatsAppNumber(settings.value.whatsappSupport)}`);
+
+const channels = computed(() =>
+  [
+    { name: "WhatsApp", icon: "mdi:whatsapp", link: supportWhatsApp.value },
+    { name: "Facebook", icon: "mdi:facebook", link: settings.value.facebookUrl },
+    { name: "Instagram", icon: "mdi:instagram", link: settings.value.instagramUrl },
+    { name: "TikTok", icon: "mdi:music-note", link: settings.value.tiktokUrl },
+  ].filter((channel) => channel.link)
+);
 </script>

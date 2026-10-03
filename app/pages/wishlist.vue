@@ -39,7 +39,7 @@
         </div>
 
         <div class="p-3">
-          <NuxtLink :to="`/product/${product.slug}`" class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block">
+          <NuxtLink :to="`/product/${product.slug}`" dir="auto" class="text-sm font-medium text-olive mb-1 truncate hover:text-gold transition block">
             {{ product.name }}
           </NuxtLink>
           <div v-if="product.reviewCount" class="flex items-center gap-1 mb-1">

@@ -28,7 +28,11 @@
 </template>
 
 <script setup>
-const isLoading = ref(true)
+const route = useRoute()
+// The logo intro plays once per browser session (session cookie, so the server
+// knows too and later page loads show the page straight away). Never in the dashboard.
+const introSeen = useCookie('saadawy-intro-seen')
+const isLoading = ref(!introSeen.value && !route.path.startsWith('/admin'))
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const recentlyViewed = useRecentlyViewedStore()
@@ -38,8 +42,10 @@ onMounted(() => {
   wishlist.loadFromStorage()
   recentlyViewed.loadFromStorage()
 
+  if (!isLoading.value) return
   setTimeout(() => {
     isLoading.value = false
+    introSeen.value = '1'
   }, 1000)
 })
 </script>

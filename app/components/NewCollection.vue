@@ -73,7 +73,7 @@
         </div>
 
         <div class="p-3">
-          <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
+          <p dir="auto" class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
             {{ product.name }}
           </p>
           <div v-if="product.reviewCount" class="flex items-center gap-1 mb-1">

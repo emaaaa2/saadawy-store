@@ -1,20 +1,20 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'coupons')
 
   const id = getRouterParam(event, 'id')
-  const body = await readBody(event)
+  const updates = readCouponInput(await readBody(event), { partial: true })
 
-  if (typeof body.active !== 'boolean') {
-    throw createError({ statusCode: 400, statusMessage: 'active must be a boolean' })
+  if (!Object.keys(updates).length) {
+    throw createError({ statusCode: 400, statusMessage: 'Nothing to update' })
   }
 
   const client = serverSupabaseServiceRole(event)
 
   const { error } = await client
     .from('coupons')
-    .update({ active: body.active })
+    .update(updates)
     .eq('id', id)
 
   if (error) {

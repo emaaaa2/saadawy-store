@@ -5,6 +5,11 @@ export default defineEventHandler(async (event) => {
   const customer = await serverSupabaseUser(event).catch(() => null)
   const body = await readBody(event)
 
+  const settings = await getStoreSettings(event)
+  if (!enabledPaymentMethods(settings).some((method) => method.value === body.paymentMethod)) {
+    throw createError({ statusCode: 400, statusMessage: 'Please choose an available payment method' })
+  }
+
   const itemIds = body.items.map((item) => item.id)
 
   const { data: products, error: productsError } = await client

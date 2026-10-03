@@ -1,128 +1,106 @@
 <template>
-  <div class="px-8 py-8 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-olive mb-2">Shipping</h1>
-    <p class="text-sm text-taupe mb-6">
-      Set the shipping fee for each governorate tier, and the order total that qualifies for free shipping.
-    </p>
-
-    <form class="bg-white rounded-2xl border border-olive/10 p-5 space-y-5" @submit.prevent="handleSave">
-      <div>
-        <label class="block text-sm font-medium text-olive mb-1">
-          Tier 1 — Cairo, Giza, Qalyubia
-        </label>
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="form.tier1_fee"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-          />
-          <span class="text-sm text-taupe shrink-0">EGP</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-olive mb-1">
-          Tier 2 — Alexandria, Delta & Canal cities
-        </label>
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="form.tier2_fee"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-          />
-          <span class="text-sm text-taupe shrink-0">EGP</span>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-olive mb-1">
-          Tier 3 — Upper Egypt, Sinai & remote areas
-        </label>
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="form.tier3_fee"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-          />
-          <span class="text-sm text-taupe shrink-0">EGP</span>
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-olive/10">
-        <label class="block text-sm font-medium text-olive mb-1">
-          Free shipping over
-        </label>
-        <div class="flex items-center gap-2">
-          <input
-            v-model.number="form.free_shipping_threshold"
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-          />
-          <span class="text-sm text-taupe shrink-0">EGP</span>
-        </div>
-        <p class="text-xs text-taupe mt-1">Orders at or above this total (after coupon discount) get free shipping.</p>
-      </div>
-
-      <button
-        type="submit"
-        :disabled="isSaving"
-        class="bg-olive text-beige px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gold hover:text-olive transition disabled:opacity-50"
-      >
-        {{ isSaving ? "Saving..." : "Save Changes" }}
+  <div>
+    <AdminPageHeader title="Shipping" description="Delivery fees by governorate group, and when shipping becomes free.">
+      <button type="submit" form="shipping-form" class="adm-btn adm-btn-primary" :disabled="isSaving || !isDirty">
+        <Icon :name="isSaving ? 'mdi:loading' : 'mdi:content-save-outline'" class="text-base" :class="{ 'animate-spin': isSaving }" />
+        {{ isSaving ? 'Saving…' : 'Save changes' }}
       </button>
+    </AdminPageHeader>
 
-      <p v-if="savedMessage" class="text-sm text-sage">{{ savedMessage }}</p>
-      <p v-if="errorMessage" class="text-sm text-red-500">{{ errorMessage }}</p>
+    <form id="shipping-form" class="grid lg:grid-cols-3 gap-6 items-start" @submit.prevent="handleSave">
+      <section class="adm-card lg:col-span-2 overflow-hidden">
+        <div class="adm-card-header">
+          <h2 class="adm-card-title">Delivery fees</h2>
+        </div>
+        <div class="divide-y divide-stone-200">
+          <div v-for="tier in tiers" :key="tier.field" class="p-5 grid sm:grid-cols-[1fr_180px] gap-4 items-start">
+            <div>
+              <label :for="tier.field" class="text-sm font-medium text-stone-800">{{ tier.title }}</label>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <span v-for="name in tier.governorates" :key="name" class="adm-badge bg-stone-100 text-stone-600">{{ name }}</span>
+              </div>
+            </div>
+            <div class="relative">
+              <input :id="tier.field" v-model.number="form[tier.field]" type="number" min="0" step="0.01" required class="adm-input pr-12 text-right" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="adm-card">
+        <div class="adm-card-header">
+          <h2 class="adm-card-title">Free shipping</h2>
+        </div>
+        <div class="p-5">
+          <label for="free_shipping_threshold" class="adm-label">Free on orders over</label>
+          <div class="relative">
+            <input id="free_shipping_threshold" v-model.number="form.free_shipping_threshold" type="number" min="0" step="0.01" required class="adm-input pr-12" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+          </div>
+          <p class="adm-hint">Counted after any coupon discount. Set a very high number to turn free shipping off.</p>
+
+          <div class="mt-5 rounded-lg bg-stone-50 border border-stone-200 p-4 text-sm space-y-1.5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-2">Example</p>
+            <p class="flex justify-between gap-3"><span class="text-stone-500">Cairo, {{ formatMoney(sample) }} order</span><span class="font-medium whitespace-nowrap">{{ feeFor(1, sample) }}</span></p>
+            <p class="flex justify-between gap-3"><span class="text-stone-500">Aswan, {{ formatMoney(sample) }} order</span><span class="font-medium whitespace-nowrap">{{ feeFor(3, sample) }}</span></p>
+            <p class="flex justify-between gap-3"><span class="text-stone-500">Any, {{ formatMoney(form.free_shipping_threshold || 0) }} order</span><span class="font-medium text-emerald-700">Free</span></p>
+          </div>
+        </div>
+      </section>
     </form>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: "admin",
-  middleware: "admin-auth",
-});
+  layout: 'admin',
+  middleware: 'admin-auth',
+  adminPermission: 'shipping',
+})
+useSeoMeta({ title: 'Shipping', robots: 'noindex' })
 
-const { data } = await useFetch("/api/admin/shipping-settings");
+const toast = useToastStore()
+const { data } = await useFetch('/api/admin/shipping-settings')
 
-const form = ref({
-  tier1_fee: data.value?.tier1_fee ?? 50,
-  tier2_fee: data.value?.tier2_fee ?? 70,
-  tier3_fee: data.value?.tier3_fee ?? 100,
-  free_shipping_threshold: data.value?.free_shipping_threshold ?? 500,
-});
+const toForm = (value) => ({
+  tier1_fee: value?.tier1_fee ?? DEFAULT_SHIPPING_SETTINGS.tier1_fee,
+  tier2_fee: value?.tier2_fee ?? DEFAULT_SHIPPING_SETTINGS.tier2_fee,
+  tier3_fee: value?.tier3_fee ?? DEFAULT_SHIPPING_SETTINGS.tier3_fee,
+  free_shipping_threshold: value?.free_shipping_threshold ?? DEFAULT_SHIPPING_SETTINGS.free_shipping_threshold,
+})
 
-const isSaving = ref(false);
-const savedMessage = ref("");
-const errorMessage = ref("");
+const form = ref(toForm(data.value))
+const saved = ref(JSON.stringify(form.value))
+const isDirty = computed(() => JSON.stringify(form.value) !== saved.value)
+const isSaving = ref(false)
+
+const namesForTier = (tier) =>
+  governorates.filter((g) => (GOVERNORATE_TIERS[g.value] ?? 3) === tier).map((g) => g.label)
+
+const tiers = [
+  { field: 'tier1_fee', title: 'Greater Cairo', governorates: namesForTier(1) },
+  { field: 'tier2_fee', title: 'Alexandria, Delta & Canal', governorates: namesForTier(2) },
+  { field: 'tier3_fee', title: 'Upper Egypt, Sinai & remote areas', governorates: namesForTier(3) },
+]
+
+const sample = computed(() => Math.max(Math.round((form.value.free_shipping_threshold || 0) / 2), 100))
+
+function feeFor(tier, subtotal) {
+  if (subtotal >= form.value.free_shipping_threshold) return 'Free'
+  return formatMoney(form.value[`tier${tier}_fee`])
+}
 
 async function handleSave() {
-  isSaving.value = true;
-  savedMessage.value = "";
-  errorMessage.value = "";
-
+  isSaving.value = true
   try {
-    await $fetch("/api/admin/shipping-settings", {
-      method: "PATCH",
-      body: form.value,
-    });
-    savedMessage.value = "Shipping settings saved.";
-  } catch (error) {
-    errorMessage.value = error.data?.statusMessage || "Something went wrong.";
+    await $fetch('/api/admin/shipping-settings', { method: 'PATCH', body: form.value })
+    saved.value = JSON.stringify(form.value)
+    toast.show('Shipping fees saved')
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
   } finally {
-    isSaving.value = false;
+    isSaving.value = false
   }
 }
 </script>

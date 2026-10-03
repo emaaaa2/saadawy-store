@@ -20,7 +20,7 @@
 
           <h2 class="text-xl font-bold text-olive mb-2">Welcome to Saadawy Store!</h2>
           <p class="text-sm text-taupe mb-5">
-            Enjoy 10% off your first order — just use the code below at checkout.
+            {{ settings.welcomeMessage }}
           </p>
 
           <button
@@ -45,12 +45,14 @@
 </template>
 
 <script setup>
-const couponCode = 'WELCOME10'
+const settings = useStoreSettings()
+const couponCode = computed(() => settings.value.welcomeCouponCode)
 const showPopup = ref(false)
 const copied = ref(false)
 const STORAGE_KEY = 'saadawy-welcome-offer-seen'
 
 onMounted(() => {
+  if (!settings.value.welcomePopupEnabled || !couponCode.value) return
   if (localStorage.getItem(STORAGE_KEY)) return
 
   setTimeout(() => {
@@ -65,7 +67,7 @@ function dismiss() {
 
 async function copyCode() {
   try {
-    await navigator.clipboard.writeText(couponCode)
+    await navigator.clipboard.writeText(couponCode.value)
     copied.value = true
     setTimeout(() => { copied.value = false }, 2000)
   } catch {

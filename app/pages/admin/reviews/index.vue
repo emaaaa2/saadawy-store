@@ -1,121 +1,168 @@
 <template>
-  <div class="px-8 py-8 max-w-4xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-olive">Reviews</h1>
-      <div class="flex items-center gap-2 text-sm">
-        <button
-          class="px-4 py-2 rounded-full font-medium transition"
-          :class="filter === 'pending' ? 'bg-olive text-beige' : 'bg-beige text-olive'"
-          @click="filter = 'pending'"
-        >
-          Pending ({{ pendingCount }})
-        </button>
-        <button
-          class="px-4 py-2 rounded-full font-medium transition"
-          :class="filter === 'all' ? 'bg-olive text-beige' : 'bg-beige text-olive'"
-          @click="filter = 'all'"
-        >
-          All
-        </button>
-      </div>
-    </div>
-
-    <div v-if="pending" class="text-center py-12 text-olive/50">Loading...</div>
-
-    <div v-else-if="filteredReviews.length === 0" class="text-center py-12 text-olive/50">
-      No reviews here.
-    </div>
-
-    <div v-else class="space-y-4">
-      <div
-        v-for="review in filteredReviews"
-        :key="review.id"
-        class="bg-white rounded-2xl border border-olive/10 p-5"
+  <div>
+    <AdminPageHeader title="Reviews" description="New reviews stay hidden until you approve them.">
+      <button
+        v-if="filter === 'pending' && filteredReviews.length > 1"
+        type="button"
+        class="adm-btn adm-btn-primary"
+        :disabled="isBulkBusy"
+        @click="approveAll"
       >
-        <div class="flex items-start justify-between gap-4 mb-2">
-          <div>
-            <p class="font-semibold text-olive">{{ review.customer_name }}</p>
-            <p class="text-xs text-taupe">
-              {{ review.location || "—" }} · {{ new Date(review.created_at).toLocaleDateString() }}
-            </p>
-          </div>
-          <span
-            class="text-xs font-bold px-2 py-1 rounded-full shrink-0"
-            :class="review.approved ? 'bg-sage/20 text-sage' : 'bg-gold/20 text-gold'"
-          >
-            {{ review.approved ? "Approved" : "Pending" }}
-          </span>
-        </div>
+        <Icon name="mdi:check-all" class="text-base" />
+        Approve all {{ filteredReviews.length }}
+      </button>
+    </AdminPageHeader>
 
-        <div class="flex gap-0.5 mb-2">
-          <Icon
-            v-for="star in 5"
-            :key="star"
-            name="mdi:star"
-            class="text-sm"
-            :class="star <= review.rating ? 'text-gold' : 'text-olive/15'"
-          />
-        </div>
-
-        <p class="text-sm text-olive/80 leading-relaxed mb-4">{{ review.comment }}</p>
-
-        <div class="flex items-center gap-2">
-          <button
-            v-if="!review.approved"
-            class="text-xs font-semibold px-3 py-1.5 rounded-full bg-sage text-white hover:opacity-90 transition"
-            @click="setApproved(review, true)"
-          >
-            Approve
-          </button>
-          <button
-            v-else
-            class="text-xs font-semibold px-3 py-1.5 rounded-full bg-beige text-olive hover:bg-olive/10 transition"
-            @click="setApproved(review, false)"
-          >
-            Unapprove
-          </button>
-          <button
-            class="text-xs font-semibold px-3 py-1.5 rounded-full bg-red-50 text-red-500 hover:bg-red-100 transition"
-            @click="handleDelete(review)"
-          >
-            Delete
-          </button>
-        </div>
+    <section class="adm-card overflow-hidden">
+      <div class="px-4 pt-2">
+        <AdminTabs v-model="filter" :tabs="tabs" />
       </div>
-    </div>
+
+      <AdminEmptyState v-if="error" icon="mdi:cloud-alert-outline" title="Couldn't load reviews" :description="adminErrorMessage(error)">
+        <button type="button" class="adm-btn adm-btn-secondary" @click="refresh()">Try again</button>
+      </AdminEmptyState>
+
+      <AdminEmptyState
+        v-else-if="!pending && filteredReviews.length === 0"
+        icon="mdi:star-outline"
+        :title="filter === 'pending' ? 'No reviews waiting' : 'No reviews here'"
+        :description="filter === 'pending' ? 'You\'re all caught up.' : ''"
+      />
+
+      <ul v-else class="divide-y divide-stone-200">
+        <li v-for="review in filteredReviews" :key="review.id" class="flex gap-4 px-5 py-4">
+          <div class="w-9 h-9 rounded-full bg-gold/15 text-gold font-semibold flex items-center justify-center uppercase shrink-0">
+            {{ review.customer_name?.[0] ?? '?' }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <p class="font-medium text-stone-800">{{ review.customer_name }}</p>
+              <span class="text-xs text-stone-500">{{ review.location || '—' }} · {{ timeAgo(review.created_at) }}</span>
+              <span class="adm-badge" :class="review.approved ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">
+                {{ review.approved ? 'Approved' : 'Waiting' }}
+              </span>
+            </div>
+            <div class="flex items-center gap-0.5 mt-1">
+              <Icon v-for="star in 5" :key="star" name="mdi:star" class="text-sm" :class="star <= review.rating ? 'text-gold' : 'text-stone-200'" />
+            </div>
+            <p dir="auto" class="text-sm text-stone-700 leading-relaxed mt-2 whitespace-pre-line">{{ review.comment }}</p>
+            <p v-if="review.product" class="text-xs text-stone-500 mt-2">
+              On
+              <a :href="`/product/${review.product.slug}`" target="_blank" rel="noopener" class="text-olive hover:underline">{{ review.product.name }}</a>
+            </p>
+            <p v-else class="text-xs text-stone-500 mt-2">Store review</p>
+          </div>
+          <div class="flex flex-col sm:flex-row items-end sm:items-start gap-1.5 shrink-0">
+            <button
+              v-if="!review.approved"
+              type="button"
+              class="adm-btn adm-btn-primary adm-btn-sm"
+              :disabled="busyIds.has(review.id)"
+              @click="setApproved(review, true)"
+            >
+              <Icon name="mdi:check" class="text-sm" />
+              Approve
+            </button>
+            <button
+              v-else
+              type="button"
+              class="adm-btn adm-btn-secondary adm-btn-sm"
+              :disabled="busyIds.has(review.id)"
+              @click="setApproved(review, false)"
+            >
+              Hide
+            </button>
+            <button type="button" class="adm-icon-btn hover:!text-red-600 hover:!bg-red-50" title="Delete" aria-label="Delete review" @click="handleDelete(review)">
+              <Icon name="mdi:trash-can-outline" class="text-lg" />
+            </button>
+          </div>
+        </li>
+      </ul>
+    </section>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth'
+  middleware: 'admin-auth',
+  adminPermission: 'reviews'
+})
+useSeoMeta({ title: 'Reviews', robots: 'noindex' })
+
+const toast = useToastStore()
+const { confirm } = useAdminConfirm()
+const { refresh: refreshBadges } = useAdminBadges()
+const filter = ref('pending')
+const busyIds = reactive(new Set())
+const isBulkBusy = ref(false)
+
+const { data, pending, error, refresh } = await useFetch('/api/admin/reviews')
+const reviews = computed(() => data.value?.reviews ?? [])
+
+const tabs = computed(() => [
+  { value: 'pending', label: 'Waiting', count: reviews.value.filter((r) => !r.approved).length },
+  { value: 'approved', label: 'Approved', count: reviews.value.filter((r) => r.approved).length },
+  { value: 'all', label: 'All', count: reviews.value.length },
+])
+
+const filteredReviews = computed(() => {
+  if (filter.value === 'pending') return reviews.value.filter((r) => !r.approved)
+  if (filter.value === 'approved') return reviews.value.filter((r) => r.approved)
+  return reviews.value
 })
 
-const filter = ref('pending')
-
-const { data, pending, refresh } = await useFetch('/api/admin/reviews')
-
-const reviews = computed(() => data.value?.reviews ?? [])
-const pendingCount = computed(() => reviews.value.filter((r) => !r.approved).length)
-
-const filteredReviews = computed(() =>
-  filter.value === 'pending' ? reviews.value.filter((r) => !r.approved) : reviews.value
-)
-
 async function setApproved(review, approved) {
-  await $fetch(`/api/admin/reviews/${review.id}`, {
-    method: 'PATCH',
-    body: { approved }
+  busyIds.add(review.id)
+  try {
+    await $fetch(`/api/admin/reviews/${review.id}`, { method: 'PATCH', body: { approved } })
+    toast.show(approved ? 'Review approved — it’s now on the store' : 'Review hidden from the store')
+    await refresh()
+    refreshBadges()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
+  } finally {
+    busyIds.delete(review.id)
+  }
+}
+
+async function approveAll() {
+  const list = [...filteredReviews.value]
+  const ok = await confirm({
+    title: `Approve ${list.length} reviews?`,
+    message: 'They will all show on the store.',
+    confirmLabel: 'Approve all',
   })
-  refresh()
+  if (!ok) return
+
+  isBulkBusy.value = true
+  const results = await Promise.allSettled(
+    list.map((review) => $fetch(`/api/admin/reviews/${review.id}`, { method: 'PATCH', body: { approved: true } }))
+  )
+  isBulkBusy.value = false
+  const failed = results.filter((r) => r.status === 'rejected').length
+  if (failed) toast.error(`${list.length - failed} approved, ${failed} failed`)
+  else toast.show(`${list.length} reviews approved`)
+  await refresh()
+  refreshBadges()
 }
 
 async function handleDelete(review) {
-  const confirmed = confirm(`Delete this review from "${review.customer_name}"?`)
-  if (!confirmed) return
+  const ok = await confirm({
+    title: 'Delete this review?',
+    message: `From ${review.customer_name}. This can't be undone.`,
+    confirmLabel: 'Delete',
+    danger: true,
+  })
+  if (!ok) return
 
-  await $fetch(`/api/admin/reviews/${review.id}`, { method: 'DELETE' })
-  refresh()
+  try {
+    await $fetch(`/api/admin/reviews/${review.id}`, { method: 'DELETE' })
+    toast.show('Review deleted')
+    await refresh()
+    refreshBadges()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
+  }
 }
 </script>

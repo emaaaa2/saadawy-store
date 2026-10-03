@@ -187,7 +187,7 @@
                   />
                 </div>
                 <div class="min-w-0">
-                  <p class="text-sm font-medium text-olive truncate">
+                  <p dir="auto" class="text-sm font-medium text-olive truncate">
                     {{ product.name }}
                   </p>
                   <p class="text-xs text-taupe">
@@ -362,7 +362,7 @@ const cartUI = useCartUIStore();
 const cart = useCartStore();
 const wishlist = useWishlistStore();
 const user = useSupabaseUser();
-const { isAdmin, check: checkAdmin } = useIsAdmin();
+const { isAdmin, check: checkAdmin } = useAdminAccess();
 onMounted(checkAdmin);
 watch(user, checkAdmin);
 const avatarFailed = ref(false);

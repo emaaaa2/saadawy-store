@@ -1,181 +1,288 @@
 <template>
-  <div class="px-8 py-8 max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold text-olive mb-6">Coupons</h1>
+  <div>
+    <AdminPageHeader title="Coupons" description="Discount codes customers can use at checkout.">
+      <button type="button" class="adm-btn adm-btn-primary" @click="openCreate">
+        <Icon name="mdi:plus" class="text-base" />
+        New coupon
+      </button>
+    </AdminPageHeader>
 
-    <div class="bg-white rounded-2xl border border-olive/10 p-5 mb-6">
-      <h2 class="font-semibold text-olive mb-3">Create a Coupon</h2>
-      <form class="grid sm:grid-cols-2 gap-3" @submit.prevent="handleCreate">
-        <input
-          v-model="form.code"
-          type="text"
-          placeholder="CODE (e.g. WELCOME10)"
-          required
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm uppercase"
-        />
+    <section class="adm-card overflow-hidden">
+      <AdminEmptyState v-if="error" icon="mdi:cloud-alert-outline" title="Couldn't load coupons" :description="adminErrorMessage(error)">
+        <button type="button" class="adm-btn adm-btn-secondary" @click="refresh()">Try again</button>
+      </AdminEmptyState>
 
-        <select
-          v-model="form.discountType"
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-        >
-          <option value="percentage">Percentage (%)</option>
-          <option value="fixed">Fixed Amount (EGP)</option>
-        </select>
+      <AdminEmptyState
+        v-else-if="!pending && coupons.length === 0"
+        icon="mdi:ticket-percent-outline"
+        title="No coupons yet"
+        description="Create a code like WELCOME10 to give customers a discount."
+      >
+        <button type="button" class="adm-btn adm-btn-primary" @click="openCreate">New coupon</button>
+      </AdminEmptyState>
 
-        <input
-          v-model.number="form.discountValue"
-          type="number"
-          min="0.01"
-          step="0.01"
-          :placeholder="form.discountType === 'percentage' ? 'Discount % (e.g. 10)' : 'Discount EGP (e.g. 50)'"
-          required
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-        />
+      <div v-else class="overflow-x-auto">
+        <table class="adm-table min-w-[760px]">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount</th>
+              <th>Minimum order</th>
+              <th>Used</th>
+              <th>Expires</th>
+              <th>Active</th>
+              <th class="w-24"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="coupon in coupons" :key="coupon.id" class="hover:bg-stone-50">
+              <td>
+                <button type="button" class="group inline-flex items-center gap-1.5 font-mono font-semibold" title="Copy code" @click="copyCode(coupon.code)">
+                  {{ coupon.code }}
+                  <Icon name="mdi:content-copy" class="text-xs text-stone-400 opacity-0 group-hover:opacity-100 transition" />
+                </button>
+                <p v-if="coupon.code === settings.welcomeCouponCode" class="text-[11px] text-gold mt-0.5">Welcome popup code</p>
+              </td>
+              <td class="font-medium">
+                {{ coupon.discount_type === 'percentage' ? `${coupon.discount_value}% off` : `${formatMoney(coupon.discount_value)} off` }}
+              </td>
+              <td class="text-stone-600">{{ coupon.min_order_total ? formatMoney(coupon.min_order_total) : '—' }}</td>
+              <td>
+                <p class="text-stone-700">{{ coupon.used_count }}{{ coupon.usage_limit ? ` / ${coupon.usage_limit}` : '' }}</p>
+                <div v-if="coupon.usage_limit" class="w-20 h-1 bg-stone-100 rounded-full mt-1 overflow-hidden">
+                  <div class="h-full bg-olive rounded-full" :style="{ width: `${Math.min((coupon.used_count / coupon.usage_limit) * 100, 100)}%` }"></div>
+                </div>
+              </td>
+              <td>
+                <span v-if="!coupon.expires_at" class="text-stone-400">Never</span>
+                <span v-else-if="isExpired(coupon)" class="adm-badge bg-red-50 text-red-600">Expired {{ formatDate(coupon.expires_at) }}</span>
+                <span v-else class="text-stone-600">{{ formatDate(coupon.expires_at) }}</span>
+              </td>
+              <td>
+                <AdminToggle
+                  :model-value="coupon.active"
+                  :disabled="busyIds.has(coupon.id)"
+                  :aria-label="`Coupon ${coupon.code} active`"
+                  @update:model-value="toggleActive(coupon, $event)"
+                />
+              </td>
+              <td>
+                <div class="flex items-center justify-end gap-0.5">
+                  <button type="button" class="adm-icon-btn" title="Edit" aria-label="Edit coupon" @click="openEdit(coupon)">
+                    <Icon name="mdi:pencil-outline" class="text-lg" />
+                  </button>
+                  <button type="button" class="adm-icon-btn hover:!text-red-600 hover:!bg-red-50" title="Delete" aria-label="Delete coupon" @click="handleDelete(coupon)">
+                    <Icon name="mdi:trash-can-outline" class="text-lg" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <input
-          v-model.number="form.minOrderTotal"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="Minimum order (optional)"
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-        />
+    <AdminDrawer v-model:open="isDrawerOpen" :title="editing ? `Edit ${editing.code}` : 'New coupon'">
+      <form id="coupon-form" class="space-y-5" @submit.prevent="handleSave">
+        <div>
+          <label for="coupon-code" class="adm-label">Code</label>
+          <input
+            id="coupon-code"
+            v-model="form.code"
+            type="text"
+            required
+            :disabled="!!editing"
+            placeholder="WELCOME10"
+            pattern="[A-Za-z0-9_\-]{3,30}"
+            class="adm-input font-mono uppercase"
+          />
+          <p class="adm-hint">{{ editing ? "The code can't be changed. Create a new coupon instead." : '3–30 letters or numbers, no spaces.' }}</p>
+        </div>
 
-        <input
-          v-model.number="form.usageLimit"
-          type="number"
-          min="1"
-          placeholder="Usage limit (optional)"
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-        />
+        <div>
+          <span class="adm-label">Discount</span>
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <button
+              v-for="type in discountTypes"
+              :key="type.value"
+              type="button"
+              class="h-10 rounded-lg border text-sm font-medium transition"
+              :class="form.discountType === type.value ? 'border-olive bg-olive/5 text-olive' : 'border-stone-200 text-stone-600 hover:border-stone-300'"
+              @click="form.discountType = type.value"
+            >
+              {{ type.label }}
+            </button>
+          </div>
+          <div class="relative">
+            <input
+              id="coupon-value"
+              v-model.number="form.discountValue"
+              type="number"
+              required
+              min="0.01"
+              :max="form.discountType === 'percentage' ? 100 : undefined"
+              step="0.01"
+              class="adm-input pr-12"
+              :aria-label="form.discountType === 'percentage' ? 'Discount percent' : 'Discount amount'"
+            />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ form.discountType === 'percentage' ? '%' : 'EGP' }}</span>
+          </div>
+        </div>
 
-        <input
-          v-model="form.expiresAt"
-          type="date"
-          class="border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold text-sm"
-        />
+        <div>
+          <label for="coupon-min" class="adm-label">Minimum order <span class="text-stone-400 font-normal">(optional)</span></label>
+          <div class="relative">
+            <input id="coupon-min" v-model.number="form.minOrderTotal" type="number" min="0" step="0.01" placeholder="0" class="adm-input pr-12" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+          </div>
+        </div>
 
-        <button
-          type="submit"
-          :disabled="isCreating"
-          class="sm:col-span-2 bg-olive text-beige px-5 py-2.5 rounded-full font-semibold text-sm hover:bg-gold hover:text-olive transition disabled:opacity-50"
-        >
-          {{ isCreating ? "Creating..." : "Create Coupon" }}
-        </button>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="coupon-limit" class="adm-label">Usage limit <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input id="coupon-limit" v-model.number="form.usageLimit" type="number" min="1" step="1" placeholder="Unlimited" class="adm-input" />
+          </div>
+          <div>
+            <label for="coupon-expires" class="adm-label">Expires on <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input id="coupon-expires" v-model="form.expiresAt" type="date" class="adm-input" />
+          </div>
+        </div>
+
+        <div class="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-sm text-stone-600">
+          <Icon name="mdi:information-outline" class="text-base text-stone-400 align-[-3px] mr-1" />
+          {{ summary }}
+        </div>
       </form>
-    </div>
 
-    <div v-if="pending" class="text-center py-12 text-olive/50">Loading...</div>
-
-    <div v-else-if="coupons.length === 0" class="text-center py-12 text-olive/50">
-      No coupons yet.
-    </div>
-
-    <div v-else class="bg-white rounded-2xl overflow-hidden border border-olive/10">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b border-olive/10 text-left text-olive/50 text-xs uppercase tracking-wide">
-            <th class="px-5 py-3 font-medium">Code</th>
-            <th class="px-5 py-3 font-medium">Discount</th>
-            <th class="px-5 py-3 font-medium">Used</th>
-            <th class="px-5 py-3 font-medium">Expires</th>
-            <th class="px-5 py-3 font-medium">Status</th>
-            <th class="px-5 py-3 font-medium"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="coupon in coupons"
-            :key="coupon.id"
-            class="border-b border-olive/5 last:border-0"
-          >
-            <td class="px-5 py-3 font-mono font-semibold text-olive">{{ coupon.code }}</td>
-            <td class="px-5 py-3 text-olive/80">
-              {{ coupon.discount_type === 'percentage' ? `${coupon.discount_value}%` : `EGP ${coupon.discount_value}` }}
-            </td>
-            <td class="px-5 py-3 text-taupe">
-              {{ coupon.used_count }}{{ coupon.usage_limit ? ` / ${coupon.usage_limit}` : '' }}
-            </td>
-            <td class="px-5 py-3 text-taupe">
-              {{ coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString() : '—' }}
-            </td>
-            <td class="px-5 py-3">
-              <button
-                class="text-xs font-bold px-2.5 py-1 rounded-full"
-                :class="coupon.active ? 'bg-sage/10 text-sage' : 'bg-taupe/10 text-taupe'"
-                @click="toggleActive(coupon)"
-              >
-                {{ coupon.active ? "Active" : "Disabled" }}
-              </button>
-            </td>
-            <td class="px-5 py-3 text-right">
-              <button
-                class="text-red-500 hover:text-red-600 transition"
-                aria-label="Delete coupon"
-                @click="handleDelete(coupon)"
-              >
-                <Icon name="mdi:trash-can-outline" class="text-lg" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="adm-btn adm-btn-secondary" @click="isDrawerOpen = false">Cancel</button>
+          <button type="submit" form="coupon-form" class="adm-btn adm-btn-primary" :disabled="isSaving">
+            {{ isSaving ? 'Saving…' : editing ? 'Save changes' : 'Create coupon' }}
+          </button>
+        </div>
+      </template>
+    </AdminDrawer>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth'
+  middleware: 'admin-auth',
+  adminPermission: 'coupons'
 })
-
-const { data, pending, refresh } = await useFetch('/api/admin/coupons')
-const coupons = computed(() => data.value?.coupons ?? [])
+useSeoMeta({ title: 'Coupons', robots: 'noindex' })
 
 const toast = useToastStore()
+const settings = useStoreSettings()
+const { confirm } = useAdminConfirm()
+const { data, pending, error, refresh } = await useFetch('/api/admin/coupons')
+const coupons = computed(() => data.value?.coupons ?? [])
 
-const form = ref({
-  code: '',
-  discountType: 'percentage',
-  discountValue: null,
-  minOrderTotal: null,
-  usageLimit: null,
-  expiresAt: ''
+const discountTypes = [
+  { value: 'percentage', label: 'Percentage' },
+  { value: 'fixed', label: 'Fixed amount' },
+]
+
+const emptyForm = () => ({ code: '', discountType: 'percentage', discountValue: null, minOrderTotal: null, usageLimit: null, expiresAt: '' })
+const form = ref(emptyForm())
+const editing = ref(null)
+const isDrawerOpen = ref(false)
+const isSaving = ref(false)
+const busyIds = reactive(new Set())
+
+const summary = computed(() => {
+  const f = form.value
+  if (!f.discountValue) return 'Enter a discount to see how it works.'
+  const off = f.discountType === 'percentage' ? `${f.discountValue}% off` : `${formatMoney(f.discountValue)} off`
+  const parts = [`${(f.code || 'This code').toUpperCase()} gives ${off}`]
+  if (f.minOrderTotal) parts.push(`on orders of ${formatMoney(f.minOrderTotal)} or more`)
+  if (f.usageLimit) parts.push(`for the first ${f.usageLimit} use${f.usageLimit === 1 ? '' : 's'}`)
+  if (f.expiresAt) parts.push(`until ${formatDate(f.expiresAt)}`)
+  return `${parts.join(' ')}.`
 })
 
-const isCreating = ref(false)
+function isExpired(coupon) {
+  return coupon.expires_at && new Date(coupon.expires_at) < new Date()
+}
 
-async function handleCreate() {
-  isCreating.value = true
+function openCreate() {
+  editing.value = null
+  form.value = emptyForm()
+  isDrawerOpen.value = true
+}
 
+function openEdit(coupon) {
+  editing.value = coupon
+  form.value = {
+    code: coupon.code,
+    discountType: coupon.discount_type,
+    discountValue: coupon.discount_value,
+    minOrderTotal: coupon.min_order_total || null,
+    usageLimit: coupon.usage_limit,
+    expiresAt: coupon.expires_at ? coupon.expires_at.slice(0, 10) : '',
+  }
+  isDrawerOpen.value = true
+}
+
+async function handleSave() {
+  isSaving.value = true
   try {
-    await $fetch('/api/admin/coupons', {
-      method: 'POST',
-      body: form.value
-    })
-    toast.show(`Coupon "${form.value.code.toUpperCase()}" created`)
-    form.value = { code: '', discountType: 'percentage', discountValue: null, minOrderTotal: null, usageLimit: null, expiresAt: '' }
-    refresh()
-  } catch (error) {
-    toast.show(error.data?.statusMessage || 'Something went wrong. Please try again.')
+    if (editing.value) {
+      const { code, ...changes } = form.value
+      await $fetch(`/api/admin/coupons/${editing.value.id}`, { method: 'PATCH', body: changes })
+      toast.show(`${editing.value.code} updated`)
+    } else {
+      await $fetch('/api/admin/coupons', { method: 'POST', body: form.value })
+      toast.show(`Coupon ${form.value.code.toUpperCase()} created`)
+    }
+    isDrawerOpen.value = false
+    await refresh()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
   } finally {
-    isCreating.value = false
+    isSaving.value = false
   }
 }
 
-async function toggleActive(coupon) {
-  await $fetch(`/api/admin/coupons/${coupon.id}`, {
-    method: 'PATCH',
-    body: { active: !coupon.active }
-  })
-  refresh()
+async function toggleActive(coupon, active) {
+  busyIds.add(coupon.id)
+  try {
+    await $fetch(`/api/admin/coupons/${coupon.id}`, { method: 'PATCH', body: { active } })
+    toast.show(`${coupon.code} ${active ? 'turned on' : 'turned off'}`)
+    await refresh()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
+  } finally {
+    busyIds.delete(coupon.id)
+  }
+}
+
+async function copyCode(code) {
+  try {
+    await navigator.clipboard.writeText(code)
+    toast.show(`${code} copied`)
+  } catch {
+    toast.error("Couldn't copy the code")
+  }
 }
 
 async function handleDelete(coupon) {
-  const confirmed = confirm(`Delete coupon "${coupon.code}"?`)
-  if (!confirmed) return
+  const ok = await confirm({
+    title: `Delete coupon ${coupon.code}?`,
+    message: 'Customers will no longer be able to use it. To pause it instead, switch it off.',
+    confirmLabel: 'Delete',
+    danger: true,
+  })
+  if (!ok) return
 
-  await $fetch(`/api/admin/coupons/${coupon.id}`, { method: 'DELETE' })
-  refresh()
+  try {
+    await $fetch(`/api/admin/coupons/${coupon.id}`, { method: 'DELETE' })
+    toast.show(`${coupon.code} deleted`)
+    await refresh()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
+  }
 }
 </script>

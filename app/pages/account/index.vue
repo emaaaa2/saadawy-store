@@ -80,7 +80,7 @@
 
         <ul class="space-y-1 mb-3">
           <li v-for="item in order.items" :key="item.id" class="flex justify-between gap-3 text-sm text-olive/80">
-            <span class="truncate">{{ item.name }} × {{ item.quantity }}</span>
+            <span class="truncate"><bdi>{{ item.name }}</bdi> × {{ item.quantity }}</span>
             <span class="shrink-0 tabular-nums">EGP {{ (item.sale_price ?? item.price) * item.quantity }}</span>
           </li>
         </ul>
@@ -105,7 +105,7 @@ const user = useSupabaseUser()
 const supabase = useSupabaseClient()
 const isSigningOut = ref(false)
 const avatarFailed = ref(false)
-const { isAdmin, check: checkAdmin } = useIsAdmin()
+const { isAdmin, check: checkAdmin } = useAdminAccess()
 onMounted(checkAdmin)
 
 const { data, pending, error, refresh } = await useFetch('/api/account/orders')

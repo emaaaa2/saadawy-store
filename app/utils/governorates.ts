@@ -28,7 +28,7 @@ export const governorates = [
   { value: 'South Sinai', label: 'جنوب سيناء' },
 ]
 
-const GOVERNORATE_TIERS = {
+export const GOVERNORATE_TIERS = {
   Cairo: 1, Giza: 1, Qalyubia: 1,
   Alexandria: 2, Dakahlia: 2, Sharqia: 2, Monufia: 2, Gharbia: 2, Beheira: 2,
   'Kafr El Sheikh': 2, Damietta: 2, 'Port Said': 2, Ismailia: 2, Suez: 2,

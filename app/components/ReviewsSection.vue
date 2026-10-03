@@ -16,15 +16,16 @@
       </NuxtLink>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-phi-2">
+    <!-- Swipeable row on phones, three columns from tablets up. -->
+    <div class="flex md:grid md:grid-cols-3 gap-4 md:gap-phi-2 overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-hide -mx-6 px-6 md:mx-0 md:px-0 pb-1">
       <div
         v-for="review in reviews"
         :key="review.id"
-        class="relative bg-beige border border-olive/10 rounded-2xl p-6"
+        class="relative shrink-0 w-[85%] sm:w-[60%] md:w-auto snap-center bg-beige border border-olive/10 rounded-2xl p-6 flex flex-col"
       >
         <Icon name="mdi:format-quote-close" class="absolute top-4 right-4 text-4xl text-gold/20" />
 
-        <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center justify-between gap-3 mb-3 pr-10">
           <div class="flex gap-0.5">
             <Icon
               v-for="star in 5"
@@ -40,7 +41,7 @@
           </span>
         </div>
 
-        <p class="text-sm text-olive/80 leading-relaxed mb-5">
+        <p dir="auto" class="flex-1 text-sm text-olive/80 leading-relaxed mb-5">
           {{ review.comment }}
         </p>
 
@@ -50,7 +51,7 @@
               {{ review.customer_name.charAt(0) }}
             </div>
             <div>
-              <p class="font-semibold text-olive text-sm">{{ review.customer_name }}</p>
+              <p dir="auto" class="font-semibold text-olive text-sm">{{ review.customer_name }}</p>
               <p class="text-xs text-taupe">{{ review.location }}</p>
             </div>
           </div>

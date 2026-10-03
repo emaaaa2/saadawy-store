@@ -1,6 +1,0 @@
-User-Agent: *
-Disallow: /admin
-Disallow: /checkout
-Disallow: /api/
-
-Sitemap: https://saadawy-store.vercel.app/sitemap.xml

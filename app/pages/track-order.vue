@@ -96,7 +96,7 @@
             :key="item.id"
             class="flex items-center justify-between text-sm"
           >
-            <span class="text-olive/80">{{ item.name }} × {{ item.quantity }}</span>
+            <span class="text-olive/80"><bdi>{{ item.name }}</bdi> × {{ item.quantity }}</span>
             <span class="font-medium text-olive">
               EGP {{ (item.sale_price ?? item.price) * item.quantity }}
             </span>

@@ -58,7 +58,7 @@
                 </div>
 
                 <div class="flex-1">
-                  <p class="text-sm font-medium text-olive mb-1">
+                  <p dir="auto" class="text-sm font-medium text-olive mb-1">
                     {{ item.name }}
                   </p>
                   <p class="text-sm font-bold text-olive mb-2">

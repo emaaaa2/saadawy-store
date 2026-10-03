@@ -14,34 +14,45 @@ export default defineEventHandler(async (event) => {
   const from = (page - 1) * limit
   const to = from + limit - 1
 
-  let dbQuery = client
-    .from('products')
-    .select('*', { count: 'exact' })
-    .range(from, to)
+  function buildQuery(photosFirst: boolean) {
+    let dbQuery = client
+      .from('products')
+      .select('*', { count: 'exact' })
+      .range(from, to)
 
-  if (sort === 'price_asc') {
-    dbQuery = dbQuery.order('price', { ascending: true })
-  } else if (sort === 'price_desc') {
-    dbQuery = dbQuery.order('price', { ascending: false })
-  } else if (sort === 'name_asc') {
-    dbQuery = dbQuery.order('name', { ascending: true })
-  } else {
-    dbQuery = dbQuery.order('created_at', { ascending: false })
+    if (sort === 'price_asc') {
+      dbQuery = dbQuery.order('price', { ascending: true })
+    } else if (sort === 'price_desc') {
+      dbQuery = dbQuery.order('price', { ascending: false })
+    } else if (sort === 'name_asc') {
+      dbQuery = dbQuery.order('name', { ascending: true })
+    } else {
+      // Default order: products that have a real photo first, newest first within each group.
+      if (photosFirst) dbQuery = dbQuery.order('has_photo', { ascending: false })
+      dbQuery = dbQuery.order('created_at', { ascending: false })
+    }
+
+    if (category) {
+      dbQuery = dbQuery.eq('category', category)
+    }
+
+    if (subcategory) {
+      dbQuery = dbQuery.eq('subcategory', subcategory)
+    }
+
+    if (search) {
+      dbQuery = dbQuery.ilike('name', `%${search}%`)
+    }
+
+    return dbQuery
   }
 
-  if (category) {
-    dbQuery = dbQuery.eq('category', category)
-  }
+  let { data, error, count } = await buildQuery(true)
 
-  if (subcategory) {
-    dbQuery = dbQuery.eq('subcategory', subcategory)
+  // has_photo comes from supabase_add_product_has_photo.sql; work without it until that's run.
+  if (error?.message.includes('has_photo')) {
+    ({ data, error, count } = await buildQuery(false))
   }
-
-  if (search) {
-    dbQuery = dbQuery.ilike('name', `%${search}%`)
-  }
-
-  const { data, error, count } = await dbQuery
 
   if (error) {
     throw createError({

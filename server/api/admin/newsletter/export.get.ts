@@ -2,7 +2,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 import Papa from 'papaparse'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'newsletter')
 
   const client = serverSupabaseServiceRole(event)
 

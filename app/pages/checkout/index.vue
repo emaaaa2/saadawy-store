@@ -34,7 +34,7 @@
           class="flex justify-between text-sm py-2 border-b border-olive/10 last:border-0"
         >
           <span class="text-olive/80"
-            >{{ item.name }} × {{ item.quantity }}</span
+            ><bdi>{{ item.name }}</bdi> × {{ item.quantity }}</span
           >
           <span class="font-medium text-olive"
             >EGP {{ (item.sale_price ?? item.price) * item.quantity }}</span
@@ -141,44 +141,18 @@
         >
         <div class="space-y-2">
           <label
+            v-for="method in paymentMethods"
+            :key="method.value"
             class="flex items-center gap-3 border border-olive/20 rounded-lg p-3 cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5"
           >
             <input
               v-model="form.paymentMethod"
               type="radio"
-              value="cash_on_delivery"
+              :value="method.value"
               required
             />
-            <Icon name="mdi:cash" class="text-lg text-olive" />
-            <span class="text-sm text-olive">Cash on Delivery</span>
-          </label>
-
-          <label
-            class="flex items-center gap-3 border border-olive/20 rounded-lg p-3 cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5"
-          >
-            <input
-              v-model="form.paymentMethod"
-              type="radio"
-              value="bank_transfer"
-              required
-            />
-            <Icon name="mdi:bank-transfer" class="text-lg text-olive" />
-            <span class="text-sm text-olive"
-              >Bank Transfer / Vodafone Cash</span
-            >
-          </label>
-
-          <label
-            class="flex items-center gap-3 border border-olive/20 rounded-lg p-3 cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5"
-          >
-            <input
-              v-model="form.paymentMethod"
-              type="radio"
-              value="card"
-              required
-            />
-            <Icon name="mdi:credit-card-outline" class="text-lg text-olive" />
-            <span class="text-sm text-olive">Pay by Card</span>
+            <Icon :name="method.icon" class="text-lg text-olive" />
+            <span class="text-sm text-olive">{{ method.label }}</span>
           </label>
         </div>
       </div>
@@ -190,6 +164,12 @@
       >
         {{ isSubmitting ? "Placing Order..." : "Place Order" }}
       </button>
+      <p class="text-xs text-taupe text-center -mt-2">
+        By placing your order you agree to our
+        <NuxtLink to="/terms" target="_blank" class="underline hover:text-gold">Terms</NuxtLink>
+        and
+        <NuxtLink to="/returns" target="_blank" class="underline hover:text-gold">Returns Policy</NuxtLink>.
+      </p>
     </form>
   </div>
 </template>
@@ -198,6 +178,9 @@
 const cart = useCartStore();
 const user = useSupabaseUser();
 const isSubmitting = ref(false);
+useSeoMeta({ title: "Checkout", robots: "noindex" });
+const storeSettings = useStoreSettings();
+const paymentMethods = computed(() => enabledPaymentMethods(storeSettings.value));
 
 const { data: shippingSettings } = await useFetch('/api/shipping-settings');
 
@@ -323,10 +306,19 @@ async function handleSubmit() {
     let message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0APhone: ${form.value.phone}%0AAddress: ${encodeURIComponent(form.value.address)}%0A%0AItems:%0A${itemsList}%0A%0ATotal: EGP ${order.total}`
 
     if (form.value.paymentMethod === 'bank_transfer') {
-      message += `%0A%0APlease transfer to:%0AVodafone Cash: 01000000000%0ABank Account: XXXXXXXXXXXX (Bank Name)%0AThen send me the receipt here.`
+      const s = storeSettings.value
+      const lines = [
+        s.vodafoneCash && `Vodafone Cash: ${s.vodafoneCash}`,
+        s.instapay && `InstaPay: ${s.instapay}`,
+        s.bankAccountNumber && `Bank Account: ${s.bankAccountNumber}${s.bankName ? ` (${s.bankName})` : ''}`,
+        s.bankAccountName && `Account Name: ${s.bankAccountName}`,
+      ].filter(Boolean)
+      message += lines.length
+        ? `%0A%0APlease transfer to:%0A${lines.map(encodeURIComponent).join('%0A')}%0AThen send me the receipt here.`
+        : `%0A%0APlease send me the transfer details.`
     }
 
-    const whatsappUrl = `https://wa.me/201025287580?text=${message}`
+    const whatsappUrl = `https://wa.me/${toWhatsAppNumber(storeSettings.value.whatsappOrders)}?text=${message}`
     cart.clearCart()
     window.location.href = whatsappUrl
   } catch (error) {

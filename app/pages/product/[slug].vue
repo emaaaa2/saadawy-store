@@ -23,7 +23,7 @@
           {{ product.category }}
         </NuxtLink>
         <Icon name="mdi:chevron-right" class="text-base shrink-0" />
-        <span class="text-olive truncate max-w-[200px] sm:max-w-none">{{ product.name }}</span>
+        <span dir="auto" class="text-olive truncate max-w-[200px] sm:max-w-none">{{ product.name }}</span>
       </nav>
 
       <div class="grid md:grid-cols-2 gap-phi-3">
@@ -102,7 +102,7 @@
         <p class="text-sm text-gold font-semibold uppercase tracking-wide mb-2 capitalize">
           {{ product.category }}
         </p>
-        <h1 class="text-phi-h2 font-bold text-olive mb-2">{{ product.name }}</h1>
+        <h1 dir="auto" class="text-phi-h2 font-bold text-olive mb-2">{{ product.name }}</h1>
 
         <button
           class="flex items-center gap-2 mb-4 hover:opacity-80 transition"
@@ -136,7 +136,7 @@
           </span>
         </div>
 
-        <p class="text-olive/70 leading-relaxed mb-6">
+        <p v-if="product.description" dir="auto" class="text-olive/70 leading-relaxed mb-6 whitespace-pre-line">
           {{ product.description }}
         </p>
 
@@ -146,7 +146,7 @@
 
         <div v-if="product.usage_info" class="mb-6">
           <h3 class="text-sm font-semibold text-olive mb-1">Ingredients / How to Use</h3>
-          <p class="text-sm text-olive/70 leading-relaxed whitespace-pre-line">{{ product.usage_info }}</p>
+          <p dir="auto" class="text-sm text-olive/70 leading-relaxed whitespace-pre-line">{{ product.usage_info }}</p>
         </div>
 
         <div class="flex items-center gap-2 mb-8">
@@ -163,7 +163,7 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div ref="mainCta" class="flex items-center gap-3">
           <div class="flex items-center border border-olive/20 rounded-full">
             <button
               class="w-10 h-10 flex items-center justify-center text-olive hover:bg-olive/5 transition"
@@ -189,9 +189,62 @@
             Add to Cart
           </button>
         </div>
+
+        <ul class="mt-6 pt-5 border-t border-olive/10 space-y-2.5 text-sm text-olive/80">
+          <li v-if="storeSettings.paymentMethods.cash_on_delivery" class="flex items-center gap-2.5">
+            <Icon name="mdi:cash" class="text-lg text-gold shrink-0" />
+            Cash on delivery available
+          </li>
+          <li v-if="freeShippingOver" class="flex items-center gap-2.5">
+            <Icon name="mdi:truck-fast-outline" class="text-lg text-gold shrink-0" />
+            Free shipping on orders over EGP {{ freeShippingOver.toLocaleString('en-US') }}
+          </li>
+          <li v-if="storeSettings.deliveryTime" class="flex items-center gap-2.5">
+            <Icon name="mdi:clock-outline" class="text-lg text-gold shrink-0" />
+            Delivery in {{ storeSettings.deliveryTime }}
+          </li>
+          <li class="flex items-center gap-2.5">
+            <Icon name="mdi:check-decagram-outline" class="text-lg text-gold shrink-0" />
+            100% original products
+          </li>
+          <li class="flex items-center gap-2.5">
+            <Icon name="mdi:whatsapp" class="text-lg text-gold shrink-0" />
+            <span>
+              Questions?
+              <a :href="questionLink" target="_blank" rel="noopener noreferrer" class="font-semibold text-olive underline underline-offset-2 hover:text-gold transition">
+                Ask us on WhatsApp
+              </a>
+            </span>
+          </li>
+        </ul>
       </div>
       </div>
     </div>
+
+    <Transition name="cta-slide">
+      <div
+        v-if="product && showStickyCta"
+        class="md:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-olive/10 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+      >
+        <div class="flex items-center gap-3">
+          <div class="min-w-0 flex-1">
+            <p dir="auto" class="text-xs text-taupe truncate">{{ product.name }}</p>
+            <p class="font-bold text-olive">
+              EGP {{ product.sale_price ?? product.price }}
+              <span v-if="product.sale_price" class="text-xs font-normal text-taupe line-through ml-1">EGP {{ product.price }}</span>
+            </p>
+          </div>
+          <button
+            :disabled="product.stock === 0"
+            class="shrink-0 bg-olive text-beige px-5 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition disabled:opacity-40 flex items-center gap-2"
+            @click="handleAddToCart"
+          >
+            <Icon name="mdi:cart-outline" class="text-lg" />
+            {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+          </button>
+        </div>
+      </div>
+    </Transition>
 
     <div v-if="relatedProducts.length > 0" class="mt-phi-4">
       <h2 class="text-phi-h2 font-bold text-olive mb-phi-2">You May Also Like</h2>
@@ -232,7 +285,7 @@
           </div>
 
           <div class="p-3">
-            <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
+            <p dir="auto" class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
               {{ related.name }}
             </p>
             <div v-if="related.reviewCount" class="flex items-center gap-1 mb-1">
@@ -293,7 +346,7 @@
           </div>
 
           <div class="p-3">
-            <p class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
+            <p dir="auto" class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
               {{ item.name }}
             </p>
             <span class="font-bold text-olive text-sm">
@@ -384,6 +437,38 @@ function handleAddToCart() {
   }
 }
 
+const storeSettings = useStoreSettings()
+const { data: shippingSettings } = await useFetch('/api/shipping-settings', { key: 'shipping-settings' })
+const freeShippingOver = computed(() => Number(shippingSettings.value?.free_shipping_threshold) || 0)
+
+const questionLink = computed(() => {
+  if (!product.value) return ''
+  const text = `Hi! I have a question about ${product.value.name}\n${siteUrl}/product/${product.value.slug}`
+  return `https://wa.me/${toWhatsAppNumber(storeSettings.value.whatsappSupport)}?text=${encodeURIComponent(text)}`
+})
+
+// On phones, keep an Add to Cart bar at the bottom while the main button is off screen.
+const mainCta = ref(null)
+const showStickyCta = ref(false)
+const ctaVisible = useState('mobile-cta-visible', () => false)
+let ctaObserver = null
+
+watch(showStickyCta, (value) => { ctaVisible.value = value })
+
+watch(mainCta, (element) => {
+  ctaObserver?.disconnect()
+  if (!element || !import.meta.client) return
+  ctaObserver = new IntersectionObserver(([entry]) => {
+    showStickyCta.value = !entry.isIntersecting
+  })
+  ctaObserver.observe(element)
+}, { flush: 'post' })
+
+onUnmounted(() => {
+  ctaObserver?.disconnect()
+  ctaVisible.value = false
+})
+
 const recentItems = computed(() => {
   return recentlyViewed.items.filter((item) => item.id !== product.value?.id).slice(0, 4)
 })
@@ -437,3 +522,13 @@ useHead(() => {
   }
 })
 </script>
+<style scoped>
+.cta-slide-enter-active,
+.cta-slide-leave-active {
+  transition: transform 0.25s ease;
+}
+.cta-slide-enter-from,
+.cta-slide-leave-to {
+  transform: translateY(100%);
+}
+</style>

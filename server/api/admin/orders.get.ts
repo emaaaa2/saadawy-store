@@ -1,6 +1,6 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'orders')
 
 const client = serverSupabaseServiceRole(event)
   const { data, error } = await client

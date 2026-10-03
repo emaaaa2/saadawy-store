@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'newsletter')
 
   const client = serverSupabaseServiceRole(event)
   const query = getQuery(event)
@@ -23,8 +23,9 @@ export default defineEventHandler(async (event) => {
 
   return {
     subscribers: data,
-    total: count,
+    total: count ?? 0,
     page,
+    pageSize: limit,
     totalPages: Math.ceil((count ?? 0) / limit)
   }
 })

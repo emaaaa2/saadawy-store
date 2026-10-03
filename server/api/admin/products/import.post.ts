@@ -11,7 +11,7 @@ function toSlug(sku: string, name: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event)
+  await requireAdmin(event, 'products')
 
   const client = serverSupabaseServiceRole(event)
   const body = await readBody(event)

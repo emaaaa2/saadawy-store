@@ -9,21 +9,19 @@
           Our Store Location
         </h2>
 
-        <div class="flex items-start gap-3 mb-4">
+        <div v-if="settings.address" class="flex items-start gap-3 mb-4">
           <Icon name="mdi:map-marker-outline" class="text-2xl text-gold shrink-0 mt-0.5" />
-          <p class="text-olive/80 leading-relaxed">
-برج الحرميين بجوار مستشفى وادي الطب, الشارع الجديد, شبرا الخيمة, محافظة القليوبية          </p>
+          <p class="text-olive/80 leading-relaxed">{{ settings.address }}</p>
         </div>
 
-        <div class="flex items-start gap-3 mb-6">
+        <div v-if="settings.openingHours" class="flex items-start gap-3 mb-6">
           <Icon name="mdi:clock-outline" class="text-2xl text-gold shrink-0 mt-0.5" />
-          <p class="text-olive/80">
-            Open daily: 10:00 AM – 2:00 AM
-          </p>
+          <p class="text-olive/80">{{ settings.openingHours }}</p>
         </div>
 
         <a
-          href="https://maps.app.goo.gl/52oY7s4JVhZtr1g37"
+          v-if="settings.mapUrl"
+          :href="settings.mapUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 bg-olive text-beige px-6 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
@@ -44,3 +42,7 @@
     </div>
   </section>
 </template>
+
+<script setup>
+const settings = useStoreSettings()
+</script>

@@ -48,6 +48,7 @@ const paymentPending = computed(() => route.query.pending === 'true')
 const paymentSucceeded = computed(() => route.query.success === 'true' && !paymentPending.value)
 
 const whatsappUrl = ref('')
+const settings = useStoreSettings()
 
 onMounted(() => {
   if (!paymentSucceeded.value) return
@@ -62,7 +63,7 @@ onMounted(() => {
 
   const message = `Hi! I just paid for my order.%0AOrder Number: ${order.orderNumber}%0AName: ${order.customerName}%0APhone: ${order.phone}%0AAddress: ${encodeURIComponent(order.address)}%0A%0AItems:%0A${itemsList}%0A%0ATotal: EGP ${order.total}`
 
-  whatsappUrl.value = `https://wa.me/201025287580?text=${message}`
+  whatsappUrl.value = `https://wa.me/${toWhatsAppNumber(settings.value.whatsappOrders)}?text=${message}`
   sessionStorage.removeItem('lastOrder')
 })
 </script>

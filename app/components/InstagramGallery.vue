@@ -6,7 +6,8 @@
           Real Moments, Real Saadawy
         </h2>
         <a
-          href="https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn"
+          v-if="settings.instagramUrl"
+          :href="settings.instagramUrl"
           target="_blank"
           rel="noopener noreferrer"
           class="text-sm font-semibold text-gold hover:underline shrink-0"
@@ -46,6 +47,8 @@
 </template>
 
 <script setup>
+const settings = useStoreSettings()
+
 const photos = [
   "/images/perfume2.jpg",
   "/images/bag2.jpg",
