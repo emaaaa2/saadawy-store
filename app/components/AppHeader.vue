@@ -61,6 +61,31 @@
             <Icon name="mdi:truck-outline" class="text-2xl" />
           </NuxtLink>
 
+          <NuxtLink
+            v-if="isAdmin"
+            to="/admin"
+            class="hidden sm:block hover:text-gold transition"
+            aria-label="Admin Dashboard"
+          >
+            <Icon name="mdi:view-dashboard-outline" class="text-2xl" />
+          </NuxtLink>
+
+          <NuxtLink
+            to="/account"
+            class="hidden sm:block hover:text-gold transition"
+            :aria-label="user ? 'My Account' : 'Sign in'"
+          >
+            <img
+              v-if="accountAvatar && !avatarFailed"
+              :src="accountAvatar"
+              alt=""
+              referrerpolicy="no-referrer"
+              class="w-7 h-7 rounded-full object-cover ring-1 ring-olive/15"
+              @error="avatarFailed = true"
+            />
+            <Icon v-else name="mdi:account-outline" class="text-2xl" />
+          </NuxtLink>
+
           <button
             class="relative hover:text-gold transition"
             aria-label="Cart"
@@ -309,6 +334,23 @@
           <Icon name="mdi:truck-outline" class="text-xl" />
           <span>Track Order</span>
         </NuxtLink>
+        <NuxtLink
+          to="/account"
+          class="flex items-center gap-2 hover:text-gold transition"
+          @click="isMenuOpen = false"
+        >
+          <Icon name="mdi:account-outline" class="text-xl" />
+          <span>{{ user ? 'My Account' : 'Sign in' }}</span>
+        </NuxtLink>
+        <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="flex items-center gap-2 hover:text-gold transition"
+          @click="isMenuOpen = false"
+        >
+          <Icon name="mdi:view-dashboard-outline" class="text-xl" />
+          <span>Dashboard</span>
+        </NuxtLink>
       </div>
     </div>
   </header>
@@ -319,6 +361,12 @@ const isMenuOpen = ref(false);
 const cartUI = useCartUIStore();
 const cart = useCartStore();
 const wishlist = useWishlistStore();
+const user = useSupabaseUser();
+const { isAdmin, check: checkAdmin } = useIsAdmin();
+onMounted(checkAdmin);
+watch(user, checkAdmin);
+const avatarFailed = ref(false);
+const accountAvatar = computed(() => user.value?.user_metadata?.avatar_url || user.value?.user_metadata?.picture || "");
 
 const searchQuery = ref("");
 const searchResults = ref([]);

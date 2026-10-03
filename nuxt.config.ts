@@ -4,8 +4,7 @@ export default defineNuxtConfig({
   modules: ["@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@nuxtjs/tailwindcss", "@pinia/nuxt", "@nuxtjs/supabase"],
   
   runtimeConfig: {
-  adminPassword: process.env.ADMIN_PASSWORD,
-  sessionSecret: process.env.SESSION_SECRET,
+  adminEmails: process.env.ADMIN_EMAILS,
    paymobSecretKey: process.env.PAYMOB_SECRET_KEY,
   paymobCardIntegrationId: process.env.PAYMOB_CARD_INTEGRATION_ID,
   paymobHmacSecret: process.env.PAYMOB_HMAC_SECRET,
@@ -26,12 +25,10 @@ export default defineNuxtConfig({
     quality: 80,
   },
   supabase: {
-    redirectOptions: {
-      login: '/login',
-      callback: '/confirm',
-      exclude: ['/*'],
-      redirect: false
-    }
+    redirect: false
+  },
+  routeRules: {
+    '/confirm': { ssr: false }
   },
   app: {
     pageTransition: { name: 'page'},

@@ -2,7 +2,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  requireAdminSession(event, config.sessionSecret)
+  await requireAdmin(event)
 
   if (!config.resendApiKey) {
     throw createError({ statusCode: 500, statusMessage: 'Email service is not configured yet (missing RESEND_API_KEY)' })

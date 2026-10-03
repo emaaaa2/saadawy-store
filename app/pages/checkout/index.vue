@@ -11,6 +11,21 @@
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-phi-2">
+      <div v-if="user" class="flex items-center gap-2 text-sm text-olive/80 bg-sage/10 rounded-xl px-4 py-3">
+        <Icon name="mdi:check-circle-outline" class="text-lg text-sage shrink-0" />
+        <span>Signed in as <span class="font-semibold">{{ user.email }}</span> — this order will be saved to your account.</span>
+      </div>
+      <div v-else class="flex flex-wrap items-center justify-between gap-3 text-sm bg-beige border border-olive/10 rounded-xl px-4 py-3">
+        <span class="text-olive/80">Sign in to save this order and check out faster next time — or continue as a guest.</span>
+        <NuxtLink
+          to="/login?next=/checkout"
+          class="flex items-center gap-2 font-semibold text-olive bg-white border border-olive/20 rounded-full px-4 py-1.5 hover:border-gold transition shrink-0"
+        >
+          <GoogleIcon />
+          Sign in
+        </NuxtLink>
+      </div>
+
       <div class="bg-beige border border-olive/10 rounded-2xl p-5">
         <h3 class="font-semibold text-olive mb-3">Order Summary</h3>
         <div
@@ -181,6 +196,7 @@
 
 <script setup>
 const cart = useCartStore();
+const user = useSupabaseUser();
 const isSubmitting = ref(false);
 
 const { data: shippingSettings } = await useFetch('/api/shipping-settings');
@@ -210,6 +226,25 @@ const shippingFee = computed(() => {
 
 const finalTotal = computed(() => {
   return afterDiscount.value + shippingFee.value;
+});
+
+onMounted(async () => {
+  if (!user.value) return;
+
+  const meta = user.value.user_metadata ?? {};
+  form.value.customerName ||= meta.full_name || meta.name || "";
+
+  try {
+    const { orders } = await $fetch("/api/account/orders", { query: { limit: 1 } });
+    const lastOrder = orders[0];
+    if (lastOrder) {
+      form.value.phone ||= lastOrder.phone || "";
+      form.value.governorate ||= lastOrder.governorate || "";
+      form.value.address ||= lastOrder.address || "";
+    }
+  } catch {
+    // prefill is a convenience; the form still works empty
+  }
 });
 
 async function handleApplyCoupon() {

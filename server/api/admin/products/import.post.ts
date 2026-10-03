@@ -11,8 +11,7 @@ function toSlug(sku: string, name: string) {
 }
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  requireAdminSession(event, config.sessionSecret)
+  await requireAdmin(event)
 
   const client = serverSupabaseServiceRole(event)
   const body = await readBody(event)

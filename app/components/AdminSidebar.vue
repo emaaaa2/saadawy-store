@@ -120,13 +120,27 @@
         <Icon name="mdi:arrow-left" class="text-lg" />
         Back to Store
       </NuxtLink>
+      <button
+        type="button"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-beige/60 hover:bg-beige/10 transition text-left"
+        @click="signOut"
+      >
+        <Icon name="mdi:logout" class="text-lg" />
+        Sign out
+      </button>
     </aside>
   </div>
 </template>
 
 <script setup>
 const route = useRoute()
+const supabase = useSupabaseClient()
 const isOpen = ref(false)
+
+async function signOut() {
+  await supabase.auth.signOut()
+  await navigateTo('/')
+}
 const pendingCount = ref(0)
 const lowStockCount = ref(0)
 

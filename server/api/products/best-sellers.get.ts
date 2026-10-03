@@ -1,8 +1,7 @@
-import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
-  const serviceClient = serverSupabaseServiceRole(event)
+  const client = serverSupabaseServiceRole(event)
   const query = getQuery(event)
   const page = Number(query.page) || 1
   const limit = Math.min(Number(query.limit) || 24, 100)
@@ -10,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const search = query.search as string | undefined
   const sort = query.sort as string | undefined
 
-  const { data: orders, error: ordersError } = await serviceClient
+  const { data: orders, error: ordersError } = await client
     .from('orders')
     .select('items')
     .neq('status', 'cancelled')
@@ -70,7 +69,7 @@ export default defineEventHandler(async (event) => {
 
   const productIds = paged.map((p) => p.id)
   if (productIds.length > 0) {
-    const { data: reviews } = await serviceClient
+    const { data: reviews } = await client
       .from('reviews')
       .select('product_id, rating')
       .eq('approved', true)

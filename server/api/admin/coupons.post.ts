@@ -1,8 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  requireAdminSession(event, config.sessionSecret)
+  await requireAdmin(event)
 
   const body = await readBody(event)
   const code = typeof body.code === 'string' ? body.code.trim().toUpperCase() : ''

@@ -1,7 +1,8 @@
-import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
+  const client = serverSupabaseServiceRole(event)
+  const customer = await serverSupabaseUser(event).catch(() => null)
   const body = await readBody(event)
 
   const itemIds = body.items.map((item) => item.id)
@@ -47,11 +48,10 @@ export default defineEventHandler(async (event) => {
   let discount = 0
   let couponCode: string | null = null
   let couponRow = null
-  const serviceClient = serverSupabaseServiceRole(event)
 
   if (body.couponCode) {
     const code = String(body.couponCode).trim().toUpperCase()
-    const { data: coupon } = await serviceClient
+    const { data: coupon } = await client
       .from('coupons')
       .select('*')
       .eq('code', code)
@@ -76,7 +76,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Governorate is required' })
   }
 
-  const { data: shippingSettings } = await serviceClient
+  const { data: shippingSettings } = await client
     .from('shipping_settings')
     .select('tier1_fee, tier2_fee, tier3_fee, free_shipping_threshold')
     .eq('id', 1)
@@ -126,7 +126,8 @@ export default defineEventHandler(async (event) => {
       discount,
       shipping_fee: shippingFee,
       coupon_code: couponCode,
-      status
+      status,
+      ...(customer?.sub ? { user_id: customer.sub } : {})
     })
 
   if (error) {
@@ -140,7 +141,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (couponRow) {
-    await serviceClient
+    await client
       .from('coupons')
       .update({ used_count: couponRow.used_count + 1 })
       .eq('id', couponRow.id)

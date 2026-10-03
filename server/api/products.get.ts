@@ -1,7 +1,7 @@
-import { serverSupabaseClient, serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  const client = await serverSupabaseClient(event)
+  const client = serverSupabaseServiceRole(event)
 
   const query = getQuery(event)
   const page = Number(query.page) || 1
@@ -54,8 +54,7 @@ export default defineEventHandler(async (event) => {
   let products = data
 
   if (productIds.length > 0) {
-    const serviceClient = serverSupabaseServiceRole(event)
-    const { data: reviews } = await serviceClient
+    const { data: reviews } = await client
       .from('reviews')
       .select('product_id, rating')
       .eq('approved', true)
