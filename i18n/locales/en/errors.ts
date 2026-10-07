@@ -1,0 +1,22 @@
+// Messages for error codes the server sends (server/utils/customerError.ts).
+export default {
+  paymentMethod: 'Please choose an available payment method',
+  invalidItems: 'One or more items in your cart are no longer available',
+  invalidQuantity: 'Invalid item quantity',
+  couponMissing: 'Please enter a coupon code',
+  couponInvalid: 'Invalid coupon code',
+  couponInactive: 'This coupon is no longer active',
+  couponExpired: 'This coupon has expired',
+  couponUsedUp: 'This coupon has reached its usage limit',
+  couponMinOrder: 'This coupon requires a minimum order of EGP {amount}',
+  invalidTotal: 'Invalid order total',
+  governorate: 'Please choose your governorate',
+  outOfStock: '{name} is out of stock',
+  reviewName: 'Please enter your name',
+  reviewComment: 'Please enter a review (max 1000 characters)',
+  reviewRating: 'Please choose a rating from 1 to 5',
+  invalidEmail: 'Please enter a valid email address',
+  trackMissing: 'Please enter your order number and phone number',
+  trackNotFound: 'Order not found. Please check your order number and phone number.',
+  signInForOrders: 'Please sign in to view your orders',
+}

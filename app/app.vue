@@ -66,7 +66,12 @@ onMounted(() => {
 }
 
 .loading-bg {
-  background: #ffffff;
+  background: rgb(var(--color-surface));
+}
+
+/* In dark mode the olive logo turns warm off-white. */
+html.dark .loading-bg img {
+  filter: brightness(0) invert(0.9) sepia(0.15);
 }
 
 .loading-icon-spin {

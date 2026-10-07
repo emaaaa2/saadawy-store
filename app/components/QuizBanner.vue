@@ -6,18 +6,18 @@
 
       <!-- Compact on phones so products show up sooner; same as before from tablets up. -->
       <div class="relative flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6 p-5 sm:p-10">
-        <div class="flex flex-row items-center gap-4 sm:gap-5 text-left">
+        <div class="flex flex-row items-center gap-4 sm:gap-5 text-start">
           <div class="relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
             <span class="pulse-ring absolute inset-0 rounded-full bg-gold"></span>
             <span class="pulse-ring pulse-ring-delay absolute inset-0 rounded-full bg-gold"></span>
-            <div class="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gold to-champagne flex items-center justify-center shadow-lg shadow-gold/20">
+            <div class="relative w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-gold to-tint flex items-center justify-center shadow-lg shadow-gold/20">
               <Icon name="mdi:auto-fix" class="text-2xl sm:text-3xl text-white" />
             </div>
           </div>
           <div>
-            <p class="hidden sm:block text-xs font-bold text-gold uppercase tracking-widest mb-1">Personalized Shopping</p>
-            <h2 class="text-lg sm:text-phi-h3 font-bold text-beige mb-1 leading-snug">Not sure where to start?</h2>
-            <p class="text-xs sm:text-sm text-beige/70 max-w-sm">Take our 30-second Beauty Quiz and get products picked just for you.</p>
+            <p class="hidden sm:block text-xs font-bold text-gold uppercase tracking-widest mb-1">{{ $t('home.quiz.eyebrow') }}</p>
+            <h2 class="text-lg sm:text-phi-h3 font-bold text-beige mb-1 leading-snug">{{ $t('home.quiz.title') }}</h2>
+            <p class="text-xs sm:text-sm text-beige/70 max-w-sm">{{ $t('home.quiz.text') }}</p>
           </div>
         </div>
 
@@ -25,8 +25,10 @@
           to="/quiz"
           class="shrink-0 w-full md:w-auto inline-flex items-center justify-center gap-2 bg-gold text-olive font-bold px-8 py-3 sm:py-3.5 rounded-full hover:bg-champagne hover:shadow-lg hover:scale-105 transition-all duration-200"
         >
-          Take the Quiz
-          <Icon name="mdi:arrow-right" class="nudge-arrow text-lg" />
+          {{ $t('home.quiz.cta') }}
+          <span class="inline-flex rtl:-scale-x-100">
+            <Icon name="mdi:arrow-right" class="nudge-arrow text-lg" />
+          </span>
         </NuxtLink>
       </div>
     </div>

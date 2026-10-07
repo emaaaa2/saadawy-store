@@ -3,7 +3,7 @@
     :is="to ? NuxtLink : 'div'"
     :to="to || undefined"
     class="adm-card p-5 flex items-start gap-4"
-    :class="{ 'hover:border-olive/30 hover:shadow-md transition': to }"
+    :class="{ 'hover:border-ink/30 hover:shadow-md transition': to }"
   >
     <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" :class="tones[tone]">
       <Icon :name="icon" class="text-xl" />
@@ -29,11 +29,11 @@ defineProps({
 })
 
 const tones = {
-  olive: 'bg-olive/10 text-olive',
+  olive: 'bg-ink/10 text-ink',
   gold: 'bg-gold/15 text-gold',
-  amber: 'bg-amber-50 text-amber-600',
-  red: 'bg-red-50 text-red-600',
-  sky: 'bg-sky-50 text-sky-600',
-  emerald: 'bg-emerald-50 text-emerald-600',
+  amber: 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400',
+  red: 'bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400',
+  sky: 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400',
+  emerald: 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
 }
 </script>

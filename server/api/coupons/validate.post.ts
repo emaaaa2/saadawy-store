@@ -6,10 +6,10 @@ export default defineEventHandler(async (event) => {
   const subtotal = Number(body.subtotal)
 
   if (!code) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter a coupon code' })
+    throw customerError(400, 'couponMissing', 'Please enter a coupon code')
   }
   if (!Number.isFinite(subtotal) || subtotal < 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid order total' })
+    throw customerError(400, 'invalidTotal', 'Invalid order total')
   }
 
   const client = serverSupabaseServiceRole(event)
@@ -21,13 +21,13 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error || !coupon) {
-    throw createError({ statusCode: 404, statusMessage: 'Invalid coupon code' })
+    throw customerError(404, 'couponInvalid', 'Invalid coupon code')
   }
 
   const result = calculateDiscount(coupon, subtotal)
 
   if (!result.valid) {
-    throw createError({ statusCode: 400, statusMessage: result.reason })
+    throw customerError(400, result.code!, result.reason!, result.params)
   }
 
   return {

@@ -6,11 +6,16 @@ export default defineEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
   const row = readProductInput(await readBody(event))
 
-  const { data, error } = await client
+  const slug = productSlug(row.sku as string | null, row.name as string)
+  const save = (values: Record<string, unknown>) => client
     .from('products')
-    .insert({ ...row, slug: productSlug(row.sku as string | null, row.name as string) })
+    .insert({ ...values, slug })
     .select()
     .single()
+
+  let { data, error } = await save(row)
+  const fallback = error && isMissingTranslationColumns(error) ? withoutEmptyTranslations(row) : null
+  if (fallback) ({ data, error } = await save(fallback))
 
   if (error) throw productSaveError(error)
 

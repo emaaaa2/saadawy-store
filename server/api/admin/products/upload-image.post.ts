@@ -17,14 +17,14 @@ export default defineEventHandler(async (event) => {
   const sku = parts?.find((part) => part.name === 'sku')?.data.toString().replace(/[^\w-]/g, '').slice(0, 50)
 
   if (!file) {
-    throw createError({ statusCode: 400, statusMessage: 'Choose an image to upload' })
+    throw adminError(400, 'chooseImage', 'Choose an image to upload')
   }
   const extension = EXTENSIONS[file.type ?? '']
   if (!extension) {
-    throw createError({ statusCode: 400, statusMessage: 'Use a JPG, PNG, WebP or AVIF image' })
+    throw adminError(400, 'imageType', 'Use a JPG, PNG, WebP or AVIF image')
   }
   if (file.data.length > MAX_BYTES) {
-    throw createError({ statusCode: 413, statusMessage: 'Image is too large (max 4 MB)' })
+    throw adminError(413, 'imageTooLarge', 'Image is too large (max 4 MB)', { max: 4 })
   }
 
   const path = `${sku || 'product'}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.${extension}`

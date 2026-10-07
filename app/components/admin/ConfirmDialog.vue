@@ -2,17 +2,17 @@
   <Teleport to="body">
     <Transition name="adm-fade">
       <div v-if="request" class="fixed inset-0 z-[160] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-stone-900/40" @click="settle(false)"></div>
+        <div class="absolute inset-0 bg-black/50" @click="settle(false)"></div>
         <div
           role="alertdialog"
           aria-modal="true"
           :aria-label="request.title"
-          class="relative w-full max-w-md bg-white rounded-xl shadow-2xl p-6"
+          class="relative w-full max-w-md bg-surface rounded-xl shadow-2xl p-6"
         >
           <div class="flex gap-4">
             <div
               class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-              :class="request.danger ? 'bg-red-50 text-red-600' : 'bg-olive/10 text-olive'"
+              :class="request.danger ? 'bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-ink/10 text-ink'"
             >
               <Icon :name="request.danger ? 'mdi:alert-outline' : 'mdi:help-circle-outline'" class="text-xl" />
             </div>
@@ -22,7 +22,7 @@
             </div>
           </div>
           <div class="flex justify-end gap-2 mt-6">
-            <button type="button" class="adm-btn adm-btn-secondary" @click="settle(false)">Cancel</button>
+            <button type="button" class="adm-btn adm-btn-secondary" @click="settle(false)">{{ $t('admin.common.cancel') }}</button>
             <button
               ref="confirmButton"
               type="button"
@@ -30,7 +30,7 @@
               :class="request.danger ? 'adm-btn-danger' : 'adm-btn-primary'"
               @click="settle(true)"
             >
-              {{ request.confirmLabel || 'Confirm' }}
+              {{ request.confirmLabel || $t('admin.common.confirm') }}
             </button>
           </div>
         </div>

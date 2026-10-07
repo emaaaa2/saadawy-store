@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
 
   const settings = await getStoreSettings(event)
   if (!enabledPaymentMethods(settings).some((method) => method.value === body.paymentMethod)) {
-    throw createError({ statusCode: 400, statusMessage: 'Please choose an available payment method' })
+    throw customerError(400, 'paymentMethod', 'Please choose an available payment method')
   }
 
   const itemIds = body.items.map((item) => item.id)
@@ -27,11 +27,11 @@ export default defineEventHandler(async (event) => {
     const product = productMap.get(item.id)
 
     if (!product) {
-      throw createError({ statusCode: 400, statusMessage: 'One or more items are invalid' })
+      throw customerError(400, 'invalidItems', 'One or more items are invalid')
     }
 
     if (!Number.isInteger(item.quantity) || item.quantity < 1) {
-      throw createError({ statusCode: 400, statusMessage: 'Invalid item quantity' })
+      throw customerError(400, 'invalidQuantity', 'Invalid item quantity')
     }
 
     return {
@@ -63,12 +63,12 @@ export default defineEventHandler(async (event) => {
       .single()
 
     if (!coupon) {
-      throw createError({ statusCode: 400, statusMessage: 'Invalid coupon code' })
+      throw customerError(400, 'couponInvalid', 'Invalid coupon code')
     }
 
     const result = calculateDiscount(coupon, subtotal)
     if (!result.valid) {
-      throw createError({ statusCode: 400, statusMessage: result.reason })
+      throw customerError(400, result.code!, result.reason!, result.params)
     }
 
     discount = result.discount
@@ -78,7 +78,7 @@ export default defineEventHandler(async (event) => {
 
   const governorate = typeof body.governorate === 'string' ? body.governorate.trim() : ''
   if (!governorate) {
-    throw createError({ statusCode: 400, statusMessage: 'Governorate is required' })
+    throw customerError(400, 'governorate', 'Governorate is required')
   }
 
   const { data: shippingSettings } = await client
@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
       for (const done of reserved) {
         await client.rpc('increment_stock', { product_id: done.id, qty: done.quantity })
       }
-      throw createError({ statusCode: 409, statusMessage: `${item.name} is out of stock` })
+      throw customerError(409, 'outOfStock', `${item.name} is out of stock`, { name: item.name })
     }
 
     reserved.push(item)

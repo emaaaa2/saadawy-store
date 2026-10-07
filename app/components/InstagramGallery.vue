@@ -2,8 +2,8 @@
   <section class="px-6 py-8 md:py-phi-4">
     <div class="max-w-6xl mx-auto">
       <div class="flex items-center justify-between mb-4 md:mb-phi-3">
-        <h2 class="text-xl md:text-phi-h2 font-bold text-olive">
-          Real Moments, Real Saadawy
+        <h2 class="text-xl md:text-phi-h2 font-bold text-ink">
+          {{ $t('home.instagram.title') }}
         </h2>
         <a
           v-if="settings.instagramUrl"
@@ -12,7 +12,7 @@
           rel="noopener noreferrer"
           class="text-sm font-semibold text-gold hover:underline shrink-0"
         >
-          View All
+          {{ $t('common.viewAll') }}
         </a>
       </div>
 
@@ -28,7 +28,7 @@
         >
           <img
             :src="photo"
-            alt="Saadawy Store customer moment"
+            :alt="$t('home.instagram.title')"
             class="w-full h-full object-cover"
           />
         </div>
@@ -39,7 +39,7 @@
           v-for="(photo, index) in photos"
           :key="index"
           class="h-1.5 rounded-full transition-all"
-          :class="index === activeDot ? 'w-5 bg-gold' : 'w-1.5 bg-olive/20'"
+          :class="index === activeDot ? 'w-5 bg-gold' : 'w-1.5 bg-ink/20'"
         ></span>
       </div>
     </div>
@@ -65,9 +65,10 @@ function onScroll() {
   const el = scrollEl.value;
   if (!el) return;
   const itemWidth = el.scrollWidth / photos.length;
+  // scrollLeft goes negative when the page is right-to-left (Arabic).
   activeDot.value = Math.min(
     photos.length - 1,
-    Math.round(el.scrollLeft / itemWidth)
+    Math.round(Math.abs(el.scrollLeft) / itemWidth)
   );
 }
 </script>

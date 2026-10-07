@@ -6,22 +6,22 @@ export function calculateDiscount(coupon: {
   used_count: number
   active: boolean
   expires_at: string | null
-}, subtotal: number): { valid: boolean; reason?: string; discount: number } {
+}, subtotal: number): { valid: boolean; reason?: string; code?: string; params?: Record<string, unknown>; discount: number } {
   if (!coupon.active) {
-    return { valid: false, reason: 'This coupon is no longer active', discount: 0 }
+    return { valid: false, reason: 'This coupon is no longer active', code: 'couponInactive', discount: 0 }
   }
 
   if (coupon.expires_at && new Date(coupon.expires_at).getTime() < Date.now()) {
-    return { valid: false, reason: 'This coupon has expired', discount: 0 }
+    return { valid: false, reason: 'This coupon has expired', code: 'couponExpired', discount: 0 }
   }
 
   if (coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) {
-    return { valid: false, reason: 'This coupon has reached its usage limit', discount: 0 }
+    return { valid: false, reason: 'This coupon has reached its usage limit', code: 'couponUsedUp', discount: 0 }
   }
 
   const minOrder = coupon.min_order_total ?? 0
   if (subtotal < minOrder) {
-    return { valid: false, reason: `This coupon requires a minimum order of EGP ${minOrder}`, discount: 0 }
+    return { valid: false, reason: `This coupon requires a minimum order of EGP ${minOrder}`, code: 'couponMinOrder', params: { amount: minOrder }, discount: 0 }
   }
 
   const discount = coupon.discount_type === 'percentage'

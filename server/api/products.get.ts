@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   const from = (page - 1) * limit
   const to = from + limit - 1
 
-  function buildQuery(photosFirst: boolean) {
+  function buildQuery(photosFirst: boolean, englishNames = true) {
     let dbQuery = client
       .from('products')
       .select('*', { count: 'exact' })
@@ -41,13 +41,22 @@ export default defineEventHandler(async (event) => {
     }
 
     if (search) {
-      dbQuery = dbQuery.ilike('name', `%${search}%`)
+      // Search the English names too; strip characters that would break the filter syntax.
+      const term = search.replace(/[,()%*\\]/g, ' ').trim()
+      dbQuery = englishNames
+        ? dbQuery.or(`name.ilike.%${term}%,name_en.ilike.%${term}%`)
+        : dbQuery.ilike('name', `%${term}%`)
     }
 
     return dbQuery
   }
 
   let { data, error, count } = await buildQuery(true)
+
+  // name_en comes from supabase_add_product_translations.sql; search without it until that's run.
+  if (error?.message.includes('name_en')) {
+    ({ data, error, count } = await buildQuery(true, false))
+  }
 
   // has_photo comes from supabase_add_product_has_photo.sql; work without it until that's run.
   if (error?.message.includes('has_photo')) {

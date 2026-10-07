@@ -1,11 +1,11 @@
 <template>
   <div class="px-6 py-phi-4 max-w-2xl mx-auto text-center">
     <span class="inline-block text-sm font-semibold text-gold uppercase tracking-wide mb-3">
-      Get in Touch
+      {{ $t('pages.contact.eyebrow') }}
     </span>
-    <h1 class="text-phi-h1 font-bold text-olive mb-phi-2">Contact Us</h1>
-    <p class="text-olive/70 mb-phi-3 max-w-md mx-auto">
-      Have a question about a product or your order? We're here to help.
+    <h1 class="text-phi-h1 font-bold text-ink mb-phi-2">{{ $t('pages.contact.title') }}</h1>
+    <p class="text-ink/70 mb-phi-3 max-w-md mx-auto">
+      {{ $t('pages.contact.text') }}
     </p>
 
     <div class="grid gap-phi-2" :class="{ 'sm:grid-cols-2': settings.instagramUrl }">
@@ -13,12 +13,12 @@
         :href="`https://wa.me/${toWhatsAppNumber(settings.whatsappSupport)}`"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex flex-col items-center gap-3 bg-beige border border-olive/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
+        class="flex flex-col items-center gap-3 bg-page border border-ink/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
       >
         <Icon name="mdi:whatsapp" class="text-4xl text-sage" />
         <div>
-          <p class="font-semibold text-olive">WhatsApp</p>
-          <p class="text-sm text-taupe">Fastest way to reach us</p>
+          <p class="font-semibold text-ink">WhatsApp</p>
+          <p class="text-sm text-taupe">{{ $t('pages.contact.whatsappText') }}</p>
         </div>
       </a>
       <a
@@ -26,24 +26,24 @@
         :href="settings.instagramUrl"
         target="_blank"
         rel="noopener noreferrer"
-        class="flex flex-col items-center gap-3 bg-beige border border-olive/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
+        class="flex flex-col items-center gap-3 bg-page border border-ink/10 rounded-2xl p-6 hover:border-gold hover:shadow-lg transition"
       >
         <Icon name="mdi:instagram" class="text-4xl text-gold" />
         <div>
-          <p class="font-semibold text-olive">Instagram</p>
-          <p class="text-sm text-taupe">Follow for new arrivals</p>
+          <p class="font-semibold text-ink">Instagram</p>
+          <p class="text-sm text-taupe">{{ $t('pages.contact.instagramText') }}</p>
         </div>
       </a>
     </div>
 
-    <div class="mt-phi-3 pt-phi-3 border-t border-olive/10">
-      <div v-if="settings.address" class="flex items-start gap-3 justify-center mb-3">
+    <div class="mt-phi-3 pt-phi-3 border-t border-ink/10">
+      <div v-if="settingText('address')" class="flex items-start gap-3 justify-center mb-3">
         <Icon name="mdi:map-marker-outline" class="text-xl text-gold shrink-0 mt-0.5" />
-        <p class="text-olive/80 text-left">{{ settings.address }}</p>
+        <p dir="auto" class="text-ink/80 text-start">{{ settingText('address') }}</p>
       </div>
-      <div v-if="settings.openingHours" class="flex items-center gap-3 justify-center">
+      <div v-if="settingText('openingHours')" class="flex items-center gap-3 justify-center">
         <Icon name="mdi:clock-outline" class="text-xl text-gold" />
-        <p class="text-olive/80">{{ settings.openingHours }}</p>
+        <p dir="auto" class="text-ink/80">{{ settingText('openingHours') }}</p>
       </div>
     </div>
   </div>
@@ -51,9 +51,10 @@
 
 <script setup>
 const settings = useStoreSettings()
+const { t, settingText } = useLang()
 
 useSeoMeta({
-  title: 'Contact Us',
-  description: 'Reach Saadawy Store on WhatsApp or Instagram, or visit our store in Shubra El-Kheima.'
+  title: () => t('pages.contact.metaTitle'),
+  description: () => t('pages.contact.metaDescription')
 })
 </script>

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const updates = readCouponInput(await readBody(event), { partial: true })
 
   if (!Object.keys(updates).length) {
-    throw createError({ statusCode: 400, statusMessage: 'Nothing to update' })
+    throw adminError(400, 'nothingToUpdate', 'Nothing to update')
   }
 
   const client = serverSupabaseServiceRole(event)

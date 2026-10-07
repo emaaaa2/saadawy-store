@@ -2,8 +2,7 @@
   <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-stone-200 text-sm">
     <p class="text-stone-500">
       <template v-if="total">
-        Showing <span class="font-medium text-stone-800">{{ from }}–{{ to }}</span> of
-        <span class="font-medium text-stone-800">{{ total.toLocaleString('en-US') }}</span>
+        {{ $t('admin.common.showing', { from, to, total: total.toLocaleString('en-US') }) }}
       </template>
     </p>
     <div class="flex items-center gap-2">
@@ -13,8 +12,8 @@
         :disabled="modelValue <= 1"
         @click="$emit('update:modelValue', modelValue - 1)"
       >
-        <Icon name="mdi:chevron-left" class="text-base" />
-        Previous
+        <Icon name="mdi:chevron-left" class="text-base rtl:-scale-x-100" />
+        {{ $t('admin.common.previous') }}
       </button>
       <span class="text-stone-500 px-1">{{ modelValue }} / {{ Math.max(totalPages, 1) }}</span>
       <button
@@ -23,8 +22,8 @@
         :disabled="modelValue >= totalPages"
         @click="$emit('update:modelValue', modelValue + 1)"
       >
-        Next
-        <Icon name="mdi:chevron-right" class="text-base" />
+        {{ $t('admin.common.next') }}
+        <Icon name="mdi:chevron-right" class="text-base rtl:-scale-x-100" />
       </button>
     </div>
   </div>

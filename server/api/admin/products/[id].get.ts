@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error) {
-    throw createError({ statusCode: 404, statusMessage: 'Product not found' })
+    throw adminError(404, 'productNotFound', 'Product not found')
   }
 
   const storedImages = await getStoredImageNames(event)

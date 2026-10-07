@@ -1,53 +1,58 @@
 <template>
-  <header class="sticky top-0 z-30 h-16 bg-white/90 backdrop-blur border-b border-stone-200">
+  <header class="sticky top-0 z-30 h-16 bg-surface/90 backdrop-blur border-b border-stone-200">
     <div class="h-full flex items-center gap-3 px-4 sm:px-6 lg:px-8">
-      <button type="button" class="adm-icon-btn lg:hidden -ml-1" aria-label="Open menu" @click="isNavOpen = true">
+      <button type="button" class="adm-icon-btn lg:hidden -ms-1" :aria-label="$t('admin.nav.openMenu')" @click="isNavOpen = true">
         <Icon name="mdi:menu" class="text-xl" />
       </button>
 
       <form v-if="searchTargets.length" class="relative flex-1 max-w-md" role="search" @submit.prevent="go(searchTargets[0])">
-        <Icon name="mdi:magnify" class="absolute left-3 top-1/2 -translate-y-1/2 text-lg text-stone-400 pointer-events-none" />
+        <Icon name="mdi:magnify" class="absolute start-3 top-1/2 -translate-y-1/2 text-lg text-stone-400 pointer-events-none" />
         <input
           id="admin-search"
           v-model="query"
           type="search"
           autocomplete="off"
           :placeholder="searchPlaceholder"
-          class="adm-input pl-9 bg-stone-50 focus:bg-white"
+          class="adm-input ps-9 bg-stone-50 focus:bg-surface"
           @focus="isSearchOpen = true"
           @blur="closeSearchSoon"
         />
         <div
           v-if="isSearchOpen && query.trim()"
-          class="absolute left-0 right-0 top-full mt-1.5 adm-card shadow-lg py-1.5 overflow-hidden"
+          class="absolute start-0 end-0 top-full mt-1.5 adm-card shadow-lg py-1.5 overflow-hidden"
         >
           <button
             v-for="target in searchTargets"
             :key="target.path"
             type="button"
-            class="w-full flex items-center gap-3 px-3 py-2 text-sm text-left text-stone-800 hover:bg-stone-50"
+            class="w-full flex items-center gap-3 px-3 py-2 text-sm text-start text-stone-800 hover:bg-stone-50"
             @mousedown.prevent="go(target)"
           >
             <Icon :name="target.icon" class="text-lg text-stone-400" />
-            <span class="truncate">Search {{ target.label }} for “<span class="font-medium">{{ query.trim() }}</span>”</span>
+            <span class="truncate">{{ $t(`admin.nav.searchIn.${target.label}`, { query: query.trim() }) }}</span>
           </button>
         </div>
       </form>
 
-      <div class="ml-auto flex items-center gap-2">
+      <div class="ms-auto flex items-center gap-2">
         <NuxtLink
           v-if="can('orders')"
           to="/admin/orders?status=pending"
           class="adm-icon-btn relative"
-          :title="badges.orders ? `${badges.orders} pending orders` : 'No pending orders'"
-          aria-label="Pending orders"
+          :title="badges.orders ? tc('admin.nav.pendingOrders', badges.orders) : $t('admin.nav.noPending')"
+          :aria-label="$t('admin.status.pending')"
         >
           <Icon name="mdi:bell-outline" class="text-xl" />
-          <span v-if="badges.orders" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+          <span v-if="badges.orders" class="absolute top-1.5 end-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-surface"></span>
         </NuxtLink>
+        <LangSwitch class="hidden lg:inline-flex" />
+        <ThemeSwitch class="hidden lg:inline-flex" />
+        <!-- Small screens: compact buttons, so the search box keeps its room. -->
+        <LangSwitch compact class="lg:hidden" />
+        <ThemeSwitch compact class="adm-icon-btn lg:hidden" />
         <a href="/" target="_blank" rel="noopener" class="adm-btn adm-btn-secondary adm-btn-sm">
           <Icon name="mdi:open-in-new" class="text-base" />
-          <span class="hidden sm:inline">View store</span>
+          <span class="hidden sm:inline">{{ $t('admin.nav.viewStore') }}</span>
         </a>
       </div>
     </div>
@@ -56,6 +61,7 @@
 
 <script setup>
 const { can } = useAdminAccess()
+const { t, tc } = useLang()
 const { badges } = useAdminBadges()
 const isNavOpen = useState('admin-nav-open', () => false)
 const query = ref('')
@@ -67,7 +73,9 @@ const searchTargets = computed(() => [
 ].filter(Boolean))
 
 const searchPlaceholder = computed(() =>
-  searchTargets.value.length > 1 ? 'Search orders or products…' : `Search ${searchTargets.value[0]?.label}…`
+  searchTargets.value.length > 1
+    ? t('admin.nav.searchBoth')
+    : t(searchTargets.value[0]?.label === 'orders' ? 'admin.nav.searchOrders' : 'admin.nav.searchProducts')
 )
 
 function go(target) {

@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
 
   const [order] = await getOrdersByIds(event, [orderId])
   if (!order) {
-    throw createError({ statusCode: 404, statusMessage: 'Order not found' })
+    throw adminError(404, 'orderNotFound', 'Order not found')
   }
 
   const details: Record<string, string> = {}
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     if (body[field] === undefined) continue
     const value = typeof body[field] === 'string' ? body[field].trim() : ''
     if (!value) {
-      throw createError({ statusCode: 400, statusMessage: `${field.replace('_', ' ')} can't be empty` })
+      throw adminError(400, 'fieldEmpty', `${field.replace('_', ' ')} can't be empty`, { field })
     }
     details[field] = value
   }

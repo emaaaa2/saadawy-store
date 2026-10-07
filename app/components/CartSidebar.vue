@@ -5,14 +5,14 @@
         <div class="absolute inset-0 bg-black/50" @click="cartUI.close()"></div>
 
         <div
-          class="absolute top-0 right-0 h-full w-full sm:w-96 bg-white flex flex-col shadow-xl"
+          class="absolute top-0 end-0 h-full w-full sm:w-96 bg-surface flex flex-col shadow-xl"
         >
           <div
-            class="flex items-center justify-between p-4 border-b border-olive/10"
+            class="flex items-center justify-between p-4 border-b border-ink/10"
           >
-            <h3 class="font-bold text-olive text-lg">Your Cart</h3>
-            <button aria-label="Close cart" @click="cartUI.close()">
-              <Icon name="mdi:close" class="text-xl text-olive" />
+            <h3 class="font-bold text-ink text-lg">{{ $t('cart.title') }}</h3>
+            <button :aria-label="$t('cart.close')" @click="cartUI.close()">
+              <Icon name="mdi:close" class="text-xl text-ink" />
             </button>
           </div>
 
@@ -20,16 +20,16 @@
             v-if="cart.items.length === 0"
             class="flex-1 flex flex-col items-center justify-center p-8 text-center"
           >
-            <Icon name="mdi:cart-outline" class="text-6xl text-olive/20 mb-4" />
-            <p class="font-semibold text-olive mb-1">Your cart is empty</p>
+            <Icon name="mdi:cart-outline" class="text-6xl text-ink/20 mb-4" />
+            <p class="font-semibold text-ink mb-1">{{ $t('cart.empty') }}</p>
             <p class="text-sm text-taupe mb-6">
-              Looks like you haven't added anything yet.
+              {{ $t('cart.emptyText') }}
             </p>
             <button
               class="bg-olive text-beige px-6 py-2.5 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
               @click="cartUI.close()"
             >
-              Start Shopping
+              {{ $t('cart.startShopping') }}
             </button>
           </div>
 
@@ -38,36 +38,37 @@
               <div
                 v-for="item in cart.items"
                 :key="item.id"
-                class="flex gap-3 pb-4 border-b border-olive/10"
+                class="flex gap-3 pb-4 border-b border-ink/10"
               >
                 <div
-                  class="w-16 h-16 rounded-lg bg-champagne shrink-0 flex items-center justify-center overflow-hidden"
+                  class="w-16 h-16 rounded-lg bg-tint shrink-0 flex items-center justify-center overflow-hidden"
                 >
                   <img
                     v-if="item.image && !failedImages.has(item.image)"
                     :src="item.image"
-                    :alt="item.name"
+                    :alt="$pname(item)"
                     class="w-full h-full object-cover"
                     @error="failedImages.add(item.image)"
                   />
                   <Icon
                     v-else
                     name="mdi:image-outline"
-                    class="text-2xl text-olive/30"
+                    class="text-2xl text-ink/30"
                   />
                 </div>
 
-                <div class="flex-1">
-                  <p dir="auto" class="text-sm font-medium text-olive mb-1">
-                    {{ item.name }}
+                <div class="flex-1 min-w-0">
+                  <p dir="auto" class="text-sm font-medium text-ink mb-1">
+                    {{ $pname(item) }}
                   </p>
-                  <p class="text-sm font-bold text-olive mb-2">
-                    EGP {{ item.sale_price ?? item.price }}
+                  <p class="text-sm font-bold text-ink mb-2">
+                    {{ $price(item.sale_price ?? item.price) }}
                   </p>
 
                   <div class="flex items-center gap-2">
                     <button
-                      class="w-6 h-6 rounded-full border border-olive/20 flex items-center justify-center text-olive hover:bg-olive hover:text-beige transition"
+                      class="w-6 h-6 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-olive hover:text-beige transition"
+                      :aria-label="$t('product.decrease')"
                       @click="cart.decreaseQty(item.id)"
                     >
                       <Icon name="mdi:minus" class="text-xs" />
@@ -76,15 +77,16 @@
                       item.quantity
                     }}</span>
                     <button
-                      class="w-6 h-6 rounded-full border border-olive/20 flex items-center justify-center text-olive hover:bg-olive hover:text-beige transition"
+                      class="w-6 h-6 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-olive hover:text-beige transition"
+                      :aria-label="$t('product.increase')"
                       @click="cart.increaseQty(item.id)"
                     >
                       <Icon name="mdi:plus" class="text-xs" />
                     </button>
 
                     <button
-                      class="ml-auto text-taupe hover:text-red-500 transition"
-                      aria-label="Remove item"
+                      class="ms-auto text-taupe hover:text-red-500 transition"
+                      :aria-label="$t('cart.remove')"
                       @click="cart.removeItem(item.id)"
                     >
                       <Icon name="mdi:trash-can-outline" class="text-base" />
@@ -94,11 +96,11 @@
               </div>
             </div>
 
-            <div class="p-4 border-t border-olive/10">
+            <div class="p-4 border-t border-ink/10">
               <div class="flex items-center justify-between mb-4">
-                <span class="font-semibold text-olive">Subtotal</span>
-                <span class="font-bold text-olive text-lg"
-                  >EGP {{ cart.subtotal }}</span
+                <span class="font-semibold text-ink">{{ $t('cart.subtotal') }}</span>
+                <span class="font-bold text-ink text-lg"
+                  >{{ $price(cart.subtotal) }}</span
                 >
               </div>
               <NuxtLink
@@ -106,7 +108,7 @@
                 class="block w-full text-center bg-olive text-beige py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition"
                 @click="cartUI.close()"
               >
-                Checkout
+                {{ $t('cart.checkout') }}
               </NuxtLink>
             </div>
           </template>

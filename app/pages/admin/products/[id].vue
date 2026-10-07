@@ -1,50 +1,84 @@
 <template>
   <div>
     <AdminPageHeader
-      :title="isNew ? 'Add product' : form.name || 'Edit product'"
-      :description="isNew ? 'Fill in the details, add photos, then save.' : `SKU ${form.sku || '—'}`"
+      :title="isNew ? $t('admin.editor.addTitle') : form.name || $t('admin.editor.editTitle')"
+      :description="isNew ? $t('admin.editor.addHint') : $t('admin.editor.skuLine', { sku: form.sku || '—' })"
       back="/admin/products"
     >
       <a v-if="!isNew && product?.slug" :href="`/product/${product.slug}`" target="_blank" rel="noopener" class="adm-btn adm-btn-secondary">
         <Icon name="mdi:open-in-new" class="text-base" />
-        View in store
+        {{ $t('admin.products.viewInStore') }}
       </a>
       <button v-if="!isNew" type="button" class="adm-btn adm-btn-danger-soft" :disabled="isSubmitting" @click="handleDelete">
         <Icon name="mdi:trash-can-outline" class="text-base" />
-        Delete
+        {{ $t('admin.common.delete') }}
       </button>
       <button type="submit" form="product-form" class="adm-btn adm-btn-primary" :disabled="isSubmitting || uploadingCount > 0">
         <Icon :name="isSubmitting ? 'mdi:loading' : 'mdi:content-save-outline'" class="text-base" :class="{ 'animate-spin': isSubmitting }" />
-        {{ isSubmitting ? 'Saving…' : isNew ? 'Add product' : 'Save changes' }}
+        {{ isSubmitting ? $t('admin.common.saving') : isNew ? $t('admin.editor.addTitle') : $t('admin.common.save') }}
       </button>
     </AdminPageHeader>
 
     <div v-if="loadError" class="adm-card">
-      <AdminEmptyState icon="mdi:package-variant-remove" title="Product not found" description="It may have been deleted.">
-        <NuxtLink to="/admin/products" class="adm-btn adm-btn-secondary">Back to products</NuxtLink>
+      <AdminEmptyState icon="mdi:package-variant-remove" :title="$t('admin.editor.notFound')" :description="$t('admin.editor.notFoundText')">
+        <NuxtLink to="/admin/products" class="adm-btn adm-btn-secondary">{{ $t('admin.editor.backToProducts') }}</NuxtLink>
       </AdminEmptyState>
     </div>
 
     <form v-else id="product-form" class="grid lg:grid-cols-3 gap-6 items-start" @submit.prevent="handleSubmit">
       <div class="lg:col-span-2 space-y-6">
         <section class="adm-card">
-          <div class="adm-card-header"><h2 class="adm-card-title">Details</h2></div>
+          <div class="adm-card-header">
+            <h2 class="adm-card-title">{{ $t('admin.editor.details') }}</h2>
+            <!-- The original (mostly Arabic) text and its English version. -->
+            <div class="inline-flex rounded-lg border border-stone-200 p-0.5 text-xs font-medium" role="tablist">
+              <button
+                v-for="tab in ['ar', 'en']"
+                :key="tab"
+                type="button"
+                role="tab"
+                :aria-selected="detailsLang === tab"
+                class="px-3 py-1 rounded-md transition"
+                :class="detailsLang === tab ? 'bg-olive text-white' : 'text-stone-600 hover:bg-stone-100'"
+                @click="detailsLang = tab"
+              >
+                {{ tab === 'ar' ? $t('admin.editor.arabic') : $t('admin.editor.english') }}
+              </button>
+            </div>
+          </div>
           <div class="p-5 space-y-4">
+            <template v-if="detailsLang === 'ar'">
+              <div>
+                <label for="product-name" class="adm-label">{{ $t('admin.editor.nameAr') }}</label>
+                <input id="product-name" v-model="form.name" dir="auto" type="text" required maxlength="300" class="adm-input" />
+              </div>
+              <div>
+                <label for="product-description" class="adm-label">{{ $t('admin.editor.description') }}</label>
+                <textarea id="product-description" v-model="form.description" dir="auto" rows="5" class="adm-input"></textarea>
+              </div>
+              <div>
+                <label for="product-usage" class="adm-label">{{ $t('admin.editor.usage') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
+                <textarea id="product-usage" v-model="form.usageInfo" dir="auto" rows="4" class="adm-input"></textarea>
+              </div>
+            </template>
+            <template v-else>
+              <div>
+                <label for="product-name-en" class="adm-label">{{ $t('admin.editor.nameEn') }}</label>
+                <input id="product-name-en" v-model="form.nameEn" dir="ltr" type="text" maxlength="300" :placeholder="form.name" class="adm-input" />
+                <p class="adm-hint">{{ $t('admin.editor.nameEnHint') }}</p>
+              </div>
+              <div>
+                <label for="product-description-en" class="adm-label">{{ $t('admin.editor.description') }}</label>
+                <textarea id="product-description-en" v-model="form.descriptionEn" dir="ltr" rows="5" class="adm-input"></textarea>
+              </div>
+              <div>
+                <label for="product-usage-en" class="adm-label">{{ $t('admin.editor.usage') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
+                <textarea id="product-usage-en" v-model="form.usageInfoEn" dir="ltr" rows="4" class="adm-input"></textarea>
+              </div>
+            </template>
             <div>
-              <label for="product-name" class="adm-label">Name</label>
-              <input id="product-name" dir="auto" v-model="form.name" type="text" required maxlength="300" class="adm-input" />
-            </div>
-            <div>
-              <label for="product-brand" class="adm-label">Brand <span class="text-stone-400 font-normal">(optional)</span></label>
-              <input id="product-brand" dir="auto" v-model="form.brand" type="text" placeholder="e.g. Dove" class="adm-input" />
-            </div>
-            <div>
-              <label for="product-description" class="adm-label">Description</label>
-              <textarea id="product-description" dir="auto" v-model="form.description" rows="5" class="adm-input"></textarea>
-            </div>
-            <div>
-              <label for="product-usage" class="adm-label">Ingredients / how to use <span class="text-stone-400 font-normal">(optional)</span></label>
-              <textarea id="product-usage" dir="auto" v-model="form.usageInfo" rows="4" class="adm-input"></textarea>
+              <label for="product-brand" class="adm-label">{{ $t('admin.editor.brand') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
+              <input id="product-brand" v-model="form.brand" dir="auto" type="text" :placeholder="$t('admin.editor.brandPlaceholder')" class="adm-input" />
             </div>
           </div>
         </section>
@@ -52,47 +86,46 @@
         <section class="adm-card">
           <div class="adm-card-header">
             <div>
-              <h2 class="adm-card-title">Photos</h2>
-              <p class="text-xs text-stone-500 mt-0.5">The first photo is the main one. Customers can scroll through the rest.</p>
+              <h2 class="adm-card-title">{{ $t('admin.editor.photos') }}</h2>
+              <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.editor.photosHint') }}</p>
             </div>
             <span class="text-xs text-stone-500">{{ photos.length }} / {{ MAX_PHOTOS }}</span>
           </div>
           <div class="p-5">
-            <p v-if="brokenCount" class="flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-4">
+            <p v-if="brokenCount" class="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-lg px-3 py-2 mb-4">
               <Icon name="mdi:image-off-outline" class="text-base shrink-0 mt-0.5" />
-              {{ brokenCount === 1 ? "1 photo's file can't be found" : `${brokenCount} photos' files can't be found` }}.
-              Remove {{ brokenCount === 1 ? 'it' : 'them' }} and upload new ones.
+              {{ tc('admin.editor.brokenPhotos', brokenCount) }}
             </p>
             <div class="grid grid-cols-3 sm:grid-cols-4 gap-3">
               <div
                 v-for="(url, index) in photos"
                 :key="url"
                 class="group relative aspect-square rounded-lg border bg-stone-50 overflow-hidden"
-                :class="index === 0 ? 'border-olive ring-2 ring-olive/15 col-span-2 row-span-2' : 'border-stone-200'"
+                :class="index === 0 ? 'border-ink ring-2 ring-ink/15 col-span-2 row-span-2' : 'border-stone-200'"
               >
                 <img
                   v-if="!brokenPhotos.has(url)"
                   :src="url"
-                  :alt="`Photo ${index + 1}`"
+                  :alt="`${form.name} ${index + 1}`"
                   class="w-full h-full object-cover"
                   @error="brokenPhotos.add(url)"
                 />
-                <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1 text-stone-400 bg-amber-50/60">
+                <div v-else class="w-full h-full flex flex-col items-center justify-center gap-1 text-stone-400 bg-amber-50/60 dark:bg-amber-500/10">
                   <Icon name="mdi:image-off-outline" class="text-2xl" />
-                  <span class="text-[11px] font-medium text-amber-700">File missing</span>
+                  <span class="text-[11px] font-medium text-amber-700 dark:text-amber-400">{{ $t('admin.editor.fileMissing') }}</span>
                 </div>
-                <span v-if="index === 0" class="absolute top-2 left-2 adm-badge bg-olive text-white">Main photo</span>
+                <span v-if="index === 0" class="absolute top-2 start-2 adm-badge bg-olive text-white">{{ $t('admin.editor.mainPhoto') }}</span>
                 <div class="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 p-1.5 bg-gradient-to-t from-black/50 to-transparent opacity-100 sm:opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition">
-                  <button v-if="index > 0" type="button" class="photo-btn" title="Move left" aria-label="Move left" @click="movePhoto(index, -1)">
-                    <Icon name="mdi:chevron-left" />
+                  <button v-if="index > 0" type="button" class="photo-btn" :title="$t('admin.editor.moveLeft')" :aria-label="$t('admin.editor.moveLeft')" @click="movePhoto(index, -1)">
+                    <Icon name="mdi:chevron-left" class="rtl:-scale-x-100" />
                   </button>
-                  <button v-if="index > 0" type="button" class="photo-btn" title="Make main photo" aria-label="Make main photo" @click="makeMain(index)">
+                  <button v-if="index > 0" type="button" class="photo-btn" :title="$t('admin.editor.makeMain')" :aria-label="$t('admin.editor.makeMain')" @click="makeMain(index)">
                     <Icon name="mdi:star-outline" />
                   </button>
-                  <button v-if="index < photos.length - 1" type="button" class="photo-btn" title="Move right" aria-label="Move right" @click="movePhoto(index, 1)">
-                    <Icon name="mdi:chevron-right" />
+                  <button v-if="index < photos.length - 1" type="button" class="photo-btn" :title="$t('admin.editor.moveRight')" :aria-label="$t('admin.editor.moveRight')" @click="movePhoto(index, 1)">
+                    <Icon name="mdi:chevron-right" class="rtl:-scale-x-100" />
                   </button>
-                  <button type="button" class="photo-btn hover:!bg-red-600" title="Remove" aria-label="Remove photo" @click="removePhoto(index)">
+                  <button type="button" class="photo-btn hover:!bg-red-600" :title="$t('admin.editor.removePhoto')" :aria-label="$t('admin.editor.removePhoto')" @click="removePhoto(index)">
                     <Icon name="mdi:trash-can-outline" />
                   </button>
                 </div>
@@ -111,7 +144,7 @@
                 type="button"
                 class="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 text-stone-500 transition"
                 :class="[
-                  isDragging ? 'border-olive bg-olive/5 text-olive' : 'border-stone-300 hover:border-olive hover:text-olive',
+                  isDragging ? 'border-ink bg-ink/5 text-ink' : 'border-stone-300 hover:border-ink hover:text-ink',
                   photos.length === 0 ? 'col-span-2 row-span-2' : '',
                 ]"
                 @click="photoInput?.click()"
@@ -120,17 +153,17 @@
                 @drop.prevent="onDrop"
               >
                 <Icon name="mdi:image-plus-outline" class="text-2xl" />
-                <span class="text-xs font-medium">Add photos</span>
-                <span v-if="photos.length === 0" class="text-[11px] text-stone-400">or drag them here</span>
+                <span class="text-xs font-medium">{{ $t('admin.editor.addPhotos') }}</span>
+                <span v-if="photos.length === 0" class="text-[11px] text-stone-400">{{ $t('admin.editor.dragHere') }}</span>
               </button>
             </div>
             <input ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple class="hidden" @change="onPickPhotos" />
 
             <details class="mt-4 text-sm">
-              <summary class="cursor-pointer text-stone-500 hover:text-stone-800 select-none">Add a photo from a link</summary>
+              <summary class="cursor-pointer text-stone-500 hover:text-stone-800 select-none">{{ $t('admin.editor.addFromLink') }}</summary>
               <div class="flex gap-2 mt-2">
-                <input id="photo-link" v-model="photoLink" type="url" placeholder="https://…" class="adm-input" @keydown.enter.prevent="addPhotoLink" />
-                <button type="button" class="adm-btn adm-btn-secondary" @click="addPhotoLink">Add</button>
+                <input id="photo-link" v-model="photoLink" type="url" dir="ltr" placeholder="https://…" class="adm-input" @keydown.enter.prevent="addPhotoLink" />
+                <button type="button" class="adm-btn adm-btn-secondary" @click="addPhotoLink">{{ $t('admin.editor.add') }}</button>
               </div>
             </details>
           </div>
@@ -139,75 +172,73 @@
 
       <div class="space-y-6">
         <section class="adm-card">
-          <div class="adm-card-header"><h2 class="adm-card-title">Pricing</h2></div>
+          <div class="adm-card-header"><h2 class="adm-card-title">{{ $t('admin.editor.pricing') }}</h2></div>
           <div class="p-5 space-y-4">
             <div>
-              <label for="product-price" class="adm-label">Price</label>
+              <label for="product-price" class="adm-label">{{ $t('admin.editor.price') }}</label>
               <div class="relative">
-                <input id="product-price" v-model.number="form.price" type="number" required min="0.01" step="0.01" class="adm-input pr-12" />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+                <input id="product-price" v-model.number="form.price" type="number" required min="0.01" step="0.01" class="adm-input pe-12" />
+                <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ currency }}</span>
               </div>
             </div>
             <div>
-              <label for="product-sale-price" class="adm-label">Sale price <span class="text-stone-400 font-normal">(optional)</span></label>
+              <label for="product-sale-price" class="adm-label">{{ $t('admin.editor.salePrice') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
               <div class="relative">
-                <input id="product-sale-price" v-model.number="form.salePrice" type="number" min="0.01" step="0.01" class="adm-input pr-12" />
-                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+                <input id="product-sale-price" v-model.number="form.salePrice" type="number" min="0.01" step="0.01" class="adm-input pe-12" />
+                <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ currency }}</span>
               </div>
-              <p v-if="discountPercent" class="adm-hint text-emerald-700">{{ discountPercent }}% off</p>
-              <p v-else-if="form.salePrice && form.price && form.salePrice >= form.price" class="adm-hint text-red-600">Must be lower than the price</p>
+              <p v-if="discountPercent" class="adm-hint text-emerald-700 dark:text-emerald-400">{{ $t('admin.editor.percentOff', { percent: discountPercent }) }}</p>
+              <p v-else-if="form.salePrice && form.price && form.salePrice >= form.price" class="adm-hint text-red-600 dark:text-red-400">{{ $t('admin.editor.saleTooHigh') }}</p>
             </div>
           </div>
         </section>
 
         <section class="adm-card">
-          <div class="adm-card-header"><h2 class="adm-card-title">Inventory</h2></div>
+          <div class="adm-card-header"><h2 class="adm-card-title">{{ $t('admin.editor.inventory') }}</h2></div>
           <div class="p-5 space-y-4">
             <div>
-              <label for="product-sku" class="adm-label">SKU</label>
-              <input id="product-sku" v-model="form.sku" type="text" maxlength="50" placeholder="e.g. 4133" class="adm-input font-mono" />
+              <label for="product-sku" class="adm-label">{{ $t('admin.editor.sku') }}</label>
+              <input id="product-sku" v-model="form.sku" type="text" dir="ltr" maxlength="50" placeholder="4133" class="adm-input font-mono rtl:text-right" />
             </div>
             <div>
-              <label for="product-stock" class="adm-label">Stock</label>
+              <label for="product-stock" class="adm-label">{{ $t('admin.editor.stock') }}</label>
               <div class="flex items-center gap-2">
-                <button type="button" class="adm-btn adm-btn-secondary w-10 px-0" :disabled="form.stock <= 0" aria-label="Decrease stock" @click="form.stock = Math.max(0, (form.stock || 0) - 1)">
+                <button type="button" class="adm-btn adm-btn-secondary w-10 px-0" :disabled="form.stock <= 0" :aria-label="$t('admin.products.decrease')" @click="form.stock = Math.max(0, (form.stock || 0) - 1)">
                   <Icon name="mdi:minus" />
                 </button>
                 <input id="product-stock" v-model.number="form.stock" type="number" required min="0" step="1" class="adm-input text-center" />
-                <button type="button" class="adm-btn adm-btn-secondary w-10 px-0" aria-label="Increase stock" @click="form.stock = (form.stock || 0) + 1">
+                <button type="button" class="adm-btn adm-btn-secondary w-10 px-0" :aria-label="$t('admin.products.increase')" @click="form.stock = (form.stock || 0) + 1">
                   <Icon name="mdi:plus" />
                 </button>
               </div>
-              <p v-if="form.stock === 0" class="adm-hint text-red-600">Out of stock — customers can't order it.</p>
-              <p v-else-if="form.stock <= LOW_STOCK_LIMIT" class="adm-hint text-amber-700">Low stock</p>
+              <p v-if="form.stock === 0" class="adm-hint text-red-600 dark:text-red-400">{{ $t('admin.editor.outOfStock') }}</p>
+              <p v-else-if="form.stock <= LOW_STOCK_LIMIT" class="adm-hint text-amber-700 dark:text-amber-400">{{ $t('admin.editor.lowStock') }}</p>
             </div>
           </div>
         </section>
 
         <section class="adm-card">
-          <div class="adm-card-header"><h2 class="adm-card-title">Organization</h2></div>
+          <div class="adm-card-header"><h2 class="adm-card-title">{{ $t('admin.editor.organization') }}</h2></div>
           <div class="p-5 space-y-4">
             <div>
-              <label for="product-category" class="adm-label">Category</label>
+              <label for="product-category" class="adm-label">{{ $t('admin.editor.category') }}</label>
               <select id="product-category" v-model="form.category" required class="adm-input">
-                <option value="" disabled>Choose a category</option>
+                <option value="" disabled>{{ $t('admin.editor.chooseCategory') }}</option>
                 <option v-for="c in PRODUCT_CATEGORIES" :key="c.value" :value="c.value">{{ c.label }}</option>
               </select>
             </div>
             <div v-if="subcategoryOptions.length">
-              <label for="product-subcategory" class="adm-label">Subcategory</label>
+              <label for="product-subcategory" class="adm-label">{{ $t('admin.editor.subcategory') }}</label>
               <select id="product-subcategory" v-model="form.subcategory" class="adm-input">
-                <option value="">None</option>
-                <option v-for="s in subcategoryOptions" :key="s.value" :value="s.value">{{ s.label }}</option>
+                <option value="">{{ $t('admin.common.none') }}</option>
+                <option v-for="s in subcategoryOptions" :key="s.value" :value="s.value">{{ subcategoryLabel(s) }}</option>
               </select>
             </div>
             <div>
-              <label for="product-badge" class="adm-label">Badge</label>
+              <label for="product-badge" class="adm-label">{{ $t('admin.editor.badge') }}</label>
               <select id="product-badge" v-model="form.badge" class="adm-input">
-                <option value="">None</option>
-                <option value="Best Seller">Best Seller</option>
-                <option value="New">New</option>
-                <option value="Sale">Sale</option>
+                <option value="">{{ $t('admin.common.none') }}</option>
+                <option v-for="badge in ['Best Seller', 'New', 'Sale']" :key="badge" :value="badge">{{ $t(`admin.editor.badges.${badge}`) }}</option>
               </select>
             </div>
           </div>
@@ -228,6 +259,7 @@ const MAX_PHOTOS = 21
 const route = useRoute()
 const toast = useToastStore()
 const { confirm } = useAdminConfirm()
+const { t, tc, isAr, subcategoryLabel } = useLang()
 const isNew = computed(() => route.params.id === 'new')
 const isSubmitting = ref(false)
 const uploadingCount = ref(0)
@@ -236,14 +268,19 @@ const photoInput = ref(null)
 const photoLink = ref('')
 const product = ref(null)
 const loadError = ref(false)
+const detailsLang = ref('ar')
+const currency = computed(() => (isAr.value ? 'ج.م' : 'EGP'))
 
-useSeoMeta({ title: () => (isNew.value ? 'Add product' : 'Edit product'), robots: 'noindex' })
+useSeoMeta({ title: () => (isNew.value ? t('admin.editor.addTitle') : t('admin.editor.editTitle')), robots: 'noindex' })
 
 const emptyForm = () => ({
   name: '',
+  nameEn: '',
   brand: '',
   description: '',
+  descriptionEn: '',
   usageInfo: '',
+  usageInfoEn: '',
   price: null,
   salePrice: null,
   sku: '',
@@ -268,9 +305,12 @@ if (!isNew.value) {
     product.value = p
     form.value = {
       name: p.name ?? '',
+      nameEn: p.name_en ?? '',
       brand: p.brand ?? '',
       description: p.description ?? '',
+      descriptionEn: p.description_en ?? '',
       usageInfo: p.usage_info ?? '',
+      usageInfoEn: p.usage_info_en ?? '',
       price: p.price,
       salePrice: p.sale_price,
       sku: p.sku ?? '',
@@ -291,7 +331,7 @@ const subcategoryOptions = computed(() => {
   const options = categorySubcategories[form.value.category] ?? []
   // Keep an existing value visible even if it's not in today's list.
   if (form.value.subcategory && !options.some((o) => o.value === form.value.subcategory)) {
-    return [...options, { value: form.value.subcategory, label: form.value.subcategory }]
+    return [...options, { value: form.value.subcategory, label: form.value.subcategory, labelAr: form.value.subcategory }]
   }
   return options
 })
@@ -326,7 +366,7 @@ function removePhoto(index) {
 function addPhotoLink() {
   const url = photoLink.value.trim()
   if (!/^https:\/\/\S+$/.test(url)) {
-    toast.error('Paste a link that starts with https://')
+    toast.error(t('admin.editor.linkInvalid'))
     return
   }
   if (!photos.value.includes(url)) photos.value = [...photos.value, url]
@@ -353,7 +393,7 @@ async function prepareImage(file) {
 async function uploadFiles(files) {
   const images = [...files].filter((file) => file.type.startsWith('image/'))
   const room = MAX_PHOTOS - photos.value.length - uploadingCount.value
-  if (images.length > room) toast.error(`Only ${room} more photo${room === 1 ? '' : 's'} can be added`)
+  if (images.length > room) toast.error(tc('admin.editor.roomLeft', room))
 
   await Promise.all(images.slice(0, Math.max(room, 0)).map(async (file) => {
     uploadingCount.value++
@@ -395,13 +435,13 @@ async function handleSubmit() {
     if (isNew.value) {
       const { product: created } = await $fetch('/api/admin/products', { method: 'POST', body })
       snapshot.value = JSON.stringify([form.value, photos.value])
-      toast.show('Product added')
+      toast.show(t('admin.editor.added'))
       await navigateTo(`/admin/products/${created.id}`, { replace: true })
     } else {
       const { product: saved } = await $fetch(`/api/admin/products/${route.params.id}`, { method: 'PATCH', body })
       product.value = saved
       snapshot.value = JSON.stringify([form.value, photos.value])
-      toast.show('Changes saved')
+      toast.show(t('admin.editor.saved'))
     }
   } catch (err) {
     toast.error(adminErrorMessage(err))
@@ -412,9 +452,9 @@ async function handleSubmit() {
 
 async function handleDelete() {
   const ok = await confirm({
-    title: `Delete “${form.value.name}”?`,
-    message: "It'll be removed from the store. This can't be undone.",
-    confirmLabel: 'Delete',
+    title: t('admin.products.deleteTitle', { name: form.value.name }),
+    message: t('admin.products.deleteText'),
+    confirmLabel: t('admin.common.delete'),
     danger: true,
   })
   if (!ok) return
@@ -423,7 +463,7 @@ async function handleDelete() {
   try {
     await $fetch(`/api/admin/products/${route.params.id}`, { method: 'DELETE' })
     snapshot.value = JSON.stringify([form.value, photos.value])
-    toast.show('Product deleted')
+    toast.show(t('admin.products.deleted'))
     await navigateTo('/admin/products')
   } catch (err) {
     toast.error(adminErrorMessage(err))
@@ -434,9 +474,9 @@ async function handleDelete() {
 onBeforeRouteLeave(async () => {
   if (!isDirty.value) return true
   return await confirm({
-    title: 'Leave without saving?',
-    message: 'Your changes to this product will be lost.',
-    confirmLabel: 'Leave',
+    title: t('admin.common.unsavedTitle'),
+    message: t('admin.editor.leaveText'),
+    confirmLabel: t('admin.common.leave'),
     danger: true,
   })
 })
@@ -450,6 +490,6 @@ onUnmounted(() => window.removeEventListener('beforeunload', warnBeforeUnload))
 
 <style scoped>
 .photo-btn {
-  @apply w-7 h-7 rounded-md bg-white/90 text-stone-800 flex items-center justify-center text-base hover:bg-white hover:text-stone-900 transition;
+  @apply w-7 h-7 rounded-md bg-surface/90 text-stone-800 flex items-center justify-center text-base hover:bg-surface hover:text-stone-900 transition;
 }
 </style>

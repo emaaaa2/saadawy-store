@@ -29,7 +29,9 @@ async function takeFromStock(client: Client, items: OrderItem[]) {
     const { data: ok, error } = await client.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
     if (error || !ok) {
       await returnToStock(client, taken)
-      throw createError({ statusCode: 409, statusMessage: error ? error.message : `${item.name} is out of stock` })
+      throw error
+        ? createError({ statusCode: 409, statusMessage: error.message })
+        : adminError(409, 'outOfStock', `${item.name} is out of stock`, { name: item.name })
     }
     taken.push(item)
   }
@@ -39,7 +41,7 @@ async function takeFromStock(client: Client, items: OrderItem[]) {
 // so cancelling returns them and un-cancelling takes them again.
 export async function changeOrderStatus(event: H3Event, order: AdminOrder, status: string) {
   if (!ORDER_STATUSES.includes(status)) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid order status' })
+    throw adminError(400, 'invalidStatus', 'Invalid order status')
   }
   if (order.status === status) return
 
@@ -59,10 +61,9 @@ export async function changeOrderStatus(event: H3Event, order: AdminOrder, statu
 
   if (error || !data?.length) {
     if (reopening) await returnToStock(client, order.items)
-    throw createError({
-      statusCode: error ? 500 : 409,
-      statusMessage: error ? error.message : 'This order was just changed by someone else. Refresh and try again.'
-    })
+    throw error
+      ? createError({ statusCode: 500, statusMessage: error.message })
+      : adminError(409, 'orderChanged', 'This order was just changed by someone else. Refresh and try again.')
   }
 
   if (cancelling) await returnToStock(client, order.items)
@@ -79,10 +80,9 @@ export async function deleteOrder(event: H3Event, order: AdminOrder) {
     .select('id')
 
   if (error || !data?.length) {
-    throw createError({
-      statusCode: error ? 500 : 409,
-      statusMessage: error ? error.message : 'This order was just changed by someone else. Refresh and try again.'
-    })
+    throw error
+      ? createError({ statusCode: 500, statusMessage: error.message })
+      : adminError(409, 'orderChanged', 'This order was just changed by someone else. Refresh and try again.')
   }
 
   // Delivered items left the store, and cancelled ones were already returned.

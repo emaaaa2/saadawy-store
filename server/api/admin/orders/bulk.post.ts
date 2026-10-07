@@ -7,17 +7,17 @@ export default defineEventHandler(async (event) => {
     : []
 
   if (ids.length === 0 || ids.length > 200) {
-    throw createError({ statusCode: 400, statusMessage: 'Select between 1 and 200 orders' })
+    throw adminError(400, 'selectOrders', 'Select between 1 and 200 orders', { max: 200 })
   }
   if (body.action !== 'status' && body.action !== 'delete') {
-    throw createError({ statusCode: 400, statusMessage: 'Unknown action' })
+    throw adminError(400, 'unknownAction', 'Unknown action')
   }
   if (body.action === 'status' && !ORDER_STATUSES.includes(body.status)) {
-    throw createError({ statusCode: 400, statusMessage: 'Invalid order status' })
+    throw adminError(400, 'invalidStatus', 'Invalid order status')
   }
 
   const orders = await getOrdersByIds(event, ids as string[])
-  const failed: { order_number: string; reason: string }[] = []
+  const failed: { order_number: string; reason: string; adminCode?: string; params?: unknown }[] = []
   let done = 0
 
   for (const order of orders) {
@@ -26,7 +26,12 @@ export default defineEventHandler(async (event) => {
       else await changeOrderStatus(event, order, body.status)
       done++
     } catch (error: any) {
-      failed.push({ order_number: order.order_number, reason: error?.statusMessage || 'Failed' })
+      failed.push({
+        order_number: order.order_number,
+        reason: error?.statusMessage || 'Failed',
+        adminCode: error?.data?.adminCode,
+        params: error?.data?.params,
+      })
     }
   }
 

@@ -1,50 +1,50 @@
 <template>
   <div>
-    <AdminPageHeader title="Coupons" description="Discount codes customers can use at checkout.">
+    <AdminPageHeader :title="$t('admin.coupons.metaTitle')" :description="$t('admin.coupons.description')">
       <button type="button" class="adm-btn adm-btn-primary" @click="openCreate">
         <Icon name="mdi:plus" class="text-base" />
-        New coupon
+        {{ $t('admin.coupons.new') }}
       </button>
     </AdminPageHeader>
 
     <section class="adm-card overflow-hidden">
-      <AdminEmptyState v-if="error" icon="mdi:cloud-alert-outline" title="Couldn't load coupons" :description="adminErrorMessage(error)">
-        <button type="button" class="adm-btn adm-btn-secondary" @click="refresh()">Try again</button>
+      <AdminEmptyState v-if="error" icon="mdi:cloud-alert-outline" :title="$t('admin.coupons.loadFailed')" :description="adminErrorMessage(error)">
+        <button type="button" class="adm-btn adm-btn-secondary" @click="refresh()">{{ $t('admin.common.tryAgain') }}</button>
       </AdminEmptyState>
 
       <AdminEmptyState
         v-else-if="!pending && coupons.length === 0"
         icon="mdi:ticket-percent-outline"
-        title="No coupons yet"
-        description="Create a code like WELCOME10 to give customers a discount."
+        :title="$t('admin.coupons.noneYet')"
+        :description="$t('admin.coupons.noneYetText')"
       >
-        <button type="button" class="adm-btn adm-btn-primary" @click="openCreate">New coupon</button>
+        <button type="button" class="adm-btn adm-btn-primary" @click="openCreate">{{ $t('admin.coupons.new') }}</button>
       </AdminEmptyState>
 
       <div v-else class="overflow-x-auto">
         <table class="adm-table min-w-[760px]">
           <thead>
             <tr>
-              <th>Code</th>
-              <th>Discount</th>
-              <th>Minimum order</th>
-              <th>Used</th>
-              <th>Expires</th>
-              <th>Active</th>
+              <th>{{ $t('admin.coupons.table.code') }}</th>
+              <th>{{ $t('admin.coupons.table.discount') }}</th>
+              <th>{{ $t('admin.coupons.table.minimum') }}</th>
+              <th>{{ $t('admin.coupons.table.used') }}</th>
+              <th>{{ $t('admin.coupons.table.expires') }}</th>
+              <th>{{ $t('admin.coupons.table.active') }}</th>
               <th class="w-24"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="coupon in coupons" :key="coupon.id" class="hover:bg-stone-50">
               <td>
-                <button type="button" class="group inline-flex items-center gap-1.5 font-mono font-semibold" title="Copy code" @click="copyCode(coupon.code)">
+                <button type="button" class="group inline-flex items-center gap-1.5 font-mono font-semibold" dir="ltr" :title="$t('admin.coupons.copyCode')" @click="copyCode(coupon.code)">
                   {{ coupon.code }}
                   <Icon name="mdi:content-copy" class="text-xs text-stone-400 opacity-0 group-hover:opacity-100 transition" />
                 </button>
-                <p v-if="coupon.code === settings.welcomeCouponCode" class="text-[11px] text-gold mt-0.5">Welcome popup code</p>
+                <p v-if="coupon.code === settings.welcomeCouponCode" class="text-[11px] text-gold mt-0.5">{{ $t('admin.coupons.welcomeCode') }}</p>
               </td>
               <td class="font-medium">
-                {{ coupon.discount_type === 'percentage' ? `${coupon.discount_value}% off` : `${formatMoney(coupon.discount_value)} off` }}
+                {{ offLabel(coupon.discount_type, coupon.discount_value) }}
               </td>
               <td class="text-stone-600">{{ coupon.min_order_total ? formatMoney(coupon.min_order_total) : '—' }}</td>
               <td>
@@ -54,24 +54,24 @@
                 </div>
               </td>
               <td>
-                <span v-if="!coupon.expires_at" class="text-stone-400">Never</span>
-                <span v-else-if="isExpired(coupon)" class="adm-badge bg-red-50 text-red-600">Expired {{ formatDate(coupon.expires_at) }}</span>
+                <span v-if="!coupon.expires_at" class="text-stone-400">{{ $t('admin.common.never') }}</span>
+                <span v-else-if="isExpired(coupon)" class="adm-badge bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400">{{ $t('admin.coupons.expired', { date: formatDate(coupon.expires_at) }) }}</span>
                 <span v-else class="text-stone-600">{{ formatDate(coupon.expires_at) }}</span>
               </td>
               <td>
                 <AdminToggle
                   :model-value="coupon.active"
                   :disabled="busyIds.has(coupon.id)"
-                  :aria-label="`Coupon ${coupon.code} active`"
+                  :aria-label="$t('admin.coupons.activeLabel', { code: coupon.code })"
                   @update:model-value="toggleActive(coupon, $event)"
                 />
               </td>
               <td>
                 <div class="flex items-center justify-end gap-0.5">
-                  <button type="button" class="adm-icon-btn" title="Edit" aria-label="Edit coupon" @click="openEdit(coupon)">
+                  <button type="button" class="adm-icon-btn" :title="$t('admin.common.edit')" :aria-label="$t('admin.common.edit')" @click="openEdit(coupon)">
                     <Icon name="mdi:pencil-outline" class="text-lg" />
                   </button>
-                  <button type="button" class="adm-icon-btn hover:!text-red-600 hover:!bg-red-50" title="Delete" aria-label="Delete coupon" @click="handleDelete(coupon)">
+                  <button type="button" class="adm-icon-btn hover:!text-red-600 hover:!bg-red-50" :title="$t('admin.common.delete')" :aria-label="$t('admin.common.delete')" @click="handleDelete(coupon)">
                     <Icon name="mdi:trash-can-outline" class="text-lg" />
                   </button>
                 </div>
@@ -82,10 +82,10 @@
       </div>
     </section>
 
-    <AdminDrawer v-model:open="isDrawerOpen" :title="editing ? `Edit ${editing.code}` : 'New coupon'">
+    <AdminDrawer v-model:open="isDrawerOpen" :title="editing ? $t('admin.coupons.editTitle', { code: editing.code }) : $t('admin.coupons.new')">
       <form id="coupon-form" class="space-y-5" @submit.prevent="handleSave">
         <div>
-          <label for="coupon-code" class="adm-label">Code</label>
+          <label for="coupon-code" class="adm-label">{{ $t('admin.coupons.code') }}</label>
           <input
             id="coupon-code"
             v-model="form.code"
@@ -93,21 +93,22 @@
             required
             :disabled="!!editing"
             placeholder="WELCOME10"
+            dir="ltr"
             pattern="[A-Za-z0-9_\-]{3,30}"
             class="adm-input font-mono uppercase"
           />
-          <p class="adm-hint">{{ editing ? "The code can't be changed. Create a new coupon instead." : '3–30 letters or numbers, no spaces.' }}</p>
+          <p class="adm-hint">{{ editing ? $t('admin.coupons.codeLocked') : $t('admin.coupons.codeHint') }}</p>
         </div>
 
         <div>
-          <span class="adm-label">Discount</span>
+          <span class="adm-label">{{ $t('admin.coupons.discount') }}</span>
           <div class="grid grid-cols-2 gap-2 mb-2">
             <button
               v-for="type in discountTypes"
               :key="type.value"
               type="button"
               class="h-10 rounded-lg border text-sm font-medium transition"
-              :class="form.discountType === type.value ? 'border-olive bg-olive/5 text-olive' : 'border-stone-200 text-stone-600 hover:border-stone-300'"
+              :class="form.discountType === type.value ? 'border-ink bg-ink/5 text-ink' : 'border-stone-200 text-stone-600 hover:border-stone-300'"
               @click="form.discountType = type.value"
             >
               {{ type.label }}
@@ -122,43 +123,43 @@
               min="0.01"
               :max="form.discountType === 'percentage' ? 100 : undefined"
               step="0.01"
-              class="adm-input pr-12"
-              :aria-label="form.discountType === 'percentage' ? 'Discount percent' : 'Discount amount'"
+              class="adm-input pe-12"
+              :aria-label="form.discountType === 'percentage' ? $t('admin.coupons.discountPercent') : $t('admin.coupons.discountAmount')"
             />
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ form.discountType === 'percentage' ? '%' : 'EGP' }}</span>
+            <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ form.discountType === 'percentage' ? '%' : currency }}</span>
           </div>
         </div>
 
         <div>
-          <label for="coupon-min" class="adm-label">Minimum order <span class="text-stone-400 font-normal">(optional)</span></label>
+          <label for="coupon-min" class="adm-label">{{ $t('admin.coupons.minimum') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
           <div class="relative">
-            <input id="coupon-min" v-model.number="form.minOrderTotal" type="number" min="0" step="0.01" placeholder="0" class="adm-input pr-12" />
-            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">EGP</span>
+            <input id="coupon-min" v-model.number="form.minOrderTotal" type="number" min="0" step="0.01" placeholder="0" class="adm-input pe-12" />
+            <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ currency }}</span>
           </div>
         </div>
 
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label for="coupon-limit" class="adm-label">Usage limit <span class="text-stone-400 font-normal">(optional)</span></label>
-            <input id="coupon-limit" v-model.number="form.usageLimit" type="number" min="1" step="1" placeholder="Unlimited" class="adm-input" />
+            <label for="coupon-limit" class="adm-label">{{ $t('admin.coupons.usageLimit') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
+            <input id="coupon-limit" v-model.number="form.usageLimit" type="number" min="1" step="1" :placeholder="$t('admin.coupons.unlimited')" class="adm-input" />
           </div>
           <div>
-            <label for="coupon-expires" class="adm-label">Expires on <span class="text-stone-400 font-normal">(optional)</span></label>
+            <label for="coupon-expires" class="adm-label">{{ $t('admin.coupons.expiresOn') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
             <input id="coupon-expires" v-model="form.expiresAt" type="date" class="adm-input" />
           </div>
         </div>
 
         <div class="rounded-lg bg-stone-50 border border-stone-200 px-4 py-3 text-sm text-stone-600">
-          <Icon name="mdi:information-outline" class="text-base text-stone-400 align-[-3px] mr-1" />
+          <Icon name="mdi:information-outline" class="text-base text-stone-400 align-[-3px] me-1" />
           {{ summary }}
         </div>
       </form>
 
       <template #footer>
         <div class="flex justify-end gap-2">
-          <button type="button" class="adm-btn adm-btn-secondary" @click="isDrawerOpen = false">Cancel</button>
+          <button type="button" class="adm-btn adm-btn-secondary" @click="isDrawerOpen = false">{{ $t('admin.common.cancel') }}</button>
           <button type="submit" form="coupon-form" class="adm-btn adm-btn-primary" :disabled="isSaving">
-            {{ isSaving ? 'Saving…' : editing ? 'Save changes' : 'Create coupon' }}
+            {{ isSaving ? $t('admin.common.saving') : editing ? $t('admin.common.save') : $t('admin.coupons.create') }}
           </button>
         </div>
       </template>
@@ -172,7 +173,9 @@ definePageMeta({
   middleware: 'admin-auth',
   adminPermission: 'coupons'
 })
-useSeoMeta({ title: 'Coupons', robots: 'noindex' })
+const { t, tc, isAr } = useLang()
+useSeoMeta({ title: () => t('admin.coupons.metaTitle'), robots: 'noindex' })
+const currency = computed(() => (isAr.value ? 'ج.م' : 'EGP'))
 
 const toast = useToastStore()
 const settings = useStoreSettings()
@@ -180,10 +183,16 @@ const { confirm } = useAdminConfirm()
 const { data, pending, error, refresh } = await useFetch('/api/admin/coupons')
 const coupons = computed(() => data.value?.coupons ?? [])
 
-const discountTypes = [
-  { value: 'percentage', label: 'Percentage' },
-  { value: 'fixed', label: 'Fixed amount' },
-]
+const discountTypes = computed(() => [
+  { value: 'percentage', label: t('admin.coupons.percentage') },
+  { value: 'fixed', label: t('admin.coupons.fixed') },
+])
+
+function offLabel(type, value) {
+  return type === 'percentage'
+    ? t('admin.coupons.percentOff', { value })
+    : t('admin.coupons.amountOff', { amount: formatMoney(value) })
+}
 
 const emptyForm = () => ({ code: '', discountType: 'percentage', discountValue: null, minOrderTotal: null, usageLimit: null, expiresAt: '' })
 const form = ref(emptyForm())
@@ -194,12 +203,12 @@ const busyIds = reactive(new Set())
 
 const summary = computed(() => {
   const f = form.value
-  if (!f.discountValue) return 'Enter a discount to see how it works.'
-  const off = f.discountType === 'percentage' ? `${f.discountValue}% off` : `${formatMoney(f.discountValue)} off`
-  const parts = [`${(f.code || 'This code').toUpperCase()} gives ${off}`]
-  if (f.minOrderTotal) parts.push(`on orders of ${formatMoney(f.minOrderTotal)} or more`)
-  if (f.usageLimit) parts.push(`for the first ${f.usageLimit} use${f.usageLimit === 1 ? '' : 's'}`)
-  if (f.expiresAt) parts.push(`until ${formatDate(f.expiresAt)}`)
+  if (!f.discountValue) return t('admin.coupons.summaryEmpty')
+  const code = f.code ? f.code.toUpperCase() : t('admin.coupons.summary.thisCode')
+  const parts = [t('admin.coupons.summary.gives', { code, off: offLabel(f.discountType, f.discountValue) })]
+  if (f.minOrderTotal) parts.push(t('admin.coupons.summary.min', { amount: formatMoney(f.minOrderTotal) }))
+  if (f.usageLimit) parts.push(tc('admin.coupons.summary.uses', f.usageLimit))
+  if (f.expiresAt) parts.push(t('admin.coupons.summary.until', { date: formatDate(f.expiresAt) }))
   return `${parts.join(' ')}.`
 })
 
@@ -232,10 +241,10 @@ async function handleSave() {
     if (editing.value) {
       const { code, ...changes } = form.value
       await $fetch(`/api/admin/coupons/${editing.value.id}`, { method: 'PATCH', body: changes })
-      toast.show(`${editing.value.code} updated`)
+      toast.show(t('admin.coupons.updated', { code: editing.value.code }))
     } else {
       await $fetch('/api/admin/coupons', { method: 'POST', body: form.value })
-      toast.show(`Coupon ${form.value.code.toUpperCase()} created`)
+      toast.show(t('admin.coupons.created', { code: form.value.code.toUpperCase() }))
     }
     isDrawerOpen.value = false
     await refresh()
@@ -250,7 +259,7 @@ async function toggleActive(coupon, active) {
   busyIds.add(coupon.id)
   try {
     await $fetch(`/api/admin/coupons/${coupon.id}`, { method: 'PATCH', body: { active } })
-    toast.show(`${coupon.code} ${active ? 'turned on' : 'turned off'}`)
+    toast.show(t(active ? 'admin.coupons.turnedOn' : 'admin.coupons.turnedOff', { code: coupon.code }))
     await refresh()
   } catch (err) {
     toast.error(adminErrorMessage(err))
@@ -262,24 +271,24 @@ async function toggleActive(coupon, active) {
 async function copyCode(code) {
   try {
     await navigator.clipboard.writeText(code)
-    toast.show(`${code} copied`)
+    toast.show(t('admin.common.copied', { text: code }))
   } catch {
-    toast.error("Couldn't copy the code")
+    toast.error(t('admin.common.copyFailed'))
   }
 }
 
 async function handleDelete(coupon) {
   const ok = await confirm({
-    title: `Delete coupon ${coupon.code}?`,
-    message: 'Customers will no longer be able to use it. To pause it instead, switch it off.',
-    confirmLabel: 'Delete',
+    title: t('admin.coupons.deleteTitle', { code: coupon.code }),
+    message: t('admin.coupons.deleteText'),
+    confirmLabel: t('admin.common.delete'),
     danger: true,
   })
   if (!ok) return
 
   try {
     await $fetch(`/api/admin/coupons/${coupon.id}`, { method: 'DELETE' })
-    toast.show(`${coupon.code} deleted`)
+    toast.show(t('admin.coupons.deleted', { code: coupon.code }))
     await refresh()
   } catch (err) {
     toast.error(adminErrorMessage(err))

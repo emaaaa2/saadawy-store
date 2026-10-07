@@ -17,7 +17,7 @@
           class="absolute inset-0 w-full h-full object-cover"
         />
         <div
-          class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-olive/95 via-olive/60 sm:via-olive/50 to-olive/20 sm:to-transparent"
+          class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r sm:rtl:bg-gradient-to-l from-olive/95 via-olive/60 sm:via-olive/50 to-olive/20 sm:to-transparent"
         ></div>
 
         <div
@@ -43,31 +43,31 @@
               :to="slide.ctaLink"
               class="bg-gold text-olive px-6 md:px-8 py-3 rounded-full font-semibold hover:bg-beige transition"
             >
-              Shop Now
+              {{ $t('common.shopNow') }}
             </NuxtLink>
             <NuxtLink
               to="/contact"
               class="border border-beige text-beige px-6 md:px-8 py-3 rounded-full font-semibold hover:bg-beige hover:text-olive transition"
             >
-              Contact Us
+              {{ $t('home.hero.contactUs') }}
             </NuxtLink>
           </div>
         </div>
       </div>
 
       <button
-        class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-10 h-10 rounded-full bg-beige/20 text-beige hover:bg-beige/40 transition"
-        aria-label="Previous slide"
+        class="hidden sm:flex absolute start-4 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-10 h-10 rounded-full bg-beige/20 text-beige hover:bg-beige/40 transition"
+        :aria-label="$t('home.hero.prev')"
         @click="prevSlide"
       >
-        <Icon name="mdi:chevron-left" class="text-2xl" />
+        <Icon name="mdi:chevron-left" class="text-2xl rtl:-scale-x-100" />
       </button>
       <button
-        class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-10 h-10 rounded-full bg-beige/20 text-beige hover:bg-beige/40 transition"
-        aria-label="Next slide"
+        class="hidden sm:flex absolute end-4 top-1/2 -translate-y-1/2 z-10 items-center justify-center w-10 h-10 rounded-full bg-beige/20 text-beige hover:bg-beige/40 transition"
+        :aria-label="$t('home.hero.next')"
         @click="nextSlide"
       >
-        <Icon name="mdi:chevron-right" class="text-2xl" />
+        <Icon name="mdi:chevron-right" class="text-2xl rtl:-scale-x-100" />
       </button>
 
       <div class="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
@@ -76,7 +76,7 @@
           :key="slide.image"
           class="h-2 rounded-full transition-all"
           :class="index === activeIndex ? 'w-6 bg-gold' : 'w-2 bg-beige/50 hover:bg-beige/80'"
-          :aria-label="`Go to slide ${index + 1}`"
+          :aria-label="$t('home.hero.goTo', { n: index + 1 })"
           @click="goToSlide(index)"
         ></button>
       </div>
@@ -85,68 +85,33 @@
 </template>
 
 <script setup>
-const { data: shippingSettings } = await useFetch('/api/shipping-settings')
-const freeShippingThreshold = shippingSettings.value?.free_shipping_threshold ?? DEFAULT_SHIPPING_SETTINGS.free_shipping_threshold
+const { tm, price } = useLang()
+const { data: shippingSettings } = await useFetch('/api/shipping-settings', { key: 'shipping-settings' })
+const freeShippingThreshold = computed(() => shippingSettings.value?.free_shipping_threshold ?? DEFAULT_SHIPPING_SETTINGS.free_shipping_threshold)
 
-const slides = [
-  {
-    image: "/images/pic.jpg",
-    alt: "Saadawy Store products",
-    badge: "New arrivals every week",
-    title: "Everything You Love,",
-    titleGold: "All In One Place",
-    description:
-      "From skincare to bags, kitchen essentials to hijab and everyday needs — carefully selected pieces, all under one roof.",
-    ctaLink: "/category/skincare",
-  },
-  {
-    image: "/images/skincare.jpg",
-    alt: "Skincare products",
-    badge: "Glow every day",
-    title: "Skincare That",
-    titleGold: "Actually Works",
-    description:
-      "Cleansers, serums, and moisturizers picked for real results — for every skin type and budget.",
-    ctaLink: "/category/skincare",
-  },
-  {
-    image: "/images/perfume1.jpg",
-    alt: "Perfume collection",
-    badge: "Signature scents",
-    title: "Find Your",
-    titleGold: "Perfect Fragrance",
-    description:
-      "A curated collection of perfumes for men and women, from everyday favorites to statement scents.",
-    ctaLink: "/category/perfume",
-  },
-  {
-    image: "/images/makeup.jpg",
-    alt: "Makeup products",
-    badge: "Beauty essentials",
-    title: "Makeup",
-    titleGold: "Must-Haves",
-    description:
-      "Everything you need to complete your look, from everyday basics to bold statement pieces.",
-    ctaLink: "/category/makeup",
-  },
-  {
-    image: "/images/hero.png",
-    alt: "Free shipping offer",
-    badge: "On us",
-    title: "Free Shipping",
-    titleGold: `On Orders Over EGP ${freeShippingThreshold}`,
-    description:
-      "Shop your favorites and get them delivered to your door, free of charge, on qualifying orders.",
-    ctaLink: "/",
-  },
+const slideMedia = [
+  { image: "/images/pic.jpg", ctaLink: "/category/skincare" },
+  { image: "/images/skincare.jpg", ctaLink: "/category/skincare" },
+  { image: "/images/perfume1.jpg", ctaLink: "/category/perfume" },
+  { image: "/images/makeup.jpg", ctaLink: "/category/makeup" },
+  { image: "/images/hero.png", ctaLink: "/" },
 ];
+
+// Text comes from locales/home.ts in the chosen language.
+const slides = computed(() =>
+  tm('home.hero.slides').map((text, index) => ({
+    ...slideMedia[index],
+    ...text,
+    titleGold: text.titleGold.replace('{amount}', price(freeShippingThreshold.value)),
+  }))
+);
 
 const activeIndex = ref(0);
 let intervalId = null;
 
 function startAutoplay() {
   intervalId = setInterval(() => {
-    activeIndex.value = (activeIndex.value + 1) % slides.length;
+    activeIndex.value = (activeIndex.value + 1) % slideMedia.length;
   }, 5000);
 }
 
@@ -165,12 +130,12 @@ function goToSlide(index) {
 }
 
 function nextSlide() {
-  activeIndex.value = (activeIndex.value + 1) % slides.length;
+  activeIndex.value = (activeIndex.value + 1) % slideMedia.length;
   resume();
 }
 
 function prevSlide() {
-  activeIndex.value = (activeIndex.value - 1 + slides.length) % slides.length;
+  activeIndex.value = (activeIndex.value - 1 + slideMedia.length) % slideMedia.length;
   resume();
 }
 

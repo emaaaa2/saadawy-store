@@ -1,149 +1,160 @@
 <template>
   <div class="px-6 py-phi-3 max-w-2xl mx-auto">
-    <h1 class="text-phi-h2 font-bold text-olive mb-phi-3">Checkout</h1>
+    <h1 class="text-phi-h2 font-bold text-ink mb-phi-3">{{ $t('checkout.title') }}</h1>
 
     <div v-if="cart.items.length === 0" class="text-center py-phi-4">
-      <Icon name="mdi:cart-off" class="text-5xl text-olive/20 mb-4" />
-      <p class="text-olive font-semibold mb-1">Your cart is empty</p>
+      <Icon name="mdi:cart-off" class="text-5xl text-ink/20 mb-4" />
+      <p class="text-ink font-semibold mb-1">{{ $t('checkout.empty') }}</p>
       <NuxtLink to="/" class="text-gold hover:underline text-sm"
-        >Continue shopping</NuxtLink
+        >{{ $t('checkout.continueShopping') }}</NuxtLink
       >
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-phi-2">
-      <div v-if="user" class="flex items-center gap-2 text-sm text-olive/80 bg-sage/10 rounded-xl px-4 py-3">
+      <div v-if="user" class="flex items-center gap-2 text-sm text-ink/80 bg-sage/10 rounded-xl px-4 py-3">
         <Icon name="mdi:check-circle-outline" class="text-lg text-sage shrink-0" />
-        <span>Signed in as <span class="font-semibold">{{ user.email }}</span> — this order will be saved to your account.</span>
+        <span>{{ $t('checkout.signedInAs', { email: user.email }) }}</span>
       </div>
-      <div v-else class="flex flex-wrap items-center justify-between gap-3 text-sm bg-beige border border-olive/10 rounded-xl px-4 py-3">
-        <span class="text-olive/80">Sign in to save this order and check out faster next time — or continue as a guest.</span>
+      <div v-else class="flex flex-wrap items-center justify-between gap-3 text-sm bg-page border border-ink/10 rounded-xl px-4 py-3">
+        <span class="text-ink/80">{{ $t('checkout.guestHint') }}</span>
         <NuxtLink
           to="/login?next=/checkout"
-          class="flex items-center gap-2 font-semibold text-olive bg-white border border-olive/20 rounded-full px-4 py-1.5 hover:border-gold transition shrink-0"
+          class="flex items-center gap-2 font-semibold text-ink bg-surface border border-ink/20 rounded-full px-4 py-1.5 hover:border-gold transition shrink-0"
         >
           <GoogleIcon />
-          Sign in
+          {{ $t('checkout.signIn') }}
         </NuxtLink>
       </div>
 
-      <div class="bg-beige border border-olive/10 rounded-2xl p-5">
-        <h3 class="font-semibold text-olive mb-3">Order Summary</h3>
+      <div class="bg-page border border-ink/10 rounded-2xl p-5">
+        <h3 class="font-semibold text-ink mb-3">{{ $t('checkout.summary') }}</h3>
         <div
           v-for="item in cart.items"
           :key="item.id"
-          class="flex justify-between text-sm py-2 border-b border-olive/10 last:border-0"
+          class="flex justify-between gap-3 text-sm py-2 border-b border-ink/10 last:border-0"
         >
-          <span class="text-olive/80"
-            ><bdi>{{ item.name }}</bdi> × {{ item.quantity }}</span
+          <span class="text-ink/80"
+            ><bdi>{{ productName(item) }}</bdi> × {{ item.quantity }}</span
           >
-          <span class="font-medium text-olive"
-            >EGP {{ (item.sale_price ?? item.price) * item.quantity }}</span
+          <span class="font-medium text-ink shrink-0"
+            >{{ price((item.sale_price ?? item.price) * item.quantity) }}</span
           >
         </div>
-        <div class="flex items-center gap-2 pt-3 border-t border-olive/10">
+        <div class="flex items-center gap-2 pt-3 border-t border-ink/10">
           <input
             v-model="couponCode"
             type="text"
-            placeholder="Coupon code"
+            dir="ltr"
+            :placeholder="$t('checkout.couponPlaceholder')"
             :disabled="!!appliedCoupon"
-            class="flex-1 border border-olive/20 rounded-lg px-3 py-2 outline-none focus:border-gold text-sm uppercase disabled:bg-olive/5 disabled:text-olive/50"
+            class="flex-1 min-w-0 border border-ink/20 rounded-lg px-3 py-2 outline-none focus:border-gold text-sm uppercase rtl:text-right disabled:bg-ink/5 disabled:text-ink/50"
           />
           <button
             v-if="!appliedCoupon"
             type="button"
             :disabled="isApplyingCoupon || !couponCode.trim()"
-            class="text-sm font-semibold text-olive px-4 py-2 rounded-lg border border-olive/20 hover:bg-olive/5 transition disabled:opacity-50 shrink-0"
+            class="text-sm font-semibold text-ink px-4 py-2 rounded-lg border border-ink/20 hover:bg-ink/5 transition disabled:opacity-50 shrink-0"
             @click="handleApplyCoupon"
           >
-            {{ isApplyingCoupon ? "..." : "Apply" }}
+            {{ isApplyingCoupon ? "..." : $t('checkout.apply') }}
           </button>
           <button
             v-else
             type="button"
-            class="text-sm font-semibold text-red-500 px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition shrink-0"
+            class="text-sm font-semibold text-red-500 px-4 py-2 rounded-lg border border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/15 transition shrink-0"
             @click="removeCoupon"
           >
-            Remove
+            {{ $t('checkout.remove') }}
           </button>
         </div>
         <p v-if="couponError" class="text-xs text-red-500 mt-1">{{ couponError }}</p>
         <p v-if="appliedCoupon" class="text-xs text-sage mt-1">
-          Coupon "{{ appliedCoupon.code }}" applied — you saved EGP {{ appliedCoupon.discount }}
+          {{ $t('checkout.couponApplied', { code: appliedCoupon.code, amount: price(appliedCoupon.discount) }) }}
         </p>
 
-        <div v-if="appliedCoupon" class="flex justify-between pt-3 text-sm text-olive/70">
-          <span>Discount</span>
-          <span>- EGP {{ appliedCoupon.discount }}</span>
+        <div v-if="appliedCoupon" class="flex justify-between pt-3 text-sm text-ink/70">
+          <span>{{ $t('checkout.discount') }}</span>
+          <span>- {{ price(appliedCoupon.discount) }}</span>
         </div>
-        <div v-if="form.governorate" class="flex justify-between pt-3 text-sm text-olive/70">
-          <span>Shipping</span>
-          <span>{{ shippingFee === 0 ? 'Free' : `EGP ${shippingFee}` }}</span>
+        <div v-if="form.governorate" class="flex justify-between pt-3 text-sm text-ink/70">
+          <span>{{ $t('checkout.shipping') }}</span>
+          <span>{{ shippingFee === 0 ? $t('checkout.free') : price(shippingFee) }}</span>
         </div>
-        <p v-else class="text-xs text-taupe pt-3">Select a governorate to see shipping cost</p>
-        <div class="flex justify-between pt-3 font-bold text-olive">
-          <span>Total</span>
-          <span>EGP {{ finalTotal }}</span>
+        <p v-else class="text-xs text-taupe pt-3">{{ $t('checkout.pickGovernorateForShipping') }}</p>
+        <div class="flex justify-between pt-3 font-bold text-ink">
+          <span>{{ $t('checkout.total') }}</span>
+          <span>{{ price(finalTotal) }}</span>
         </div>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-olive mb-1"
-            >Full Name</label
+          <label for="checkout-name" class="block text-sm font-medium text-ink mb-1"
+            >{{ $t('checkout.fullName') }}</label
           >
           <input
+            id="checkout-name"
             v-model="form.customerName"
             type="text"
+            dir="auto"
             required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
+            autocomplete="name"
+            class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-olive mb-1"
-            >Phone Number</label
+          <label for="checkout-phone" class="block text-sm font-medium text-ink mb-1"
+            >{{ $t('checkout.phone') }}</label
           >
           <input
+            id="checkout-phone"
             v-model="form.phone"
             type="tel"
+            dir="ltr"
             required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
+            autocomplete="tel"
+            class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold rtl:text-right"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-olive mb-1"
-            >Governorate</label
+          <label for="checkout-governorate" class="block text-sm font-medium text-ink mb-1"
+            >{{ $t('checkout.governorate') }}</label
           >
           <select
+            id="checkout-governorate"
             v-model="form.governorate"
             required
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-white"
+            class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-surface"
           >
-            <option value="" disabled>Select your governorate</option>
-            <option v-for="g in governorates" :key="g.value" :value="g.value">{{ g.label }}</option>
+            <option value="" disabled>{{ $t('checkout.pickGovernorate') }}</option>
+            <option v-for="g in governorates" :key="g.value" :value="g.value">{{ governorateName(g) }}</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-olive mb-1"
-            >Delivery Address</label
+          <label for="checkout-address" class="block text-sm font-medium text-ink mb-1"
+            >{{ $t('checkout.address') }}</label
           >
           <textarea
+            id="checkout-address"
             v-model="form.address"
             required
+            dir="auto"
             rows="3"
-            class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
+            autocomplete="street-address"
+            class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold"
           ></textarea>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium text-olive mb-2"
-          >Payment Method</label
+        <span class="block text-sm font-medium text-ink mb-2"
+          >{{ $t('checkout.paymentMethod') }}</span
         >
         <div class="space-y-2">
           <label
             v-for="method in paymentMethods"
             :key="method.value"
-            class="flex items-center gap-3 border border-olive/20 rounded-lg p-3 cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5"
+            class="flex items-center gap-3 border border-ink/20 rounded-lg p-3 cursor-pointer has-[:checked]:border-gold has-[:checked]:bg-gold/5"
           >
             <input
               v-model="form.paymentMethod"
@@ -151,8 +162,8 @@
               :value="method.value"
               required
             />
-            <Icon :name="method.icon" class="text-lg text-olive" />
-            <span class="text-sm text-olive">{{ method.label }}</span>
+            <Icon :name="method.icon" class="text-lg text-ink" />
+            <span class="text-sm text-ink">{{ $t(`checkout.payment.${method.value}`) }}</span>
           </label>
         </div>
       </div>
@@ -162,13 +173,14 @@
         :disabled="isSubmitting"
         class="w-full bg-olive text-beige py-3.5 rounded-full font-semibold hover:bg-gold hover:text-olive transition disabled:opacity-50"
       >
-        {{ isSubmitting ? "Placing Order..." : "Place Order" }}
+        {{ isSubmitting ? $t('checkout.placing') : $t('checkout.placeOrder') }}
       </button>
       <p class="text-xs text-taupe text-center -mt-2">
-        By placing your order you agree to our
-        <NuxtLink to="/terms" target="_blank" class="underline hover:text-gold">Terms</NuxtLink>
-        and
-        <NuxtLink to="/returns" target="_blank" class="underline hover:text-gold">Returns Policy</NuxtLink>.
+        <template v-for="(part, index) in agreeParts" :key="index">
+          <NuxtLink v-if="part === '{terms}'" to="/terms" target="_blank" class="underline hover:text-gold">{{ $t('checkout.terms') }}</NuxtLink>
+          <NuxtLink v-else-if="part === '{returns}'" to="/returns" target="_blank" class="underline hover:text-gold">{{ $t('checkout.returnsPolicy') }}</NuxtLink>
+          <template v-else>{{ part }}</template>
+        </template>
       </p>
     </form>
   </div>
@@ -177,12 +189,19 @@
 <script setup>
 const cart = useCartStore();
 const user = useSupabaseUser();
+const toast = useToastStore();
+const { t, price, productName, governorateName } = useLang();
 const isSubmitting = ref(false);
-useSeoMeta({ title: "Checkout", robots: "noindex" });
+useSeoMeta({ title: () => t("checkout.title"), robots: "noindex" });
 const storeSettings = useStoreSettings();
 const paymentMethods = computed(() => enabledPaymentMethods(storeSettings.value));
 
-const { data: shippingSettings } = await useFetch('/api/shipping-settings');
+const { data: shippingSettings } = await useFetch('/api/shipping-settings', { key: 'shipping-settings' });
+
+// "By placing your order you agree to our {terms} and {returns}." with the two parts as links.
+const agreeParts = computed(() =>
+  t("checkout.agree", { terms: "\u0000{terms}\u0000", returns: "\u0000{returns}\u0000" }).split("\u0000").filter(Boolean)
+);
 
 const form = ref({
   customerName: "",
@@ -241,7 +260,7 @@ async function handleApplyCoupon() {
     });
     appliedCoupon.value = result;
   } catch (error) {
-    couponError.value = error.data?.statusMessage || "Invalid coupon code";
+    couponError.value = apiErrorMessage(error, t);
   } finally {
     isApplyingCoupon.value = false;
   }
@@ -251,6 +270,38 @@ function removeCoupon() {
   appliedCoupon.value = null;
   couponCode.value = "";
   couponError.value = "";
+}
+
+// The WhatsApp message the customer sends the store after ordering.
+function whatsappMessage(order) {
+  const line = (key, value) => t(`checkout.whatsapp.${key}`, { value });
+  const lines = [
+    t("checkout.whatsapp.placed"),
+    line("orderNumber", order.order_number),
+    line("name", form.value.customerName),
+    line("phone", form.value.phone),
+    line("address", form.value.address),
+    "",
+    t("checkout.whatsapp.items"),
+    ...cart.items.map((item) => `- ${productName(item)} x${item.quantity}`),
+    "",
+    line("total", price(order.total)),
+  ];
+
+  if (form.value.paymentMethod === "bank_transfer") {
+    const s = storeSettings.value;
+    const transfer = [
+      s.vodafoneCash && line("vodafoneCash", s.vodafoneCash),
+      s.instapay && line("instapay", s.instapay),
+      s.bankAccountNumber && line("bankAccount", `${s.bankAccountNumber}${s.bankName ? ` (${s.bankName})` : ""}`),
+      s.bankAccountName && line("accountName", s.bankAccountName),
+    ].filter(Boolean);
+    lines.push("");
+    if (transfer.length) lines.push(t("checkout.whatsapp.transferTo"), ...transfer, t("checkout.whatsapp.sendReceipt"));
+    else lines.push(t("checkout.whatsapp.askDetails"));
+  }
+
+  return lines.join("\n");
 }
 
 async function handleSubmit() {
@@ -293,36 +344,17 @@ async function handleSubmit() {
         window.location.href = `https://accept.paymob.com/unifiedcheckout/?publicKey=${config.public.paymobPublicKey}&clientSecret=${clientSecret}`
         return
       } catch (paymentError) {
-        alert(`Your order ${order.order_number} was saved, but starting the card payment failed. Please try again or contact us on WhatsApp.`)
+        toast.error(t('checkout.cardFailed', { order: order.order_number }))
         console.error(paymentError)
         return
       }
     }
 
-    const itemsList = cart.items
-      .map((item) => `- ${item.name} x${item.quantity}`)
-      .join('%0A')
-
-    let message = `Hi! I just placed an order.%0AOrder Number: ${order.order_number}%0AName: ${form.value.customerName}%0APhone: ${form.value.phone}%0AAddress: ${encodeURIComponent(form.value.address)}%0A%0AItems:%0A${itemsList}%0A%0ATotal: EGP ${order.total}`
-
-    if (form.value.paymentMethod === 'bank_transfer') {
-      const s = storeSettings.value
-      const lines = [
-        s.vodafoneCash && `Vodafone Cash: ${s.vodafoneCash}`,
-        s.instapay && `InstaPay: ${s.instapay}`,
-        s.bankAccountNumber && `Bank Account: ${s.bankAccountNumber}${s.bankName ? ` (${s.bankName})` : ''}`,
-        s.bankAccountName && `Account Name: ${s.bankAccountName}`,
-      ].filter(Boolean)
-      message += lines.length
-        ? `%0A%0APlease transfer to:%0A${lines.map(encodeURIComponent).join('%0A')}%0AThen send me the receipt here.`
-        : `%0A%0APlease send me the transfer details.`
-    }
-
-    const whatsappUrl = `https://wa.me/${toWhatsAppNumber(storeSettings.value.whatsappOrders)}?text=${message}`
+    const whatsappUrl = `https://wa.me/${toWhatsAppNumber(storeSettings.value.whatsappOrders)}?text=${encodeURIComponent(whatsappMessage(order))}`
     cart.clearCart()
     window.location.href = whatsappUrl
   } catch (error) {
-    alert('Something went wrong. Please try again.')
+    toast.error(apiErrorMessage(error, t))
     console.error(error)
   } finally {
     isSubmitting.value = false

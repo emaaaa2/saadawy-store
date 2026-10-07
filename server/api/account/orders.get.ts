@@ -3,7 +3,7 @@ import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 export default defineEventHandler(async (event) => {
   const customer = await serverSupabaseUser(event).catch(() => null)
   if (!customer?.sub) {
-    throw createError({ statusCode: 401, statusMessage: 'Please sign in to view your orders' })
+    throw customerError(401, 'signInForOrders', 'Please sign in to view your orders')
   }
 
   const limit = Math.min(Math.max(Number(getQuery(event).limit) || 50, 1), 50)

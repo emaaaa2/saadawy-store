@@ -1,7 +1,7 @@
 <template>
   <div
     class="bg-stone-100 border border-stone-200 overflow-hidden flex items-center justify-center shrink-0"
-    :title="showImage ? undefined : src ? 'Photo file is missing — upload a new one' : 'No photo yet'"
+    :title="showImage ? undefined : src ? $t('admin.common.photoMissing') : $t('admin.common.noPhoto')"
   >
     <img
       v-if="showImage"

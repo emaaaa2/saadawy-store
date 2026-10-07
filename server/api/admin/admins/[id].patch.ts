@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const permissions = sanitizePermissions(body.permissions)
 
   if (permissions.length === 0) {
-    throw createError({ statusCode: 400, statusMessage: 'Choose at least one section, or remove this admin instead' })
+    throw adminError(400, 'noSectionsLeft', 'Choose at least one section, or remove this admin instead')
   }
 
   const { data, error } = await serverSupabaseServiceRole(event)
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
   if (!data?.length) {
-    throw createError({ statusCode: 404, statusMessage: 'Admin not found' })
+    throw adminError(404, 'adminNotFound', 'Admin not found')
   }
 
   return { success: true }

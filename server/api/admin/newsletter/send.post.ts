@@ -5,10 +5,10 @@ export default defineEventHandler(async (event) => {
   await requireAdmin(event, 'newsletter')
 
   if (!config.resendApiKey) {
-    throw createError({ statusCode: 500, statusMessage: 'Email service is not configured yet (missing RESEND_API_KEY)' })
+    throw adminError(500, 'emailNotConfigured', 'Email service is not configured yet (missing RESEND_API_KEY)', { setting: 'RESEND_API_KEY' })
   }
   if (!config.newsletterFromEmail) {
-    throw createError({ statusCode: 500, statusMessage: 'Email service is not configured yet (missing NEWSLETTER_FROM_EMAIL)' })
+    throw adminError(500, 'emailNotConfigured', 'Email service is not configured yet (missing NEWSLETTER_FROM_EMAIL)', { setting: 'NEWSLETTER_FROM_EMAIL' })
   }
 
   const body = await readBody(event)
@@ -16,10 +16,10 @@ export default defineEventHandler(async (event) => {
   const message = typeof body.message === 'string' ? body.message.trim() : ''
 
   if (!subject) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter a subject' })
+    throw adminError(400, 'subjectRequired', 'Please enter a subject')
   }
   if (!message) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter a message' })
+    throw adminError(400, 'messageRequired', 'Please enter a message')
   }
 
   const client = serverSupabaseServiceRole(event)

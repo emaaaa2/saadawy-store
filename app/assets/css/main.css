@@ -1,5 +1,65 @@
+/* Theme colors (as "R G B" so Tailwind can add opacity, e.g. bg-ink/10).
+   Light: olive text on beige pages and white cards. */
+:root {
+  --color-ink: 68 86 76;
+  --color-page: 251 244 235;
+  --color-surface: 255 255 255;
+  --color-tint: 230 211 163;
+
+  /* Tailwind's stone grays, used by the dashboard. */
+  --stone-50: 250 250 249;
+  --stone-100: 245 245 244;
+  --stone-200: 231 229 228;
+  --stone-300: 214 211 209;
+  --stone-400: 168 162 158;
+  --stone-500: 120 113 108;
+  --stone-600: 87 83 78;
+  --stone-700: 68 64 60;
+  --stone-800: 41 37 36;
+  --stone-900: 28 25 23;
+  --stone-950: 12 10 9;
+}
+
+/* Dark mode (store and dashboard): warm off-white text on deep olive-charcoal. */
+html.dark {
+  --color-ink: 237 231 221;
+  --color-page: 20 24 22;
+  --color-surface: 30 36 33;
+  --color-tint: 58 52 40;
+  color-scheme: dark;
+
+  /* The stone scale turned around: light shades become dark backgrounds and
+     borders, dark shades become light text — in the store's olive-charcoal tone. */
+  --stone-50: 36 43 39;
+  --stone-100: 20 24 22;
+  --stone-200: 49 57 52;
+  --stone-300: 66 75 70;
+  --stone-400: 134 141 136;
+  --stone-500: 163 169 164;
+  --stone-600: 192 197 193;
+  --stone-700: 214 218 214;
+  --stone-800: 235 231 223;
+  --stone-900: 245 242 236;
+  --stone-950: 250 248 244;
+}
+
+/* Olive logos (dashboard sidebar) turn warm off-white. */
+html.dark .dark-logo {
+  filter: brightness(0) invert(0.9) sepia(0.15);
+}
+
 body {
-  background-color: #FBF4EB;
+  background-color: rgb(var(--color-page));
+}
+
+html.dark body {
+  color: rgb(var(--color-ink));
+}
+
+/* Arabic uses Alexandria (loaded in nuxt.config); Inter has no Arabic letters. */
+html[lang="ar"] body,
+html[lang="ar"] .font-body {
+  font-family: 'Alexandria', ui-sans-serif, system-ui, sans-serif;
 }
 
 .fade-in-hidden {

@@ -16,8 +16,11 @@ export interface StoreSettings {
   bankAccountName: string
   bankAccountNumber: string
   address: string
+  addressEn: string
   openingHours: string
+  openingHoursAr: string
   deliveryTime: string
+  deliveryTimeAr: string
   mapUrl: string
   facebookUrl: string
   instagramUrl: string
@@ -25,6 +28,7 @@ export interface StoreSettings {
   welcomePopupEnabled: boolean
   welcomeCouponCode: string
   welcomeMessage: string
+  welcomeMessageAr: string
 }
 
 export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
@@ -37,8 +41,11 @@ export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
   bankAccountName: '',
   bankAccountNumber: '',
   address: 'برج الحرميين، بجوار مستشفى وادي الطب، الشارع الجديد، بهتيم، قسم ثان شبرا الخيمة، محافظة القليوبية',
+  addressEn: 'Al-Haramain Tower, next to Wadi El-Teb Hospital, El-Shareaa El-Gedid, Bahtim, Shubra El-Kheima 2, Qalyubia',
   openingHours: 'Open daily: 10:00 AM – 2:00 AM',
+  openingHoursAr: 'مفتوح يوميًا من 10 الصبح لـ 2 بالليل',
   deliveryTime: '',
+  deliveryTimeAr: '',
   mapUrl: 'https://maps.app.goo.gl/52oY7s4JVhZtr1g37',
   facebookUrl: 'https://www.facebook.com/share/17ssH5Rhek/?mibextid=wwXIfr',
   instagramUrl: 'https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn',
@@ -46,13 +53,36 @@ export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
   welcomePopupEnabled: true,
   welcomeCouponCode: 'WELCOME10',
   welcomeMessage: 'Enjoy 10% off your first order — just use the code below at checkout.',
+  welcomeMessageAr: 'استمتع بخصم 10% على أول طلب — استخدم الكود ده عند الدفع.',
+}
+
+// Texts shown on the store in both languages: which field holds each language.
+// (`address` was Arabic-only before, the others English-only, so the names differ.)
+export const BILINGUAL_SETTINGS = {
+  address: { en: 'addressEn', ar: 'address' },
+  openingHours: { en: 'openingHours', ar: 'openingHoursAr' },
+  deliveryTime: { en: 'deliveryTime', ar: 'deliveryTimeAr' },
+  welcomeMessage: { en: 'welcomeMessage', ar: 'welcomeMessageAr' },
+} as const
+
+export type BilingualSetting = keyof typeof BILINGUAL_SETTINGS
+
+/** The text in the given language, or the other language's text if that one is empty. */
+export function settingText(settings: StoreSettings, name: BilingualSetting, lang: 'en' | 'ar') {
+  const fields = BILINGUAL_SETTINGS[name]
+  const other = lang === 'ar' ? 'en' : 'ar'
+  return settings[fields[lang]] || settings[fields[other]] || ''
 }
 
 const TEXT_LIMITS: Partial<Record<keyof StoreSettings, number>> = {
   address: 300,
+  addressEn: 300,
   openingHours: 120,
+  openingHoursAr: 120,
   deliveryTime: 60,
+  deliveryTimeAr: 60,
   welcomeMessage: 300,
+  welcomeMessageAr: 300,
 }
 
 // Keeps only known keys with the right types, so stored settings can never break the storefront.

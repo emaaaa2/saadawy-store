@@ -2,7 +2,7 @@
   <div class="mt-phi-4 max-w-3xl">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h2 class="text-phi-h2 font-bold text-olive mb-1">Reviews</h2>
+        <h2 class="text-phi-h2 font-bold text-ink mb-1">{{ $t('product.reviews.title') }}</h2>
         <div v-if="reviews.length > 0" class="flex items-center gap-2">
           <div class="flex gap-0.5">
             <Icon
@@ -10,42 +10,44 @@
               :key="star"
               name="mdi:star"
               class="text-base"
-              :class="star <= Math.round(averageRating) ? 'text-gold' : 'text-olive/15'"
+              :class="star <= Math.round(averageRating) ? 'text-gold' : 'text-ink/15'"
             />
           </div>
           <span class="text-sm text-taupe">
-            {{ averageRating.toFixed(1) }} ({{ reviews.length }} review{{ reviews.length > 1 ? "s" : "" }})
+            {{ tc('product.reviewsSummary', reviews.length, { rating: averageRating.toFixed(1) }) }}
           </span>
         </div>
-        <p v-else class="text-sm text-taupe">No reviews yet — be the first!</p>
+        <p v-else class="text-sm text-taupe">{{ $t('product.reviews.none') }}</p>
       </div>
 
       <button
         class="text-sm font-semibold text-gold hover:underline shrink-0"
         @click="showForm = !showForm"
       >
-        {{ showForm ? "Cancel" : "Write a Review" }}
+        {{ showForm ? $t('product.reviews.cancel') : $t('product.reviews.write') }}
       </button>
     </div>
 
     <form
       v-if="showForm"
-      class="bg-beige border border-olive/10 rounded-2xl p-5 mb-6 space-y-3"
+      class="bg-page border border-ink/10 rounded-2xl p-5 mb-6 space-y-3"
       @submit.prevent="handleSubmit"
     >
       <div class="grid sm:grid-cols-2 gap-3">
         <input
           v-model="form.customerName"
           type="text"
-          placeholder="Your Name"
+          dir="auto"
+          :placeholder="$t('product.reviews.name')"
           required
-          class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-white text-sm"
+          class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-surface text-sm"
         />
         <input
           v-model="form.location"
           type="text"
-          placeholder="Location (optional)"
-          class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-white text-sm"
+          dir="auto"
+          :placeholder="$t('product.reviews.location')"
+          class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-surface text-sm"
         />
       </div>
 
@@ -54,13 +56,13 @@
           v-for="star in 5"
           :key="star"
           type="button"
-          aria-label="Rate"
+          :aria-label="$t('product.reviews.rate', { n: star })"
           @click="form.rating = star"
         >
           <Icon
             name="mdi:star"
             class="text-2xl transition"
-            :class="star <= form.rating ? 'text-gold' : 'text-olive/15'"
+            :class="star <= form.rating ? 'text-gold' : 'text-ink/15'"
           />
         </button>
       </div>
@@ -70,8 +72,9 @@
         required
         rows="3"
         maxlength="1000"
-        placeholder="Share your experience with this product..."
-        class="w-full border border-olive/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-white text-sm"
+        dir="auto"
+        :placeholder="$t('product.reviews.comment')"
+        class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold bg-surface text-sm"
       ></textarea>
 
       <button
@@ -79,7 +82,7 @@
         :disabled="isSubmitting || form.rating === 0"
         class="bg-olive text-beige px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-gold hover:text-olive transition disabled:opacity-50"
       >
-        {{ isSubmitting ? "Submitting..." : "Submit Review" }}
+        {{ isSubmitting ? $t('product.reviews.submitting') : $t('product.reviews.submit') }}
       </button>
     </form>
 
@@ -87,22 +90,22 @@
       <div
         v-for="review in reviews"
         :key="review.id"
-        class="border-b border-olive/10 pb-4 last:border-0"
+        class="border-b border-ink/10 pb-4 last:border-0"
       >
         <div class="flex items-center justify-between mb-1">
-          <p dir="auto" class="font-semibold text-olive text-sm">{{ review.customer_name }}</p>
+          <p dir="auto" class="font-semibold text-ink text-sm">{{ review.customer_name }}</p>
           <div class="flex gap-0.5">
             <Icon
               v-for="star in 5"
               :key="star"
               name="mdi:star"
               class="text-sm"
-              :class="star <= review.rating ? 'text-gold' : 'text-olive/15'"
+              :class="star <= review.rating ? 'text-gold' : 'text-ink/15'"
             />
           </div>
         </div>
-        <p v-if="review.location" class="text-xs text-taupe mb-2">{{ review.location }}</p>
-        <p dir="auto" class="text-sm text-olive/80 leading-relaxed">{{ review.comment }}</p>
+        <p v-if="review.location" dir="auto" class="text-xs text-taupe mb-2">{{ review.location }}</p>
+        <p dir="auto" class="text-sm text-ink/80 leading-relaxed">{{ review.comment }}</p>
       </div>
     </div>
   </div>
@@ -115,8 +118,9 @@ const props = defineProps({
 });
 
 const toast = useToastStore();
+const { t, tc } = useLang();
 
-const { data, refresh } = await useFetch("/api/reviews", {
+const { data } = await useFetch("/api/reviews", {
   query: { productId: props.productId, limit: 50 },
 });
 
@@ -144,7 +148,7 @@ const form = ref({
 
 async function handleSubmit() {
   if (form.value.rating === 0) {
-    toast.show("Please select a rating");
+    toast.error(t("product.reviews.pickRating"));
     return;
   }
 
@@ -155,14 +159,13 @@ async function handleSubmit() {
       method: "POST",
       body: { ...form.value, productId: props.productId },
     });
-    toast.show("Thank you! Your review will appear after a quick check.");
+    toast.show(t("product.reviews.thanks"));
     showForm.value = false;
     form.value = { customerName: "", location: "", rating: 0, comment: "" };
   } catch (error) {
-    toast.show(error.data?.statusMessage || "Something went wrong. Please try again.");
+    toast.error(apiErrorMessage(error, t));
   } finally {
     isSubmitting.value = false;
   }
 }
-
 </script>

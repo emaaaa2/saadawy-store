@@ -1,38 +1,38 @@
 <template>
   <div class="px-6 py-phi-3 max-w-6xl mx-auto">
     <div v-if="pending" class="grid md:grid-cols-2 gap-phi-3">
-      <div class="aspect-square bg-olive/5 rounded-2xl animate-pulse"></div>
+      <div class="aspect-square bg-ink/5 rounded-2xl animate-pulse"></div>
       <div class="space-y-4">
-        <div class="h-8 bg-olive/5 rounded-lg w-3/4 animate-pulse"></div>
-        <div class="h-6 bg-olive/5 rounded-lg w-1/4 animate-pulse"></div>
-        <div class="h-24 bg-olive/5 rounded-lg animate-pulse"></div>
+        <div class="h-8 bg-ink/5 rounded-lg w-3/4 animate-pulse"></div>
+        <div class="h-6 bg-ink/5 rounded-lg w-1/4 animate-pulse"></div>
+        <div class="h-24 bg-ink/5 rounded-lg animate-pulse"></div>
       </div>
     </div>
 
     <div v-else-if="!product" class="text-center py-phi-5">
-      <Icon name="mdi:alert-circle-outline" class="text-5xl text-olive/20 mb-4" />
-      <p class="text-olive font-semibold mb-1">Product not found</p>
-      <NuxtLink to="/" class="text-gold hover:underline text-sm">Back to homepage</NuxtLink>
+      <Icon name="mdi:alert-circle-outline" class="text-5xl text-ink/20 mb-4" />
+      <p class="text-ink font-semibold mb-1">{{ $t('product.notFound') }}</p>
+      <NuxtLink to="/" class="text-gold hover:underline text-sm">{{ $t('common.backHome') }}</NuxtLink>
     </div>
 
     <div v-else>
       <nav class="flex items-center flex-wrap gap-1.5 text-sm text-taupe mb-4">
-        <NuxtLink to="/" class="hover:text-gold transition">Home</NuxtLink>
-        <Icon name="mdi:chevron-right" class="text-base shrink-0" />
-        <NuxtLink :to="`/category/${product.category}`" class="capitalize hover:text-gold transition">
-          {{ product.category }}
+        <NuxtLink to="/" class="hover:text-gold transition">{{ $t('common.home') }}</NuxtLink>
+        <Icon name="mdi:chevron-right" class="text-base shrink-0 rtl:-scale-x-100" />
+        <NuxtLink :to="`/category/${product.category}`" class="hover:text-gold transition">
+          {{ categoryName(product.category) }}
         </NuxtLink>
-        <Icon name="mdi:chevron-right" class="text-base shrink-0" />
-        <span dir="auto" class="text-olive truncate max-w-[200px] sm:max-w-none">{{ product.name }}</span>
+        <Icon name="mdi:chevron-right" class="text-base shrink-0 rtl:-scale-x-100" />
+        <span dir="auto" class="text-ink truncate max-w-[200px] sm:max-w-none">{{ productName(product) }}</span>
       </nav>
 
       <div class="grid md:grid-cols-2 gap-phi-3">
       <div>
-        <div class="relative aspect-square bg-champagne rounded-2xl overflow-hidden">
+        <div class="relative aspect-square bg-tint rounded-2xl overflow-hidden">
           <NuxtImg
             v-if="galleryImages[activeImageIndex] && !failedImages.has(galleryImages[activeImageIndex])"
             :src="galleryImages[activeImageIndex]"
-            :alt="product.name"
+            :alt="productName(product)"
             :width="600"
             :height="600"
             loading="eager"
@@ -40,24 +40,24 @@
             @error="failedImages.add(galleryImages[activeImageIndex])"
           />
           <div v-else class="w-full h-full flex items-center justify-center">
-            <Icon name="mdi:image-outline" class="text-6xl text-olive/30" />
+            <Icon name="mdi:image-outline" class="text-6xl text-ink/30" />
           </div>
 
           <span
             v-if="product.badge"
-            class="absolute top-3 left-3 text-xs font-bold px-3 py-1.5 rounded-full"
+            class="absolute top-3 start-3 text-xs font-bold px-3 py-1.5 rounded-full"
             :class="{
               'bg-olive text-beige': product.badge === 'Best Seller',
               'bg-gold text-beige': product.badge === 'New',
               'bg-rose text-olive': product.badge === 'Sale',
             }"
           >
-            {{ product.badge }}
+            {{ badgeLabel(product.badge) }}
           </span>
 
           <button
-            class="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-            :aria-label="wishlist.isInWishlist(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            class="absolute top-3 end-3 w-10 h-10 rounded-full bg-surface/90 flex items-center justify-center hover:text-gold transition"
+            :aria-label="wishlist.isInWishlist(product.id) ? $t('common.removeFromWishlist') : $t('common.addToWishlist')"
             @click="wishlist.toggle(product)"
           >
             <Icon
@@ -69,18 +69,18 @@
 
           <template v-if="galleryImages.length > 1">
             <button
-              class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-              aria-label="Previous image"
+              class="absolute start-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-surface/90 flex items-center justify-center hover:text-gold transition"
+              :aria-label="$t('product.prevImage')"
               @click="activeImageIndex = (activeImageIndex - 1 + galleryImages.length) % galleryImages.length"
             >
-              <Icon name="mdi:chevron-left" class="text-2xl" />
+              <Icon name="mdi:chevron-left" class="text-2xl rtl:-scale-x-100" />
             </button>
             <button
-              class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-              aria-label="Next image"
+              class="absolute end-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-surface/90 flex items-center justify-center hover:text-gold transition"
+              :aria-label="$t('product.nextImage')"
               @click="activeImageIndex = (activeImageIndex + 1) % galleryImages.length"
             >
-              <Icon name="mdi:chevron-right" class="text-2xl" />
+              <Icon name="mdi:chevron-right" class="text-2xl rtl:-scale-x-100" />
             </button>
           </template>
         </div>
@@ -93,16 +93,16 @@
             :class="index === activeImageIndex ? 'border-gold' : 'border-transparent opacity-70 hover:opacity-100'"
             @click="activeImageIndex = index"
           >
-            <NuxtImg :src="img" :alt="`${product.name} ${index + 1}`" :width="100" :height="100" loading="lazy" class="w-full h-full object-cover" />
+            <NuxtImg :src="img" :alt="`${productName(product)} ${index + 1}`" :width="100" :height="100" loading="lazy" class="w-full h-full object-cover" />
           </button>
         </div>
       </div>
 
       <div>
-        <p class="text-sm text-gold font-semibold uppercase tracking-wide mb-2 capitalize">
-          {{ product.category }}
+        <p class="text-sm text-gold font-semibold uppercase tracking-wide mb-2">
+          {{ categoryName(product.category) }}
         </p>
-        <h1 dir="auto" class="text-phi-h2 font-bold text-olive mb-2">{{ product.name }}</h1>
+        <h1 dir="auto" class="text-phi-h2 font-bold text-ink mb-2">{{ productName(product) }}</h1>
 
         <button
           class="flex items-center gap-2 mb-4 hover:opacity-80 transition"
@@ -114,39 +114,39 @@
               :key="star"
               name="mdi:star"
               class="text-base"
-              :class="star <= Math.round(averageRating) ? 'text-gold' : 'text-olive/15'"
+              :class="star <= Math.round(averageRating) ? 'text-gold' : 'text-ink/15'"
             />
           </div>
           <span class="text-sm text-taupe">
             <template v-if="reviewCount > 0">
-              {{ averageRating.toFixed(1) }} ({{ reviewCount }} review{{ reviewCount > 1 ? "s" : "" }})
+              {{ tc('product.reviewsSummary', reviewCount, { rating: averageRating.toFixed(1) }) }}
             </template>
             <template v-else>
-              Be the first to review
+              {{ $t('product.beFirstToReview') }}
             </template>
           </span>
         </button>
 
         <div class="mb-6">
-          <span v-if="product.sale_price" class="text-lg text-taupe line-through mr-2">
-            EGP {{ product.price }}
+          <span v-if="product.sale_price" class="text-lg text-taupe line-through me-2">
+            {{ price(product.price) }}
           </span>
-          <span class="text-3xl font-bold text-olive">
-            EGP {{ product.sale_price ?? product.price }}
+          <span class="text-3xl font-bold text-ink">
+            {{ price(product.sale_price ?? product.price) }}
           </span>
         </div>
 
-        <p v-if="product.description" dir="auto" class="text-olive/70 leading-relaxed mb-6 whitespace-pre-line">
-          {{ product.description }}
+        <p v-if="productDescription(product)" dir="auto" class="text-ink/70 leading-relaxed mb-6 whitespace-pre-line">
+          {{ productDescription(product) }}
         </p>
 
-        <p v-if="product.brand" class="text-sm text-olive mb-4">
-          <span class="font-semibold">Brand:</span> {{ product.brand }}
+        <p v-if="product.brand" class="text-sm text-ink mb-4">
+          <span class="font-semibold">{{ $t('product.brand') }}</span> <bdi>{{ product.brand }}</bdi>
         </p>
 
-        <div v-if="product.usage_info" class="mb-6">
-          <h3 class="text-sm font-semibold text-olive mb-1">Ingredients / How to Use</h3>
-          <p dir="auto" class="text-sm text-olive/70 leading-relaxed whitespace-pre-line">{{ product.usage_info }}</p>
+        <div v-if="productUsage(product)" class="mb-6">
+          <h3 class="text-sm font-semibold text-ink mb-1">{{ $t('product.howToUse') }}</h3>
+          <p dir="auto" class="text-sm text-ink/70 leading-relaxed whitespace-pre-line">{{ productUsage(product) }}</p>
         </div>
 
         <div class="flex items-center gap-2 mb-8">
@@ -156,24 +156,26 @@
             class="text-lg"
           />
           <span class="text-sm" :class="product.stock > 0 ? 'text-sage' : 'text-red-400'">
-            {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+            {{ product.stock > 0 ? $t('common.inStock') : $t('common.outOfStock') }}
           </span>
           <span v-if="product.stock > 0 && product.stock < 3" class="text-sm font-semibold text-red-500">
-            — Only {{ product.stock }} left!
+            — {{ $t('common.onlyLeft', { count: product.stock }) }}
           </span>
         </div>
 
         <div ref="mainCta" class="flex items-center gap-3">
-          <div class="flex items-center border border-olive/20 rounded-full">
+          <div class="flex items-center border border-ink/20 rounded-full">
             <button
-              class="w-10 h-10 flex items-center justify-center text-olive hover:bg-olive/5 transition"
+              class="w-10 h-10 flex items-center justify-center text-ink hover:bg-ink/5 transition"
+              :aria-label="$t('product.decrease')"
               @click="quantity = Math.max(1, quantity - 1)"
             >
               <Icon name="mdi:minus" class="text-sm" />
             </button>
             <span class="w-8 text-center text-sm">{{ quantity }}</span>
             <button
-              class="w-10 h-10 flex items-center justify-center text-olive hover:bg-olive/5 transition"
+              class="w-10 h-10 flex items-center justify-center text-ink hover:bg-ink/5 transition"
+              :aria-label="$t('product.increase')"
               @click="quantity = Math.min(product.stock, quantity + 1)"
             >
               <Icon name="mdi:plus" class="text-sm" />
@@ -186,33 +188,33 @@
             @click="handleAddToCart"
           >
             <Icon name="mdi:cart-outline" class="text-lg" />
-            Add to Cart
+            {{ $t('common.addToCart') }}
           </button>
         </div>
 
-        <ul class="mt-6 pt-5 border-t border-olive/10 space-y-2.5 text-sm text-olive/80">
+        <ul class="mt-6 pt-5 border-t border-ink/10 space-y-2.5 text-sm text-ink/80">
           <li v-if="storeSettings.paymentMethods.cash_on_delivery" class="flex items-center gap-2.5">
             <Icon name="mdi:cash" class="text-lg text-gold shrink-0" />
-            Cash on delivery available
+            {{ $t('product.trust.cod') }}
           </li>
           <li v-if="freeShippingOver" class="flex items-center gap-2.5">
             <Icon name="mdi:truck-fast-outline" class="text-lg text-gold shrink-0" />
-            Free shipping on orders over EGP {{ freeShippingOver.toLocaleString('en-US') }}
+            {{ $t('product.trust.freeShipping', { amount: price(freeShippingOver) }) }}
           </li>
-          <li v-if="storeSettings.deliveryTime" class="flex items-center gap-2.5">
+          <li v-if="settingText('deliveryTime')" class="flex items-center gap-2.5">
             <Icon name="mdi:clock-outline" class="text-lg text-gold shrink-0" />
-            Delivery in {{ storeSettings.deliveryTime }}
+            {{ $t('product.trust.delivery', { time: settingText('deliveryTime') }) }}
           </li>
           <li class="flex items-center gap-2.5">
             <Icon name="mdi:check-decagram-outline" class="text-lg text-gold shrink-0" />
-            100% original products
+            {{ $t('product.trust.original') }}
           </li>
           <li class="flex items-center gap-2.5">
             <Icon name="mdi:whatsapp" class="text-lg text-gold shrink-0" />
             <span>
-              Questions?
-              <a :href="questionLink" target="_blank" rel="noopener noreferrer" class="font-semibold text-olive underline underline-offset-2 hover:text-gold transition">
-                Ask us on WhatsApp
+              {{ $t('product.trust.questions') }}
+              <a :href="questionLink" target="_blank" rel="noopener noreferrer" class="font-semibold text-ink underline underline-offset-2 hover:text-gold transition">
+                {{ $t('product.trust.askWhatsApp') }}
               </a>
             </span>
           </li>
@@ -224,14 +226,14 @@
     <Transition name="cta-slide">
       <div
         v-if="product && showStickyCta"
-        class="md:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-olive/10 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+        class="md:hidden fixed inset-x-0 bottom-0 z-40 bg-surface/95 backdrop-blur border-t border-ink/10 shadow-[0_-6px_20px_rgba(0,0,0,0.06)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
       >
         <div class="flex items-center gap-3">
           <div class="min-w-0 flex-1">
-            <p dir="auto" class="text-xs text-taupe truncate">{{ product.name }}</p>
-            <p class="font-bold text-olive">
-              EGP {{ product.sale_price ?? product.price }}
-              <span v-if="product.sale_price" class="text-xs font-normal text-taupe line-through ml-1">EGP {{ product.price }}</span>
+            <p dir="auto" class="text-xs text-taupe truncate">{{ productName(product) }}</p>
+            <p class="font-bold text-ink">
+              {{ price(product.sale_price ?? product.price) }}
+              <span v-if="product.sale_price" class="text-xs font-normal text-taupe line-through ms-1">{{ price(product.price) }}</span>
             </p>
           </div>
           <button
@@ -240,78 +242,17 @@
             @click="handleAddToCart"
           >
             <Icon name="mdi:cart-outline" class="text-lg" />
-            {{ product.stock === 0 ? 'Out of Stock' : 'Add to Cart' }}
+            {{ product.stock === 0 ? $t('common.outOfStock') : $t('common.addToCart') }}
           </button>
         </div>
       </div>
     </Transition>
 
     <div v-if="relatedProducts.length > 0" class="mt-phi-4">
-      <h2 class="text-phi-h2 font-bold text-olive mb-phi-2">You May Also Like</h2>
+      <h2 class="text-phi-h2 font-bold text-ink mb-phi-2">{{ $t('product.youMayAlsoLike') }}</h2>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
-        <NuxtLink
-          v-for="related in relatedProducts"
-          :key="related.id"
-          :to="`/product/${related.slug}`"
-          class="group block"
-        >
-          <div class="relative aspect-square bg-champagne overflow-hidden">
-            <NuxtImg
-              v-if="related.image && !failedImages.has(related.image)"
-              :src="related.image"
-              :alt="related.name"
-              :width="300"
-              :height="300"
-              loading="lazy"
-              class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-              @error="failedImages.add(related.image)"
-            />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
-            </div>
-
-            <button
-              class="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/80 flex items-center justify-center hover:text-gold transition"
-              :aria-label="wishlist.isInWishlist(related.id) ? 'Remove from wishlist' : 'Add to wishlist'"
-              @click.stop.prevent="wishlist.toggle(related)"
-            >
-              <Icon
-                :name="wishlist.isInWishlist(related.id) ? 'mdi:heart' : 'mdi:heart-outline'"
-                class="text-lg"
-                :class="wishlist.isInWishlist(related.id) ? 'text-gold' : ''"
-              />
-            </button>
-          </div>
-
-          <div class="p-3">
-            <p dir="auto" class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
-              {{ related.name }}
-            </p>
-            <div v-if="related.reviewCount" class="flex items-center gap-1 mb-1">
-              <Icon
-                v-for="star in 5"
-                :key="star"
-                name="mdi:star"
-                class="text-xs"
-                :class="star <= Math.round(related.rating) ? 'text-gold' : 'text-olive/15'"
-              />
-              <span class="text-xs text-taupe">({{ related.reviewCount }})</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="font-bold text-olive text-sm">
-                EGP {{ related.sale_price ?? related.price }}
-              </span>
-              <button
-                class="w-7 h-7 rounded-full bg-olive text-beige flex items-center justify-center hover:bg-gold transition"
-                aria-label="Add to cart"
-                @click.stop.prevent="cart.addItem(related)"
-              >
-                <Icon name="mdi:cart-outline" class="text-sm" />
-              </button>
-            </div>
-          </div>
-        </NuxtLink>
+        <ProductCard v-for="related in relatedProducts" :key="related.id" :product="related" :quick-view="false" />
       </div>
     </div>
 
@@ -319,43 +260,16 @@
       <ProductReviews v-if="product" :product-id="product.id" :open-trigger="reviewFormTrigger" />
     </div>
 
-    <div v-if="recentItems.length > 0" class="mt-phi-4">
-      <h2 class="text-phi-h2 font-bold text-olive mb-phi-2">Recently Viewed</h2>
+    <!-- Recently viewed lives in the browser's storage, so it's only drawn there. -->
+    <ClientOnly>
+      <div v-if="recentItems.length > 0" class="mt-phi-4">
+        <h2 class="text-phi-h2 font-bold text-ink mb-phi-2">{{ $t('product.recentlyViewed') }}</h2>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
-        <NuxtLink
-          v-for="item in recentItems"
-          :key="item.id"
-          :to="`/product/${item.slug}`"
-          class="group block"
-        >
-          <div class="relative aspect-square bg-champagne overflow-hidden">
-            <NuxtImg
-              v-if="item.image && !failedImages.has(item.image)"
-              :src="item.image"
-              :alt="item.name"
-              :width="300"
-              :height="300"
-              loading="lazy"
-              class="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
-              @error="failedImages.add(item.image)"
-            />
-            <div v-else class="w-full h-full flex items-center justify-center">
-              <Icon name="mdi:image-outline" class="text-4xl text-olive/30" />
-            </div>
-          </div>
-
-          <div class="p-3">
-            <p dir="auto" class="text-sm font-medium text-olive mb-1 truncate group-hover:text-gold transition">
-              {{ item.name }}
-            </p>
-            <span class="font-bold text-olive text-sm">
-              EGP {{ item.sale_price ?? item.price }}
-            </span>
-          </div>
-        </NuxtLink>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-phi-2">
+          <ProductCard v-for="item in recentItems" :key="item.id" :product="item" :quick-view="false" />
+        </div>
       </div>
-    </div>
+    </ClientOnly>
   </div>
 </template>
 
@@ -364,12 +278,16 @@ const route = useRoute()
 const cart = useCartStore()
 const wishlist = useWishlistStore()
 const recentlyViewed = useRecentlyViewedStore()
+const { t, tc, isAr, price, productName, productDescription, productUsage, categoryName, settingText } = useLang()
 const quantity = ref(1)
 
 const failedImages = reactive(new Set())
 
 const { data, pending } = await useFetch(`/api/products/${route.params.slug}`)
 const product = computed(() => data.value?.product ?? null)
+
+const badgeKeys = { 'Best Seller': 'bestSeller', New: 'new', Sale: 'sale' }
+const badgeLabel = (badge) => (badgeKeys[badge] ? t(`product.badges.${badgeKeys[badge]}`) : badge)
 
 const activeImageIndex = ref(0)
 const galleryImages = computed(() => {
@@ -383,14 +301,27 @@ watch(product, () => {
   activeImageIndex.value = 0
 })
 
+// Search engines read the English page (the default language), so the original Arabic
+// name also goes in the title, description and product data; otherwise searches in Arabic
+// wouldn't find the product. It isn't added to the page itself.
+const originalName = computed(() => {
+  const p = product.value
+  if (!p || isAr.value || !p.name || p.name === productName(p)) return ''
+  return p.name
+})
+const seoName = computed(() => {
+  if (!product.value) return ''
+  return originalName.value ? `${productName(product.value)} – ${originalName.value}` : productName(product.value)
+})
+
 useSeoMeta({
-  title: () => product.value?.name ?? 'Product',
-  ogTitle: () => product.value?.name,
+  title: () => (product.value ? seoName.value : t('product.notFound')),
+  ogTitle: () => (product.value ? seoName.value : undefined),
   description: () => product.value
-    ? `${product.value.name} — EGP ${product.value.sale_price ?? product.value.price}. ${product.value.description ?? 'Shop now at Saadawy Store.'}`
+    ? `${seoName.value} — ${price(product.value.sale_price ?? product.value.price)}. ${productDescription(product.value) || t('product.metaFallback')}`
     : undefined,
   ogDescription: () => product.value
-    ? `${product.value.name} — EGP ${product.value.sale_price ?? product.value.price}`
+    ? `${seoName.value} — ${price(product.value.sale_price ?? product.value.price)}`
     : undefined,
   ogImage: () => product.value?.image || '/images/pic.jpg'
 })
@@ -443,7 +374,10 @@ const freeShippingOver = computed(() => Number(shippingSettings.value?.free_ship
 
 const questionLink = computed(() => {
   if (!product.value) return ''
-  const text = `Hi! I have a question about ${product.value.name}\n${siteUrl}/product/${product.value.slug}`
+  const text = t('product.trust.whatsAppMessage', {
+    name: productName(product.value),
+    link: `${siteUrl}/product/${product.value.slug}`,
+  })
   return `https://wa.me/${toWhatsAppNumber(storeSettings.value.whatsappSupport)}?text=${encodeURIComponent(text)}`
 })
 
@@ -484,22 +418,23 @@ useHead(() => {
   if (!product.value) return {}
 
   const p = product.value
-  const price = p.sale_price ?? p.price
+  const amount = p.sale_price ?? p.price
   const image = p.image ? (p.image.startsWith('http') ? p.image : `${siteUrl}${p.image}`) : `${siteUrl}/images/pic.jpg`
 
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: p.name,
+    name: productName(p),
+    alternateName: originalName.value || undefined,
     image,
-    description: p.description || p.name,
+    description: productDescription(p) || productName(p),
     sku: p.sku,
     brand: p.brand ? { '@type': 'Brand', name: p.brand } : undefined,
     offers: {
       '@type': 'Offer',
       url: `${siteUrl}/product/${p.slug}`,
       priceCurrency: 'EGP',
-      price,
+      price: amount,
       availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock'
     }
   }

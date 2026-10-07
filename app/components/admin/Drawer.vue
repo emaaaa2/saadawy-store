@@ -2,12 +2,12 @@
   <Teleport to="body">
     <Transition name="adm-drawer">
       <div v-if="open" class="fixed inset-0 z-[140] flex justify-end">
-        <div class="adm-drawer-backdrop absolute inset-0 bg-stone-900/30" @click="close"></div>
+        <div class="adm-drawer-backdrop absolute inset-0 bg-black/50" @click="close"></div>
         <aside
           role="dialog"
           aria-modal="true"
           :aria-label="title"
-          class="adm-drawer-panel relative w-full sm:max-w-xl h-full bg-white shadow-2xl flex flex-col"
+          class="adm-drawer-panel relative w-full sm:max-w-xl h-full bg-surface shadow-2xl flex flex-col"
         >
           <header class="flex items-start justify-between gap-4 px-6 py-5 border-b border-stone-200">
             <div class="min-w-0">
@@ -15,7 +15,7 @@
               <p v-if="subtitle" class="text-sm text-stone-500 mt-0.5">{{ subtitle }}</p>
               <slot name="meta" />
             </div>
-            <button type="button" class="adm-icon-btn -mr-2" aria-label="Close" @click="close">
+            <button type="button" class="adm-icon-btn -me-2" :aria-label="$t('admin.common.close')" @click="close">
               <Icon name="mdi:close" class="text-xl" />
             </button>
           </header>
@@ -70,5 +70,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
 .adm-drawer-enter-from .adm-drawer-panel,
 .adm-drawer-leave-to .adm-drawer-panel {
   transform: translateX(100%);
+}
+/* In Arabic the panel sits on the left, so it slides in from the left. */
+[dir='rtl'] .adm-drawer-enter-from .adm-drawer-panel,
+[dir='rtl'] .adm-drawer-leave-to .adm-drawer-panel {
+  transform: translateX(-100%);
 }
 </style>

@@ -15,10 +15,10 @@ export const useWishlistStore = defineStore('wishlist', {
 
       if (index === -1) {
         this.items.push(product)
-        toast.show(`${product.name} added to wishlist`)
+        toast.show({ key: 'cart.wishlistAdded', params: { product } })
       } else {
         this.items.splice(index, 1)
-        toast.show(`${product.name} removed from wishlist`)
+        toast.show({ key: 'cart.wishlistRemoved', params: { product } })
       }
 
       this.saveToStorage()

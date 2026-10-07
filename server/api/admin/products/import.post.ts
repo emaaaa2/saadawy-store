@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (typeof body.csv !== 'string' || !body.csv.trim()) {
-    throw createError({ statusCode: 400, statusMessage: 'No CSV content provided' })
+    throw adminError(400, 'csvMissing', 'No CSV content provided')
   }
 
   const parsed = Papa.parse(body.csv, { header: true, skipEmptyLines: true })
@@ -36,24 +36,28 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const errors: { row: number; message: string }[] = []
+  // `code` lets the dashboard show each reason in its own language (admin.errors.import).
+  const errors: { row: number; message: string; code: string; params?: Record<string, unknown> }[] = []
   const rows = []
+  // Only touch the English columns when the file has them, so older files don't erase them.
+  const headers = parsed.meta.fields ?? []
+  const englishColumns = ['name_en', 'description_en', 'usage_info_en'].filter((column) => headers.includes(column))
 
   parsed.data.forEach((raw: any, index: number) => {
     const rowNumber = index + 2 // +1 for 0-index, +1 for header row
 
     if (!raw || typeof raw !== 'object') {
-      errors.push({ row: rowNumber, message: 'Malformed row' })
+      errors.push({ row: rowNumber, message: 'Malformed row', code: 'malformedRow' })
       return
     }
 
     if (!raw.sku || !String(raw.sku).trim()) {
-      errors.push({ row: rowNumber, message: 'Missing SKU' })
+      errors.push({ row: rowNumber, message: 'Missing SKU', code: 'missingSku' })
       return
     }
 
     if (!raw.name || !String(raw.name).trim()) {
-      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: missing name` })
+      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: missing name`, code: 'missingName', params: { sku: raw.sku } })
       return
     }
 
@@ -61,19 +65,19 @@ export default defineEventHandler(async (event) => {
 
     const price = Number(raw.price)
     if (!Number.isFinite(price) || price <= 0) {
-      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid price` })
+      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid price`, code: 'invalidPrice', params: { sku: raw.sku } })
       return
     }
 
     const stock = Number(raw.stock)
     if (!Number.isInteger(stock) || stock < 0) {
-      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid stock` })
+      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid stock`, code: 'invalidStock', params: { sku: raw.sku } })
       return
     }
 
     const salePrice = raw.sale_price !== undefined && raw.sale_price !== '' ? Number(raw.sale_price) : null
     if (salePrice !== null && (!Number.isFinite(salePrice) || salePrice <= 0)) {
-      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid sale price` })
+      errors.push({ row: rowNumber, message: `SKU ${raw.sku}: invalid sale price`, code: 'invalidSalePrice', params: { sku: raw.sku } })
       return
     }
 
@@ -90,7 +94,8 @@ export default defineEventHandler(async (event) => {
       image: raw.image || existingImages.get(String(raw.sku).trim()) || null,
       stock,
       brand: raw.brand || null,
-      usage_info: raw.usage_info || null
+      usage_info: raw.usage_info || null,
+      ...Object.fromEntries(englishColumns.map((column) => [column, String(raw[column] ?? '').trim() || null]))
     })
   })
 

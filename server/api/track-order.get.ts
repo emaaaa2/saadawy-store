@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   const phone = typeof query.phone === 'string' ? query.phone.trim() : ''
 
   if (!orderNumber || !phone) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter your order number and phone number' })
+    throw customerError(400, 'trackMissing', 'Please enter your order number and phone number')
   }
 
   const client = serverSupabaseServiceRole(event)
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     .single()
 
   if (error || !order || order.phone !== phone) {
-    throw createError({ statusCode: 404, statusMessage: 'Order not found. Please check your order number and phone number.' })
+    throw customerError(404, 'trackNotFound', 'Order not found. Please check your order number and phone number.')
   }
 
   return {

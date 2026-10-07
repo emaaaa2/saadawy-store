@@ -1,8 +1,27 @@
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
-  modules: ["@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@nuxtjs/tailwindcss", "@pinia/nuxt", "@nuxtjs/supabase"],
-  
+  modules: ["@nuxt/icon", "@nuxt/image", "@nuxt/eslint", "@nuxtjs/tailwindcss", "@pinia/nuxt", "@nuxtjs/supabase", "@nuxtjs/i18n"],
+
+  // English by default, Arabic via the switch. Same URLs for both languages: the choice
+  // lives in the "saadawy-lang" cookie, and first-time visitors get their browser's language.
+  // Search engines send no language, so they see English. Messages live in i18n/locales and
+  // only the language in use is loaded.
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'en',
+    locales: [
+      { code: 'en', language: 'en', name: 'English', dir: 'ltr', file: 'en.ts' },
+      { code: 'ar', language: 'ar-EG', name: 'العربية', dir: 'rtl', file: 'ar.ts' },
+    ],
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'saadawy-lang',
+      fallbackLocale: 'en',
+    },
+    vueI18n: './i18n.config.ts',
+  },
+
   runtimeConfig: {
   adminEmails: process.env.ADMIN_EMAILS,
    paymobSecretKey: process.env.PAYMOB_SECRET_KEY,
@@ -29,6 +48,12 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/confirm': { ssr: false }
+  },
+  nitro: {
+    // Nitro rewrites `typeof window` to "undefined" in server code, even inside strings — which
+    // breaks papaparse (its worker source is a string containing it). On the server it's
+    // "undefined" at runtime anyway, so leaving it as is only skips a small optimization.
+    replace: { 'typeof window': 'typeof window' },
   },
   app: {
     pageTransition: { name: 'page'},

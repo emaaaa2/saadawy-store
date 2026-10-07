@@ -1,16 +1,15 @@
 <template>
   <div class="pb-24">
-    <AdminPageHeader title="Store settings" description="Contact numbers, payment details and links shown across the store.">
-      <span v-if="updatedAt" class="text-xs text-stone-500">Last saved {{ timeAgo(updatedAt) }}</span>
+    <AdminPageHeader :title="$t('admin.settings.metaTitle')" :description="$t('admin.settings.description')">
+      <span v-if="updatedAt" class="text-xs text-stone-500">{{ $t('admin.settings.lastSaved', { time: timeAgo(updatedAt) }) }}</span>
     </AdminPageHeader>
 
-    <div v-if="!isSetUp" class="adm-card border-amber-200 bg-amber-50/60 p-4 mb-6 flex gap-3 text-sm">
-      <Icon name="mdi:database-alert-outline" class="text-xl text-amber-600 shrink-0" />
+    <div v-if="!isSetUp" class="adm-card border-amber-200 dark:border-amber-500/30 bg-amber-50/60 dark:bg-amber-500/10 p-4 mb-6 flex gap-3 text-sm">
+      <Icon name="mdi:database-alert-outline" class="text-xl text-amber-600 dark:text-amber-400 shrink-0" />
       <div>
-        <p class="font-medium text-stone-800">One-time setup needed</p>
+        <p class="font-medium text-stone-800">{{ $t('admin.settings.setupTitle') }}</p>
         <p class="text-stone-600 mt-0.5">
-          Run <code class="font-mono text-xs bg-white border border-amber-200 rounded px-1">supabase_add_store_settings.sql</code>
-          in Supabase → SQL Editor, then refresh this page. Until then the store uses the values below.
+          {{ setupParts[0] }}<code dir="ltr" class="font-mono text-xs bg-surface border border-amber-200 dark:border-amber-500/30 rounded px-1">supabase_add_store_settings.sql</code>{{ setupParts[1] }}
         </p>
       </div>
     </div>
@@ -19,67 +18,70 @@
       <section class="adm-card">
         <div class="adm-card-header">
           <div>
-            <h2 class="adm-card-title">WhatsApp</h2>
-            <p class="text-xs text-stone-500 mt-0.5">Egyptian numbers like 01012345678 work as they are.</p>
+            <h2 class="adm-card-title">{{ $t('admin.settings.whatsapp') }}</h2>
+            <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.settings.whatsappHint') }}</p>
           </div>
           <Icon name="mdi:whatsapp" class="text-2xl text-[#25D366]" />
         </div>
         <div class="p-5 grid sm:grid-cols-2 gap-4">
           <div>
-            <label for="whatsapp-orders" class="adm-label">Orders number</label>
-            <input id="whatsapp-orders" v-model="form.whatsappOrders" type="tel" required class="adm-input" />
-            <p class="adm-hint">Customers send their order here after checkout.</p>
+            <label for="whatsapp-orders" class="adm-label">{{ $t('admin.settings.ordersNumber') }}</label>
+            <input id="whatsapp-orders" v-model="form.whatsappOrders" type="tel" dir="ltr" required class="adm-input rtl:text-right" />
+            <p class="adm-hint">{{ $t('admin.settings.ordersNumberHint') }}</p>
           </div>
           <div>
-            <label for="whatsapp-support" class="adm-label">Customer service number</label>
-            <input id="whatsapp-support" v-model="form.whatsappSupport" type="tel" required class="adm-input" />
-            <p class="adm-hint">The green chat button, footer and contact page.</p>
+            <label for="whatsapp-support" class="adm-label">{{ $t('admin.settings.supportNumber') }}</label>
+            <input id="whatsapp-support" v-model="form.whatsappSupport" type="tel" dir="ltr" required class="adm-input rtl:text-right" />
+            <p class="adm-hint">{{ $t('admin.settings.supportNumberHint') }}</p>
           </div>
         </div>
       </section>
 
       <section class="adm-card">
         <div class="adm-card-header">
-          <h2 class="adm-card-title">Payment methods</h2>
+          <h2 class="adm-card-title">{{ $t('admin.settings.paymentMethods') }}</h2>
         </div>
         <div class="divide-y divide-stone-200">
           <div v-for="method in PAYMENT_METHODS" :key="method.value" class="flex items-center gap-4 px-5 py-3.5">
             <Icon :name="method.icon" class="text-xl text-stone-400" />
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-stone-800">{{ method.label }}</p>
-              <p class="text-xs text-stone-500">{{ methodHints[method.value] }}</p>
+              <p class="text-sm font-medium text-stone-800">{{ $t(`admin.settings.methodNames.${method.value}`) }}</p>
+              <p class="text-xs text-stone-500">{{ $t(`admin.settings.methodHints.${method.value}`) }}</p>
             </div>
-            <AdminToggle v-model="form.paymentMethods[method.value]" :aria-label="`Offer ${method.label}`" />
+            <AdminToggle
+              v-model="form.paymentMethods[method.value]"
+              :aria-label="$t('admin.settings.offer', { method: $t(`admin.settings.methodNames.${method.value}`) })"
+            />
           </div>
         </div>
 
         <div v-if="form.paymentMethods.bank_transfer" class="border-t border-stone-200 bg-stone-50/60 p-5">
-          <p class="text-sm font-medium text-stone-800 mb-1">Transfer details</p>
-          <p class="text-xs text-stone-500 mb-4">Sent to the customer in the WhatsApp message when they choose bank transfer. Leave empty what you don't use.</p>
+          <p class="text-sm font-medium text-stone-800 mb-1">{{ $t('admin.settings.transferDetails') }}</p>
+          <p class="text-xs text-stone-500 mb-4">{{ $t('admin.settings.transferHint') }}</p>
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label for="vodafone-cash" class="adm-label">Vodafone Cash number</label>
-              <input id="vodafone-cash" v-model="form.vodafoneCash" type="tel" class="adm-input" />
+              <label for="vodafone-cash" class="adm-label">{{ $t('admin.settings.vodafoneCash') }}</label>
+              <input id="vodafone-cash" v-model="form.vodafoneCash" type="tel" dir="ltr" class="adm-input rtl:text-right" />
             </div>
             <div>
-              <label for="instapay" class="adm-label">InstaPay address</label>
-              <input id="instapay" v-model="form.instapay" type="text" placeholder="name@instapay" class="adm-input" />
+              <label for="instapay" class="adm-label">{{ $t('admin.settings.instapay') }}</label>
+              <input id="instapay" v-model="form.instapay" type="text" dir="ltr" placeholder="name@instapay" class="adm-input rtl:text-right" />
             </div>
             <div>
-              <label for="bank-name" class="adm-label">Bank name</label>
-              <input id="bank-name" v-model="form.bankName" type="text" placeholder="e.g. CIB" class="adm-input" />
+              <label for="bank-name" class="adm-label">{{ $t('admin.settings.bankName') }}</label>
+              <input id="bank-name" v-model="form.bankName" type="text" dir="auto" :placeholder="$t('admin.settings.bankNamePlaceholder')" class="adm-input" />
             </div>
             <div>
-              <label for="bank-account-name" class="adm-label">Account holder name</label>
-              <input id="bank-account-name" v-model="form.bankAccountName" type="text" class="adm-input" />
+              <label for="bank-account-name" class="adm-label">{{ $t('admin.settings.accountName') }}</label>
+              <input id="bank-account-name" v-model="form.bankAccountName" type="text" dir="auto" class="adm-input" />
             </div>
             <div class="sm:col-span-2">
-              <label for="bank-account-number" class="adm-label">Account number / IBAN</label>
-              <input id="bank-account-number" v-model="form.bankAccountNumber" type="text" class="adm-input font-mono" />
+              <label for="bank-account-number" class="adm-label">{{ $t('admin.settings.accountNumber') }}</label>
+              <input id="bank-account-number" v-model="form.bankAccountNumber" type="text" dir="ltr" class="adm-input font-mono rtl:text-right" />
             </div>
           </div>
-          <p v-if="!hasTransferDetails" class="adm-hint text-amber-700 mt-3">
-            Add at least one way to pay, or customers won't know where to send the money.
+          <p v-if="!hasTransferDetails" class="adm-hint text-amber-700 dark:text-amber-400 mt-3">
+            {{ $t('admin.settings.noTransferDetails') }}
           </p>
         </div>
       </section>
@@ -87,44 +89,82 @@
       <section class="adm-card">
         <div class="adm-card-header">
           <div>
-            <h2 class="adm-card-title">Delivery</h2>
-            <p class="text-xs text-stone-500 mt-0.5">Shown under the Add to Cart button. Fees are set in Shipping.</p>
+            <h2 class="adm-card-title">{{ $t('admin.settings.delivery') }}</h2>
+            <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.settings.deliveryHint') }}</p>
           </div>
         </div>
         <div class="p-5">
-          <label for="delivery-time" class="adm-label">Delivery time</label>
-          <input id="delivery-time" v-model="form.deliveryTime" type="text" maxlength="60" placeholder="e.g. 2–4 working days" class="adm-input sm:max-w-xs" />
-          <p class="adm-hint">Leave empty to hide it.</p>
-        </div>
-      </section>
-
-      <section class="adm-card">
-        <div class="adm-card-header">
-          <h2 class="adm-card-title">Store location</h2>
-        </div>
-        <div class="p-5 space-y-4">
-          <div>
-            <label for="store-address" class="adm-label">Address</label>
-            <textarea id="store-address" v-model="form.address" rows="2" dir="auto" class="adm-input"></textarea>
-          </div>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label for="opening-hours" class="adm-label">Opening hours</label>
-              <input id="opening-hours" v-model="form.openingHours" type="text" class="adm-input" />
-            </div>
-            <div>
-              <label for="map-url" class="adm-label">Google Maps link</label>
-              <input id="map-url" v-model="form.mapUrl" type="url" placeholder="https://maps.app.goo.gl/…" class="adm-input" />
+          <span class="adm-label">{{ $t('admin.settings.deliveryTime') }}</span>
+          <div class="grid sm:grid-cols-2 gap-3">
+            <div v-for="l in langOrder" :key="l">
+              <label :for="`delivery-time-${l}`" class="lang-label">{{ langName(l) }}</label>
+              <input
+                :id="`delivery-time-${l}`"
+                v-model="form[BILINGUAL_SETTINGS.deliveryTime[l]]"
+                type="text"
+                maxlength="60"
+                :dir="l === 'ar' ? 'rtl' : 'ltr'"
+                :placeholder="l === 'ar' ? $t('admin.settings.deliveryPlaceholderAr') : $t('admin.settings.deliveryPlaceholderEn')"
+                class="adm-input"
+              />
             </div>
           </div>
+          <p class="adm-hint">{{ $t('admin.settings.leaveEmptyToHide') }} {{ $t('admin.settings.bothLanguagesHint') }}</p>
         </div>
       </section>
 
       <section class="adm-card">
         <div class="adm-card-header">
           <div>
-            <h2 class="adm-card-title">Social media</h2>
-            <p class="text-xs text-stone-500 mt-0.5">Leave a link empty to hide that icon.</p>
+            <h2 class="adm-card-title">{{ $t('admin.settings.location') }}</h2>
+            <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.settings.bothLanguagesHint') }}</p>
+          </div>
+        </div>
+        <div class="p-5 space-y-5">
+          <div>
+            <span class="adm-label">{{ $t('admin.settings.address') }}</span>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div v-for="l in langOrder" :key="l">
+                <label :for="`store-address-${l}`" class="lang-label">{{ langName(l) }}</label>
+                <textarea
+                  :id="`store-address-${l}`"
+                  v-model="form[BILINGUAL_SETTINGS.address[l]]"
+                  rows="3"
+                  maxlength="300"
+                  :dir="l === 'ar' ? 'rtl' : 'ltr'"
+                  class="adm-input"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="adm-label">{{ $t('admin.settings.openingHours') }}</span>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div v-for="l in langOrder" :key="l">
+                <label :for="`opening-hours-${l}`" class="lang-label">{{ langName(l) }}</label>
+                <input
+                  :id="`opening-hours-${l}`"
+                  v-model="form[BILINGUAL_SETTINGS.openingHours[l]]"
+                  type="text"
+                  maxlength="120"
+                  :dir="l === 'ar' ? 'rtl' : 'ltr'"
+                  class="adm-input"
+                />
+              </div>
+            </div>
+          </div>
+          <div>
+            <label for="map-url" class="adm-label">{{ $t('admin.settings.mapLink') }}</label>
+            <input id="map-url" v-model="form.mapUrl" type="url" dir="ltr" placeholder="https://maps.app.goo.gl/…" class="adm-input rtl:text-right" />
+          </div>
+        </div>
+      </section>
+
+      <section class="adm-card">
+        <div class="adm-card-header">
+          <div>
+            <h2 class="adm-card-title">{{ $t('admin.settings.social') }}</h2>
+            <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.settings.socialHint') }}</p>
           </div>
         </div>
         <div class="p-5 space-y-4">
@@ -134,7 +174,14 @@
             </div>
             <div class="flex-1">
               <label :for="social.field" class="sr-only">{{ social.label }}</label>
-              <input :id="social.field" v-model="form[social.field]" type="url" :placeholder="`${social.label} link`" class="adm-input" />
+              <input
+                :id="social.field"
+                v-model="form[social.field]"
+                type="url"
+                dir="ltr"
+                :placeholder="$t('admin.settings.socialLink', { name: social.label })"
+                class="adm-input rtl:text-right"
+              />
             </div>
           </div>
         </div>
@@ -143,37 +190,50 @@
       <section class="adm-card">
         <div class="adm-card-header">
           <div>
-            <h2 class="adm-card-title">Welcome popup</h2>
-            <p class="text-xs text-stone-500 mt-0.5">Shown once to new visitors with a discount code.</p>
+            <h2 class="adm-card-title">{{ $t('admin.settings.welcome') }}</h2>
+            <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.settings.welcomeHint') }}</p>
           </div>
-          <AdminToggle v-model="form.welcomePopupEnabled" aria-label="Show welcome popup" />
+          <AdminToggle v-model="form.welcomePopupEnabled" :aria-label="$t('admin.settings.showWelcome')" />
         </div>
-        <div v-if="form.welcomePopupEnabled" class="p-5 space-y-4">
+        <div v-if="form.welcomePopupEnabled" class="p-5 space-y-5">
           <div>
-            <label for="welcome-code" class="adm-label">Coupon code</label>
-            <input id="welcome-code" v-model="form.welcomeCouponCode" type="text" required class="adm-input font-mono uppercase sm:max-w-xs" />
+            <label for="welcome-code" class="adm-label">{{ $t('admin.settings.couponCode') }}</label>
+            <input id="welcome-code" v-model="form.welcomeCouponCode" type="text" dir="ltr" required class="adm-input font-mono uppercase sm:max-w-xs rtl:text-right" />
             <p class="adm-hint">
-              Make sure this code exists and is switched on in
-              <NuxtLink v-if="can('coupons')" to="/admin/coupons" class="text-olive hover:underline">Coupons</NuxtLink>
-              <span v-else>Coupons</span>.
+              {{ $t('admin.settings.couponHintBefore') }}
+              <NuxtLink v-if="can('coupons')" to="/admin/coupons" class="text-ink hover:underline">{{ $t('admin.sections.coupons') }}</NuxtLink>
+              <span v-else>{{ $t('admin.sections.coupons') }}</span>.
             </p>
           </div>
           <div>
-            <label for="welcome-message" class="adm-label">Message</label>
-            <textarea id="welcome-message" v-model="form.welcomeMessage" rows="2" maxlength="300" class="adm-input"></textarea>
+            <span class="adm-label">{{ $t('admin.settings.message') }}</span>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div v-for="l in langOrder" :key="l">
+                <label :for="`welcome-message-${l}`" class="lang-label">{{ langName(l) }}</label>
+                <textarea
+                  :id="`welcome-message-${l}`"
+                  v-model="form[BILINGUAL_SETTINGS.welcomeMessage[l]]"
+                  rows="3"
+                  maxlength="300"
+                  :dir="l === 'ar' ? 'rtl' : 'ltr'"
+                  class="adm-input"
+                ></textarea>
+              </div>
+            </div>
+            <p class="adm-hint">{{ $t('admin.settings.bothLanguagesHint') }}</p>
           </div>
         </div>
       </section>
     </form>
 
     <Transition name="adm-bar">
-      <div v-if="isDirty" class="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-white border-t border-stone-200 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
+      <div v-if="isDirty" class="fixed bottom-0 inset-x-0 lg:start-64 z-30 bg-surface border-t border-stone-200 shadow-[0_-4px_16px_rgba(0,0,0,0.06)]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
-          <Icon name="mdi:circle-edit-outline" class="text-lg text-amber-600" />
-          <p class="text-sm text-stone-700 mr-auto">You have unsaved changes</p>
-          <button type="button" class="adm-btn adm-btn-secondary" :disabled="isSaving" @click="discard">Discard</button>
+          <Icon name="mdi:circle-edit-outline" class="text-lg text-amber-600 dark:text-amber-400" />
+          <p class="text-sm text-stone-700 me-auto">{{ $t('admin.settings.unsaved') }}</p>
+          <button type="button" class="adm-btn adm-btn-secondary" :disabled="isSaving" @click="discard">{{ $t('admin.settings.discard') }}</button>
           <button type="submit" form="settings-form" class="adm-btn adm-btn-primary" :disabled="isSaving">
-            {{ isSaving ? 'Saving…' : 'Save changes' }}
+            {{ isSaving ? $t('admin.common.saving') : $t('admin.common.save') }}
           </button>
         </div>
       </div>
@@ -187,7 +247,8 @@ definePageMeta({
   middleware: 'admin-auth',
   adminPermission: 'settings'
 })
-useSeoMeta({ title: 'Store settings', robots: 'noindex' })
+const { t, isAr } = useLang()
+useSeoMeta({ title: () => t('admin.settings.metaTitle'), robots: 'noindex' })
 
 const toast = useToastStore()
 const storeSettings = useStoreSettings()
@@ -202,11 +263,10 @@ const updatedAt = ref(data.value?.updatedAt ?? null)
 const isSaving = ref(false)
 const isDirty = computed(() => JSON.stringify(form.value) !== saved.value)
 
-const methodHints = {
-  cash_on_delivery: 'Customer pays the courier.',
-  bank_transfer: 'Customer transfers, then sends the receipt on WhatsApp.',
-  card: 'Online card payment through Paymob.',
-}
+// The dashboard's own language comes first in the side-by-side inputs.
+const langOrder = computed(() => (isAr.value ? ['ar', 'en'] : ['en', 'ar']))
+const langName = (l) => (l === 'ar' ? t('admin.settings.inArabic') : t('admin.settings.inEnglish'))
+const setupParts = computed(() => t('admin.settings.setupText', { file: '\u0000' }).split('\u0000'))
 
 const socials = [
   { field: 'facebookUrl', label: 'Facebook', icon: 'mdi:facebook' },
@@ -220,7 +280,7 @@ const hasTransferDetails = computed(() =>
 
 async function handleSave() {
   if (!Object.values(form.value.paymentMethods).some(Boolean)) {
-    toast.error('Keep at least one payment method turned on')
+    toast.error(t('admin.settings.keepOnePayment'))
     return
   }
 
@@ -232,7 +292,7 @@ async function handleSave() {
     storeSettings.value = structuredClone(result.settings)
     isSetUp.value = true
     updatedAt.value = result.updatedAt
-    toast.show('Settings saved — the store is updated')
+    toast.show(t('admin.settings.saved'))
   } catch (err) {
     toast.error(adminErrorMessage(err))
   } finally {
@@ -247,15 +307,18 @@ function discard() {
 onBeforeRouteLeave(async () => {
   if (!isDirty.value) return true
   return await confirm({
-    title: 'Leave without saving?',
-    message: 'Your changes to the store settings will be lost.',
-    confirmLabel: 'Leave',
+    title: t('admin.common.unsavedTitle'),
+    message: t('admin.settings.leaveText'),
+    confirmLabel: t('admin.common.leave'),
     danger: true,
   })
 })
 </script>
 
 <style scoped>
+.lang-label {
+  @apply block text-[11px] font-medium text-stone-400 mb-1;
+}
 .adm-bar-enter-active,
 .adm-bar-leave-active {
   transition: transform 0.2s ease;

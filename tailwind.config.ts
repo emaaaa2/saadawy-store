@@ -5,6 +5,8 @@ export default {
     "./app/pages/**/*.vue",
     "./app/app.vue",
   ],
+  // The store's dark mode: a "dark" class on <html> (see app/plugins/theme.ts).
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -15,6 +17,18 @@ export default {
         rose: "#D6B1A3",
         champagne: "#E6D3A3",
         taupe: "#9A8F87",
+        // Theme colors that flip in dark mode (values in app/assets/css/main.css).
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        page: "rgb(var(--color-page) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        tint: "rgb(var(--color-tint) / <alpha-value>)",
+        // The dashboard's grays; the scale flips in dark mode (only the dashboard uses stone).
+        stone: Object.fromEntries(
+          [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => [
+            shade,
+            `rgb(var(--stone-${shade}) / <alpha-value>)`,
+          ])
+        ),
       },
       fontFamily: {
         body: ["Inter", "sans-serif"],

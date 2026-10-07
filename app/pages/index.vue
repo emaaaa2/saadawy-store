@@ -29,11 +29,13 @@
 </template>
 
 <script setup>
+const { t } = useLang()
+
 useSeoMeta({
-  title: 'Cosmetics, Perfumes, Skincare & Everyday Essentials',
-  ogTitle: 'Saadawy Store',
-  description: 'Shop cosmetics, perfumes, skincare, haircare, bags, kitchen essentials and more, all in one place. Fast delivery across Egypt.',
-  ogDescription: 'Shop cosmetics, perfumes, skincare, haircare, bags, kitchen essentials and more, all in one place. Fast delivery across Egypt.',
+  title: () => t('home.metaTitle'),
+  ogTitle: () => t('common.storeName'),
+  description: () => t('home.metaDescription'),
+  ogDescription: () => t('home.metaDescription'),
   ogImage: '/images/pic.jpg'
 })
 </script>

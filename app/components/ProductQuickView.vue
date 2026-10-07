@@ -8,11 +8,11 @@
         <div class="absolute inset-0 bg-black/50" @click="store.close()"></div>
 
         <div
-          class="relative bg-white rounded-2xl overflow-hidden max-w-2xl w-full grid sm:grid-cols-2 shadow-xl"
+          class="relative bg-surface rounded-2xl overflow-hidden max-w-2xl w-full grid sm:grid-cols-2 shadow-xl"
         >
           <button
-            class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-            aria-label="Close"
+            class="absolute top-3 end-3 z-10 w-8 h-8 rounded-full bg-surface/90 flex items-center justify-center hover:text-gold transition"
+            :aria-label="$t('common.close')"
             @click="store.close()"
           >
             <Icon name="mdi:close" class="text-lg" />
@@ -20,8 +20,8 @@
 
           <button
             v-if="store.product"
-            class="absolute top-3 left-3 z-10 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center hover:text-gold transition"
-            :aria-label="wishlist.isInWishlist(store.product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+            class="absolute top-3 start-3 z-10 w-8 h-8 rounded-full bg-surface/90 flex items-center justify-center hover:text-gold transition"
+            :aria-label="wishlist.isInWishlist(store.product.id) ? $t('common.removeFromWishlist') : $t('common.addToWishlist')"
             @click="wishlist.toggle(store.product)"
           >
             <Icon
@@ -32,19 +32,19 @@
           </button>
 
           <div
-            class="aspect-square bg-champagne flex items-center justify-center"
+            class="aspect-square bg-tint flex items-center justify-center"
           >
             <img
               v-if="store.product?.image && !failedImages.has(store.product.image)"
               :src="store.product.image"
-              :alt="store.product.name"
+              :alt="$pname(store.product)"
               class="w-full h-full object-cover"
               @error="failedImages.add(store.product.image)"
             />
             <Icon
               v-else
               name="mdi:image-outline"
-              class="text-5xl text-olive/30"
+              class="text-5xl text-ink/30"
             />
           </div>
 
@@ -53,22 +53,22 @@
               v-if="store.product?.badge"
               class="inline-block w-fit text-xs font-bold px-2 py-1 rounded-full bg-olive text-beige mb-3"
             >
-              {{ store.product.badge }}
+              {{ badgeLabel(store.product.badge) }}
             </span>
 
-            <h3 class="text-xl font-bold text-olive mb-2">
-              {{ store.product?.name }}
+            <h3 dir="auto" class="text-xl font-bold text-ink mb-2">
+              {{ $pname(store.product) }}
             </h3>
 
             <div class="mb-4">
               <span
                 v-if="store.product?.sale_price"
-                class="text-sm text-taupe line-through mr-2"
+                class="text-sm text-taupe line-through me-2"
               >
-                EGP {{ store.product?.price }}
+                {{ $price(store.product?.price) }}
               </span>
-              <span class="text-2xl font-bold text-olive">
-                EGP {{ store.product?.sale_price ?? store.product?.price }}
+              <span class="text-2xl font-bold text-ink">
+                {{ $price(store.product?.sale_price ?? store.product?.price) }}
               </span>
             </div>
 
@@ -80,7 +80,7 @@
               "
             >
               <Icon name="mdi:cart-outline" class="text-lg" />
-              Add to Cart
+              {{ $t('common.addToCart') }}
             </button>
           </div>
         </div>
@@ -94,6 +94,10 @@ const store = useQuickViewStore();
 const cart = useCartStore();
 const wishlist = useWishlistStore();
 const failedImages = reactive(new Set());
+const { t } = useLang();
+
+const badgeKeys = { 'Best Seller': 'bestSeller', New: 'new', Sale: 'sale' };
+const badgeLabel = (badge) => (badgeKeys[badge] ? t(`product.badges.${badgeKeys[badge]}`) : badge);
 </script>
 
 <style scoped>

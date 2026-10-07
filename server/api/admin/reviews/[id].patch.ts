@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (typeof body.approved !== 'boolean') {
-    throw createError({ statusCode: 400, statusMessage: 'approved must be a boolean' })
+    throw adminError(400, 'invalidRequest', 'approved must be a boolean')
   }
 
   const client = serverSupabaseServiceRole(event)

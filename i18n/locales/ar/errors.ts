@@ -1,0 +1,22 @@
+// Messages for error codes the server sends (server/utils/customerError.ts).
+export default {
+  paymentMethod: 'اختار طريقة دفع متاحة',
+  invalidItems: 'فيه منتجات في السلة مبقتش متاحة',
+  invalidQuantity: 'الكمية مش صحيحة',
+  couponMissing: 'اكتب كود الخصم',
+  couponInvalid: 'كود الخصم غلط',
+  couponInactive: 'الكوبون ده مبقاش شغال',
+  couponExpired: 'الكوبون ده انتهى',
+  couponUsedUp: 'الكوبون ده وصل للحد الأقصى من الاستخدام',
+  couponMinOrder: 'الكوبون ده محتاج طلب بحد أدنى {amount} ج.م',
+  invalidTotal: 'إجمالي الطلب مش صحيح',
+  governorate: 'اختار المحافظة',
+  outOfStock: '{name} خلص من المخزون',
+  reviewName: 'اكتب اسمك',
+  reviewComment: 'اكتب تقييمك (بحد أقصى 1000 حرف)',
+  reviewRating: 'اختار تقييم من 1 لـ 5',
+  invalidEmail: 'اكتب إيميل صحيح',
+  trackMissing: 'اكتب رقم الطلب ورقم الموبايل',
+  trackNotFound: 'مش لاقيين الطلب. اتأكد من رقم الطلب ورقم الموبايل.',
+  signInForOrders: 'سجل دخول عشان تشوف طلباتك',
+}

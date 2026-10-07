@@ -7,7 +7,7 @@
             <Icon name="mdi:cart-outline" class="text-lg text-gold" />
           </div>
           <p class="text-sm text-beige truncate">
-            You have {{ cart.itemCount }} item{{ cart.itemCount > 1 ? "s" : "" }} waiting in your cart
+            {{ tc('cart.reminder', cart.itemCount) }}
           </p>
         </div>
 
@@ -16,11 +16,11 @@
             class="text-sm font-semibold bg-gold text-olive px-4 py-1.5 rounded-full hover:bg-beige transition"
             @click="cartUI.open(); showReminder = false"
           >
-            View Cart
+            {{ $t('cart.viewCart') }}
           </button>
           <button
             class="w-8 h-8 flex items-center justify-center rounded-full text-beige/60 hover:text-beige hover:bg-beige/10 transition"
-            aria-label="Dismiss"
+            :aria-label="$t('cart.dismiss')"
             @click="dismissReminder"
           >
             <Icon name="mdi:close" class="text-lg" />
@@ -34,6 +34,7 @@
 <script setup>
 const cart = useCartStore()
 const cartUI = useCartUIStore()
+const { tc } = useLang()
 const showReminder = ref(false)
 
 onMounted(() => {

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   for (const field of fields) {
     const value = Number(body[field])
     if (!Number.isFinite(value) || value < 0) {
-      throw createError({ statusCode: 400, statusMessage: `Invalid value for ${field}` })
+      throw adminError(400, 'invalidFee', `Invalid value for ${field}`, { field })
     }
     update[field] = value
   }

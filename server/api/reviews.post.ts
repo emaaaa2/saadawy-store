@@ -9,13 +9,13 @@ export default defineEventHandler(async (event) => {
   const rating = Number(body.rating)
 
   if (!customerName || customerName.length > 80) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter your name' })
+    throw customerError(400, 'reviewName', 'Please enter your name')
   }
   if (!comment || comment.length > 1000) {
-    throw createError({ statusCode: 400, statusMessage: 'Please enter a review (max 1000 characters)' })
+    throw customerError(400, 'reviewComment', 'Please enter a review (max 1000 characters)')
   }
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
-    throw createError({ statusCode: 400, statusMessage: 'Rating must be between 1 and 5' })
+    throw customerError(400, 'reviewRating', 'Rating must be between 1 and 5')
   }
 
   const productId = typeof body.productId === 'string' && body.productId ? body.productId : null

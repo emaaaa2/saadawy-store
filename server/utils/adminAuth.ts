@@ -45,10 +45,10 @@ export async function requireAdmin(event: H3Event, permission?: AdminPermission)
   const { signedIn, access } = await getAdminAccess(event)
 
   if (!signedIn) {
-    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+    throw adminError(401, 'unauthorized', 'Unauthorized')
   }
   if (!access || (permission && !access.permissions.includes(permission))) {
-    throw createError({ statusCode: 403, statusMessage: 'Forbidden' })
+    throw adminError(403, 'forbidden', 'Forbidden')
   }
 
   return access
@@ -57,7 +57,7 @@ export async function requireAdmin(event: H3Event, permission?: AdminPermission)
 export async function requireOwner(event: H3Event) {
   const access = await requireAdmin(event)
   if (!access.isOwner) {
-    throw createError({ statusCode: 403, statusMessage: 'Only the store owner can manage admins' })
+    throw adminError(403, 'ownerOnly', 'Only the store owner can manage admins')
   }
   return access
 }

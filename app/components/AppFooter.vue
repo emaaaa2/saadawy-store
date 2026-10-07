@@ -5,74 +5,69 @@
         <div class="md:col-span-1">
           <img
             src="/logo-trimmed-beige.svg"
-            alt="Saadawy Store"
+            :alt="$t('common.storeName')"
             class="h-20 mb-phi-1"
           />
           <p class="text-sm text-beige/70 leading-relaxed">
-            A lifestyle retail store offering a carefully selected range of beauty
-            and everyday essentials — cosmetics, perfumes, skincare, haircare,
-            accessories, handbags, and home.
+            {{ $t('nav.footer.about') }}
           </p>
         </div>
 
         <div>
-          <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">Shop</h4>
+          <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">{{ $t('nav.footer.shop') }}</h4>
           <ul class="space-y-2.5 text-sm text-beige/80">
-            <li><NuxtLink to="/category/skincare" class="hover:text-gold transition">Skincare</NuxtLink></li>
-            <li><NuxtLink to="/category/makeup" class="hover:text-gold transition">Makeup</NuxtLink></li>
-            <li><NuxtLink to="/category/haircare" class="hover:text-gold transition">Haircare</NuxtLink></li>
-            <li><NuxtLink to="/category/perfume" class="hover:text-gold transition">Perfume</NuxtLink></li>
-            <li><NuxtLink to="/category/bags" class="hover:text-gold transition">Bags</NuxtLink></li>
-            <li><NuxtLink to="/category/kitchen" class="hover:text-gold transition">Kitchen</NuxtLink></li>
-            <li><NuxtLink to="/category/hijab" class="hover:text-gold transition">Hijab & Essentials</NuxtLink></li>
+            <li v-for="slug in shopCategories" :key="slug">
+              <NuxtLink :to="`/category/${slug}`" class="hover:text-gold transition">{{ categoryName(slug) }}</NuxtLink>
+            </li>
           </ul>
         </div>
 
         <div>
-          <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">Customer Service</h4>
+          <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">{{ $t('nav.footer.customerService') }}</h4>
           <ul class="space-y-2.5 text-sm text-beige/80">
-            <li><NuxtLink to="/about" class="hover:text-gold transition">About Us</NuxtLink></li>
-            <li><NuxtLink to="/track-order" class="hover:text-gold transition">Track Order</NuxtLink></li>
-            <li><NuxtLink to="/contact" class="hover:text-gold transition">Contact</NuxtLink></li>
-            <li><NuxtLink to="/wishlist" class="hover:text-gold transition">Wishlist</NuxtLink></li>
-            <li><NuxtLink to="/returns" class="hover:text-gold transition">Returns & Exchanges</NuxtLink></li>
+            <li><NuxtLink to="/about" class="hover:text-gold transition">{{ $t('nav.footer.aboutUs') }}</NuxtLink></li>
+            <li><NuxtLink to="/track-order" class="hover:text-gold transition">{{ $t('nav.trackOrder') }}</NuxtLink></li>
+            <li><NuxtLink to="/contact" class="hover:text-gold transition">{{ $t('nav.footer.contact') }}</NuxtLink></li>
+            <li><NuxtLink to="/wishlist" class="hover:text-gold transition">{{ $t('nav.wishlist') }}</NuxtLink></li>
+            <li><NuxtLink to="/returns" class="hover:text-gold transition">{{ $t('nav.footer.returns') }}</NuxtLink></li>
             <li>
               <a
                 :href="supportWhatsApp"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="hover:text-gold transition"
-              >Chat on WhatsApp</a>
+              >{{ $t('nav.footer.chatWhatsApp') }}</a>
             </li>
           </ul>
         </div>
 
         <div>
           <h4 class="font-semibold mb-phi-1 text-gold text-sm uppercase tracking-wide">
-            Stay in the Loop
+            {{ $t('nav.footer.stayInLoop') }}
           </h4>
           <p class="text-sm text-beige/70 mb-phi-1 leading-relaxed">
-            Be the first to know about new arrivals and exclusive offers.
+            {{ $t('nav.footer.newsletterText') }}
           </p>
 
           <form
-            class="flex items-center bg-beige/10 rounded-full pl-4 pr-1 py-1 mb-phi-2 focus-within:ring-1 focus-within:ring-gold transition"
+            class="flex items-center bg-beige/10 rounded-full ps-4 pe-1 py-1 mb-phi-2 focus-within:ring-1 focus-within:ring-gold transition"
             @submit.prevent="handleSubscribe"
           >
             <input
               v-model="email"
               type="email"
-              placeholder="Enter your email"
+              dir="ltr"
+              :placeholder="$t('nav.footer.emailPlaceholder')"
               required
-              class="bg-transparent flex-1 text-sm text-beige placeholder-beige/50 outline-none"
+              class="bg-transparent flex-1 min-w-0 text-sm text-beige placeholder-beige/50 outline-none rtl:text-right"
             />
             <button
               type="submit"
               :disabled="isSubscribing"
               class="w-8 h-8 shrink-0 rounded-full bg-gold text-olive flex items-center justify-center hover:bg-beige transition disabled:opacity-50"
-              aria-label="Subscribe"
+              :aria-label="$t('nav.footer.subscribe')"
             >
-              <Icon name="mdi:send-outline" class="text-sm" />
+              <Icon name="mdi:send-outline" class="text-sm rtl:-scale-x-100" />
             </button>
           </form>
 
@@ -93,10 +88,10 @@
       </div>
 
       <div class="pt-phi-1 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-beige/60">
-        <p>© {{ new Date().getFullYear() }} Saadawy Store. All rights reserved.</p>
-        <nav class="flex items-center gap-4" aria-label="Store policies">
-          <NuxtLink to="/privacy" class="hover:text-gold transition">Privacy Policy</NuxtLink>
-          <NuxtLink to="/terms" class="hover:text-gold transition">Terms & Conditions</NuxtLink>
+        <p>{{ $t('nav.footer.rights', { year: new Date().getFullYear() }) }}</p>
+        <nav class="flex items-center gap-4" :aria-label="$t('nav.footer.policies')">
+          <NuxtLink to="/privacy" class="hover:text-gold transition">{{ $t('nav.footer.privacy') }}</NuxtLink>
+          <NuxtLink to="/terms" class="hover:text-gold transition">{{ $t('nav.footer.terms') }}</NuxtLink>
         </nav>
       </div>
     </div>
@@ -107,6 +102,8 @@
 const email = ref("");
 const isSubscribing = ref(false);
 const toast = useToastStore();
+const { t, categoryName } = useLang();
+const shopCategories = ["skincare", "makeup", "haircare", "perfume", "bags", "kitchen", "hijab"];
 
 async function handleSubscribe() {
   isSubscribing.value = true;
@@ -117,14 +114,10 @@ async function handleSubscribe() {
       body: { email: email.value },
     });
 
-    toast.show(
-      alreadySubscribed
-        ? "You're already subscribed!"
-        : "Thank you for subscribing!"
-    );
+    toast.show(t(alreadySubscribed ? "nav.footer.alreadySubscribed" : "nav.footer.subscribed"));
     email.value = "";
   } catch (error) {
-    toast.show("Something went wrong. Please try again.");
+    toast.error(t("common.somethingWrong"));
   } finally {
     isSubscribing.value = false;
   }
