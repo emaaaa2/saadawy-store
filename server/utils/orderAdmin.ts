@@ -17,13 +17,13 @@ export async function getOrdersByIds(event: H3Event, ids: string[]) {
   return (data ?? []) as AdminOrder[]
 }
 
-async function returnToStock(client: Client, items: OrderItem[]) {
+export async function returnToStock(client: Client, items: OrderItem[]) {
   for (const item of items) {
     await client.rpc('increment_stock', { product_id: item.id, qty: item.quantity })
   }
 }
 
-async function takeFromStock(client: Client, items: OrderItem[]) {
+export async function takeFromStock(client: Client, items: OrderItem[]) {
   const taken: OrderItem[] = []
   for (const item of items) {
     const { data: ok, error } = await client.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })

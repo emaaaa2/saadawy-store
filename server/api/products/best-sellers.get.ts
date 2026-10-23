@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     .neq('status', 'cancelled')
 
   if (ordersError) {
-    throw createError({ statusCode: 500, statusMessage: ordersError.message })
+    throw internalError(ordersError)
   }
 
   const salesByProductId = new Map()
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
   const { data: products, error: productsError } = await dbQuery
 
   if (productsError) {
-    throw createError({ statusCode: 500, statusMessage: productsError.message })
+    throw internalError(productsError)
   }
 
   let ranked = products.map((product) => ({ ...product, unitsSold: salesByProductId.get(product.id) }))

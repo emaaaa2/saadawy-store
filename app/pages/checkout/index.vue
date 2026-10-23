@@ -113,8 +113,13 @@
             dir="ltr"
             required
             autocomplete="tel"
-            class="w-full border border-ink/20 rounded-lg px-4 py-2.5 outline-none focus:border-gold rtl:text-right"
+            :aria-invalid="Boolean(phoneError)"
+            aria-describedby="checkout-phone-error"
+            class="w-full border rounded-lg px-4 py-2.5 outline-none focus:border-gold rtl:text-right"
+            :class="phoneError ? 'border-red-500' : 'border-ink/20'"
+            @input="phoneError = ''"
           />
+          <p v-if="phoneError" id="checkout-phone-error" class="text-sm text-red-500 mt-1">{{ phoneError }}</p>
         </div>
         <div>
           <label for="checkout-governorate" class="block text-sm font-medium text-ink mb-1"
@@ -192,6 +197,7 @@ const user = useSupabaseUser();
 const toast = useToastStore();
 const { t, price, productName, governorateName } = useLang();
 const isSubmitting = ref(false);
+const phoneError = ref("");
 useSeoMeta({ title: () => t("checkout.title"), robots: "noindex" });
 const storeSettings = useStoreSettings();
 const paymentMethods = computed(() => enabledPaymentMethods(storeSettings.value));
@@ -305,6 +311,13 @@ function whatsappMessage(order) {
 }
 
 async function handleSubmit() {
+  // Same rule the server uses (shared/utils/phone.ts), so the customer hears about it right away.
+  if (!isEgyptianMobile(form.value.phone)) {
+    phoneError.value = t('errors.phoneInvalid')
+    document.getElementById('checkout-phone')?.focus()
+    return
+  }
+
   isSubmitting.value = true
 
   try {

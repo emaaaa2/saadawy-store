@@ -1,6 +1,9 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  // Stops anyone trying codes one after another until one works.
+  await rateLimit(event, 'coupon')
+
   const body = await readBody(event)
   const code = typeof body.code === 'string' ? body.code.trim().toUpperCase() : ''
   const subtotal = Number(body.subtotal)

@@ -1,6 +1,8 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  await rateLimit(event, 'review')
+
   const body = await readBody(event)
 
   const customerName = typeof body.customerName === 'string' ? body.customerName.trim() : ''
@@ -34,7 +36,7 @@ export default defineEventHandler(async (event) => {
     })
 
   if (error) {
-    throw createError({ statusCode: 500, statusMessage: error.message })
+    throw internalError(error)
   }
 
   return { success: true }

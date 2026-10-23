@@ -117,7 +117,7 @@ async function handleSubscribe() {
     toast.show(t(alreadySubscribed ? "nav.footer.alreadySubscribed" : "nav.footer.subscribed"));
     email.value = "";
   } catch (error) {
-    toast.error(t("common.somethingWrong"));
+    toast.error(apiErrorMessage(error, t));
   } finally {
     isSubscribing.value = false;
   }

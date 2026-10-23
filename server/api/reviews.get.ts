@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
   const { data, error } = await dbQuery
 
   if (error) {
-    throw createError({ statusCode: 500, statusMessage: error.message })
+    throw internalError(error)
   }
 
   return { reviews: data }

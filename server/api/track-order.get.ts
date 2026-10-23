@@ -1,6 +1,9 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
+  // Stops anyone guessing order numbers and phones to read other people's orders.
+  await rateLimit(event, 'track')
+
   const query = getQuery(event)
   const orderNumber = typeof query.orderNumber === 'string' ? query.orderNumber.trim() : ''
   const phone = typeof query.phone === 'string' ? query.phone.trim() : ''
@@ -17,7 +20,8 @@ export default defineEventHandler(async (event) => {
     .eq('order_number', orderNumber)
     .single()
 
-  if (error || !order || order.phone !== phone) {
+  // Compared as digits only, so "+20 100…" matches "0100…" (new orders store it that way).
+  if (error || !order || normalizePhone(order.phone) !== normalizePhone(phone)) {
     throw customerError(404, 'trackNotFound', 'Order not found. Please check your order number and phone number.')
   }
 

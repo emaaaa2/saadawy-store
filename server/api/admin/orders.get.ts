@@ -1,6 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 export default defineEventHandler(async (event) => {
   await requireAdmin(event, 'orders')
+  await cancelExpiredUnpaidOrders(event, { force: true })
 
 const client = serverSupabaseServiceRole(event)
   const { data, error } = await client

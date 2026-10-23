@@ -64,10 +64,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (error) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message
-    })
+    throw internalError(error)
   }
 
   const productIds = (data ?? []).map((p) => p.id)

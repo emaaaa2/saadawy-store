@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     .limit(limit)
 
   if (error) {
-    throw createError({ statusCode: 500, statusMessage: error.message })
+    throw internalError(error)
   }
 
   return { orders: data ?? [] }

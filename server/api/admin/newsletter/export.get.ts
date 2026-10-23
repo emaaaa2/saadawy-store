@@ -15,7 +15,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
-  const csv = Papa.unparse(data)
+  // Anyone can subscribe, so an "email" could be an Excel formula (=…, +…, @…) that runs when the
+  // file is opened. escapeFormulae puts a ' in front of those so Excel shows them as plain text.
+  const csv = Papa.unparse(data, { escapeFormulae: true })
 
   setHeader(event, 'Content-Type', 'text/csv; charset=utf-8')
   setHeader(event, 'Content-Disposition', `attachment; filename="newsletter-subscribers-${Date.now()}.csv"`)

@@ -3,6 +3,8 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default defineEventHandler(async (event) => {
+  await rateLimit(event, 'newsletter')
+
   const body = await readBody(event)
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
 
@@ -20,7 +22,7 @@ export default defineEventHandler(async (event) => {
     if (error.code === '23505') {
       return { success: true, alreadySubscribed: true }
     }
-    throw createError({ statusCode: 500, statusMessage: error.message })
+    throw internalError(error)
   }
 
   return { success: true, alreadySubscribed: false }

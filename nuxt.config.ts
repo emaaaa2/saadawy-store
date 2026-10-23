@@ -47,6 +47,16 @@ export default defineNuxtConfig({
     redirect: false
   },
   routeRules: {
+    // Other sites can't show these pages inside a frame, so nobody can trick an admin into
+    // clicking dashboard buttons hidden under their own page (clickjacking).
+    '/**': {
+      headers: {
+        'X-Frame-Options': 'SAMEORIGIN',
+        'Content-Security-Policy': "frame-ancestors 'self'",
+        'X-Content-Type-Options': 'nosniff',
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+      },
+    },
     '/confirm': { ssr: false }
   },
   nitro: {

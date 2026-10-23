@@ -1,3 +1,39 @@
+import type { serverSupabaseServiceRole } from '#supabase/server'
+
+type Client = ReturnType<typeof serverSupabaseServiceRole>
+
+// used_count only changes if it still holds the value we read; if another order changed it first,
+// read it again and retry. That way two orders at once can't both take a coupon's last use.
+async function changeCouponUses(client: Client, couponId: string | number, change: 1 | -1) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { data: coupon, error } = await client
+      .from('coupons')
+      .select('used_count, usage_limit')
+      .eq('id', couponId)
+      .single()
+    if (error) throw internalError(error)
+
+    if (change === 1 && coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) return false
+    if (change === -1 && coupon.used_count <= 0) return true
+
+    const { data: updated, error: updateError } = await client
+      .from('coupons')
+      .update({ used_count: coupon.used_count + change })
+      .eq('id', couponId)
+      .eq('used_count', coupon.used_count)
+      .select('id')
+    if (updateError) throw internalError(updateError)
+    if (updated?.length) return true
+  }
+  throw createError({ statusCode: 503, statusMessage: 'Coupon is busy, please try again' })
+}
+
+/** Counts one use of the coupon; false if it's already used up. */
+export const claimCouponUse = (client: Client, couponId: string | number) => changeCouponUses(client, couponId, 1)
+
+/** Gives back a use claimed for an order that then failed. */
+export const releaseCouponUse = (client: Client, couponId: string | number) => changeCouponUses(client, couponId, -1)
+
 export function calculateDiscount(coupon: {
   discount_type: string
   discount_value: number
