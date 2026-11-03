@@ -89,6 +89,11 @@ const groups = computed(() => {
     let settings = result.find((g) => g.name === 'Settings')
     if (!settings) result.push((settings = { name: 'Settings', items: [] }))
     settings.items.push({ permission: 'admins', label: 'Admins', path: '/admin/admins', icon: 'mdi:shield-account-outline' })
+  }
+  // Every admin has the activity log, showing the sections they can open.
+  if (access.value) {
+    let settings = result.find((g) => g.name === 'Settings')
+    if (!settings) result.push((settings = { name: 'Settings', items: [] }))
     settings.items.push({ permission: 'activity', label: 'Activity log', path: '/admin/activity', icon: 'mdi:history' })
   }
   return result

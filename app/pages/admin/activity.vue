@@ -38,7 +38,7 @@
               <span dir="ltr">{{ entry.admin_email }}</span> · {{ formatDate(entry.created_at, true) }}
             </p>
           </div>
-          <button v-if="entry.action === 'product.delete'" type="button" class="adm-btn adm-btn-secondary adm-btn-sm" :disabled="restoring === entry.id" @click="restore(entry)">
+          <button v-if="entry.action === 'product.delete' && can('products')" type="button" class="adm-btn adm-btn-secondary adm-btn-sm" :disabled="restoring === entry.id" @click="restore(entry)">
             <Icon :name="restoring === entry.id ? 'mdi:loading' : 'mdi:restore'" class="text-sm" :class="{ 'animate-spin': restoring === entry.id }" />
             {{ $t('admin.activity.restore') }}
           </button>
@@ -52,8 +52,7 @@
 <script setup>
 definePageMeta({
   layout: 'admin',
-  middleware: 'admin-auth',
-  adminOwnerOnly: true
+  middleware: 'admin-auth'
 })
 
 const { t, isAr } = useLang()
@@ -63,6 +62,7 @@ const arrow = computed(() => (isAr.value ? '←' : '→'))
 useSeoMeta({ title: () => t('admin.activity.metaTitle'), robots: 'noindex' })
 const toast = useToastStore()
 const { confirm } = useAdminConfirm()
+const { access, can } = useAdminAccess()
 
 const area = ref('')
 const searchInput = ref('')
@@ -77,7 +77,8 @@ watch(area, () => { currentPage.value = 1 })
 
 const areaOptions = computed(() => [
   { value: '', label: t('admin.activity.all') },
-  ...['product', 'order', 'coupon', 'settings', 'shipping', 'admin', 'review', 'newsletter'].map((value) => ({ value, label: t(`admin.activity.areas.${value}`) })),
+  // Only the areas this admin can see (activityAreasFor in shared/utils/adminSections.ts).
+  ...activityAreasFor(access.value).map((value) => ({ value, label: t(`admin.activity.areas.${value}`) })),
 ])
 
 const { data, pending, error, refresh } = await useFetch('/api/admin/activity', {

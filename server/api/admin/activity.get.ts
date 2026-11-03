@@ -1,8 +1,10 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
-// The dashboard activity log (supabase_admin_activity.sql). Store owner only.
+// The dashboard activity log (supabase_admin_activity.sql). Each admin sees the changes made in
+// the sections they can open (activityAreasFor); the owner sees everything.
 export default defineEventHandler(async (event) => {
-  await requireOwner(event)
+  const access = await requireAdmin(event)
+  const allowed = activityAreasFor(access)
 
   const query = getQuery(event)
   const page = Math.max(Number(query.page) || 1, 1)
@@ -10,14 +12,17 @@ export default defineEventHandler(async (event) => {
   const from = (page - 1) * limit
   const area = String(query.area ?? '')
   const search = String(query.search ?? '').replace(/[,()%*\\]/g, ' ').trim()
+  const areas = area ? allowed.filter((a) => a === area) : allowed
+
+  if (!areas.length) return { entries: [], total: 0, page, pageSize: limit, totalPages: 1 }
 
   let request = serverSupabaseServiceRole(event)
     .from('admin_activity')
     .select('*', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(from, from + limit - 1)
-  // area = the part before the dot: product, order, coupon, settings …
-  if (/^[a-z]+$/.test(area)) request = request.like('action', `${area}%`)
+  // area = the part before the dot: product (also products.import), order, coupon, settings …
+  if (area || !access.isOwner) request = request.or(areas.map((a) => `action.like.${a}*`).join(','))
   if (search) request = request.or(`target.ilike.%${search}%,admin_email.ilike.%${search}%`)
 
   const { data, error, count } = await request

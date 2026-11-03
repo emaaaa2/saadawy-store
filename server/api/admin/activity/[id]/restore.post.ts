@@ -1,8 +1,8 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
-// Puts a deleted product back exactly as it was (same id, link, photos, categories). Owner only.
+// Puts a deleted product back exactly as it was (same id, link, photos, categories).
 export default defineEventHandler(async (event) => {
-  const access = await requireOwner(event)
+  const access = await requireAdmin(event, 'products')
   const client = serverSupabaseServiceRole(event)
 
   const { data: entry, error } = await client.from('admin_activity').select('*').eq('id', getRouterParam(event, 'id')).maybeSingle()
