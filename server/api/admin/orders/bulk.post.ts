@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'orders')
+  const access = await requireAdmin(event, 'orders')
 
   const body = await readBody(event)
   const ids = Array.isArray(body.ids)
@@ -22,8 +22,13 @@ export default defineEventHandler(async (event) => {
 
   for (const order of orders) {
     try {
-      if (body.action === 'delete') await deleteOrder(event, order)
-      else await changeOrderStatus(event, order, body.status)
+      if (body.action === 'delete') {
+        await deleteOrder(event, order)
+        await logActivity(event, access.email, 'order.delete', order.order_number, { order })
+      } else if (order.status !== body.status) {
+        await changeOrderStatus(event, order, body.status)
+        await logActivity(event, access.email, 'order.status', order.order_number, { from: order.status, to: body.status })
+      }
       done++
     } catch (error: any) {
       failed.push({

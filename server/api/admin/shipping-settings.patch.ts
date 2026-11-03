@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'shipping')
+  const access = await requireAdmin(event, 'shipping')
 
   const body = await readBody(event)
 
@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const client = serverSupabaseServiceRole(event)
+  const { data: before } = await client.from('shipping_settings').select('*').eq('id', 1).maybeSingle()
 
   const { error } = await client
     .from('shipping_settings')
@@ -27,5 +28,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  await logActivity(event, access.email, 'shipping.update', null, { changes: changedColumns(before ?? {}, update) })
   return { success: true }
 })

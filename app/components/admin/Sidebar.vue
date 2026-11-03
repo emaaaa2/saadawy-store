@@ -5,8 +5,8 @@
     </Transition>
 
     <aside
-      class="fixed inset-y-0 start-0 z-50 w-64 bg-surface border-e border-stone-200 flex flex-col transition-transform duration-200 lg:translate-x-0"
-      :class="isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full rtl:translate-x-full'"
+      class="fixed inset-y-0 start-0 z-50 w-64 bg-surface border-e border-stone-200 flex flex-col transition-transform duration-200"
+      :class="isOpen ? 'translate-x-0 shadow-2xl' : 'max-lg:-translate-x-full max-lg:rtl:translate-x-full'"
     >
       <div class="h-16 shrink-0 flex items-center justify-between gap-2 px-5 border-b border-stone-200">
         <NuxtLink to="/admin" class="flex items-center gap-2.5" @click="isOpen = false">
@@ -53,7 +53,7 @@
             {{ access?.email?.[0] ?? '?' }}
           </div>
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium text-stone-800 truncate" :title="access?.email">{{ access?.email }}</p>
+            <p dir="ltr" class="text-sm font-medium text-stone-800 truncate rtl:text-end" :title="access?.email">{{ access?.email }}</p>
             <p class="text-xs text-stone-500">{{ access?.isOwner ? $t('admin.nav.owner') : $t('admin.nav.admin') }}</p>
           </div>
           <button type="button" class="adm-icon-btn" :title="$t('admin.nav.signOut')" :aria-label="$t('admin.nav.signOut')" @click="signOut">
@@ -89,6 +89,7 @@ const groups = computed(() => {
     let settings = result.find((g) => g.name === 'Settings')
     if (!settings) result.push((settings = { name: 'Settings', items: [] }))
     settings.items.push({ permission: 'admins', label: 'Admins', path: '/admin/admins', icon: 'mdi:shield-account-outline' })
+    settings.items.push({ permission: 'activity', label: 'Activity log', path: '/admin/activity', icon: 'mdi:history' })
   }
   return result
 })

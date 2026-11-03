@@ -34,6 +34,23 @@ export const claimCouponUse = (client: Client, couponId: string | number) => cha
 /** Gives back a use claimed for an order that then failed. */
 export const releaseCouponUse = (client: Client, couponId: string | number) => changeCouponUses(client, couponId, -1)
 
+/** The welcome popup's code promises a discount on the customer's first order only. */
+export function isFirstOrderCoupon(code: string, settings: StoreSettings) {
+  return Boolean(settings.welcomeCouponCode) && code.toUpperCase() === settings.welcomeCouponCode.trim().toUpperCase()
+}
+
+/** True if this phone number (or signed-in account) already has an order that wasn't cancelled. */
+export async function hasPreviousOrder(client: Client, { phone, userId }: { phone?: string; userId?: string }) {
+  const checks = []
+  if (phone) checks.push(client.from('orders').select('id', { count: 'exact', head: true }).eq('phone', phone).neq('status', 'cancelled'))
+  if (userId) checks.push(client.from('orders').select('id', { count: 'exact', head: true }).eq('user_id', userId).neq('status', 'cancelled'))
+  for (const { count, error } of await Promise.all(checks)) {
+    if (error) throw internalError(error)
+    if ((count ?? 0) > 0) return true
+  }
+  return false
+}
+
 export function calculateDiscount(coupon: {
   discount_type: string
   discount_value: number

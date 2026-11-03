@@ -262,7 +262,7 @@ async function handleApplyCoupon() {
   try {
     const result = await $fetch("/api/coupons/validate", {
       method: "POST",
-      body: { code: couponCode.value.trim(), subtotal: cart.subtotal },
+      body: { code: couponCode.value.trim(), subtotal: cart.subtotal, phone: form.value.phone },
     });
     appliedCoupon.value = result;
   } catch (error) {

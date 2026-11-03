@@ -4,7 +4,7 @@ const PHONE_FIELDS = ['whatsappOrders', 'whatsappSupport'] as const
 const URL_FIELDS = ['mapUrl', 'facebookUrl', 'instagramUrl', 'tiktokUrl'] as const
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'settings')
+  const access = await requireAdmin(event, 'settings')
 
   const settings = sanitizeStoreSettings(await readBody(event))
 
@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
     throw adminError(400, 'welcomeCodeMissing', 'Add a coupon code for the welcome popup, or turn it off')
   }
 
+  const before = await getStoreSettings(event)
   const updatedAt = new Date().toISOString()
   const { error } = await serverSupabaseServiceRole(event)
     .from('store_settings')
@@ -38,5 +39,6 @@ export default defineEventHandler(async (event) => {
       : createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  await logActivity(event, access.email, 'settings.update', null, { changes: changedColumns(before, settings) })
   return { settings, isSetUp: true, updatedAt }
 })

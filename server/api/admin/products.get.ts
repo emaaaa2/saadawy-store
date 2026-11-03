@@ -9,6 +9,8 @@ const SORTS = {
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event, 'products')
+  // The list doesn't wait for this housekeeping; waitUntil keeps the server alive until it's done.
+  event.waitUntil(cleanUpAbandonedUploads(event))
 
   const client = serverSupabaseServiceRole(event)
   const query = getQuery(event)

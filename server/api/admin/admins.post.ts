@@ -3,7 +3,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default defineEventHandler(async (event) => {
-  await requireOwner(event)
+  const access = await requireOwner(event)
 
   const body = await readBody(event)
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
@@ -33,5 +33,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  await logActivity(event, access.email, 'admin.add', email, { permissions })
   return { admin: data }
 })

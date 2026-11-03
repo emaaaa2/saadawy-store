@@ -8,6 +8,7 @@ export default {
   couponInactive: 'الكوبون ده مبقاش شغال',
   couponExpired: 'الكوبون ده انتهى',
   couponUsedUp: 'الكوبون ده وصل للحد الأقصى من الاستخدام',
+  couponFirstOrder: 'الكود ده لأول طلب بس، والرقم ده عليه طلب قبل كده',
   couponMinOrder: 'الكوبون ده محتاج طلب بحد أدنى {amount} ج.م',
   invalidTotal: 'إجمالي الطلب مش صحيح',
   governorate: 'اختار المحافظة',
@@ -24,4 +25,5 @@ export default {
   trackMissing: 'اكتب رقم الطلب ورقم الموبايل',
   trackNotFound: 'مش لاقيين الطلب. اتأكد من رقم الطلب ورقم الموبايل.',
   signInForOrders: 'سجل دخول عشان تشوف طلباتك',
+  unsubscribeLink: 'لينك إلغاء الاشتراك ده مش صحيح. افتحه من الإيميل تاني.',
 }

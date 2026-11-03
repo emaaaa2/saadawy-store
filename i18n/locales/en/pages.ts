@@ -91,4 +91,16 @@ export default {
     rating: 'Rating',
     review: 'Your Review',
   },
+  unsubscribe: {
+    metaTitle: 'Unsubscribe',
+    title: 'Unsubscribe from Saadawy emails?',
+    text: "You won't get our offers and new-arrival emails anymore at:",
+    button: 'Unsubscribe',
+    working: 'Unsubscribing…',
+    doneTitle: "You're unsubscribed",
+    doneText: "You won't get any more emails from us. You can subscribe again any time from the bottom of the page.",
+    invalidTitle: 'This link is incomplete',
+    invalidText: 'Open the unsubscribe link from the email again.',
+    backHome: 'Back to the store',
+  },
 }

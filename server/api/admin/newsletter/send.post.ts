@@ -2,7 +2,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  await requireAdmin(event, 'newsletter')
+  const access = await requireAdmin(event, 'newsletter')
 
   if (!config.resendApiKey) {
     throw adminError(500, 'emailNotConfigured', 'Email service is not configured yet (missing RESEND_API_KEY)', { setting: 'RESEND_API_KEY' })
@@ -35,13 +35,17 @@ export default defineEventHandler(async (event) => {
     return { success: true, sent: 0 }
   }
 
-  const html = `
+  const siteUrl = config.public.siteUrl || 'https://saadawy-store.vercel.app'
+  // Each subscriber gets their own unsubscribe link, in the footer and in the List-Unsubscribe
+  // header that Gmail and other mail apps turn into their own "Unsubscribe" button.
+  const htmlFor = (email: string) => `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; padding: 24px;">
       <h2 style="color: #44564C;">Saadawy Store</h2>
-      <div style="color: #333; line-height: 1.6; white-space: pre-line;">${escapeHtml(message)}</div>
-      <p style="margin-top: 32px; font-size: 12px; color: #999;">
-        You're receiving this because you subscribed to Saadawy Store updates.
-      </p>
+      <div dir="auto" style="color: #333; line-height: 1.6; white-space: pre-line;">${escapeHtml(message)}</div>
+      <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #999; line-height: 1.6;">
+        <p dir="rtl" style="margin: 0 0 4px;">وصلك الإيميل ده عشان اشتركت في نشرة سعداوي. <a href="${unsubscribePageUrl(siteUrl, email)}" style="color: #8a6d3b;">إلغاء الاشتراك</a></p>
+        <p style="margin: 0;">You're receiving this because you subscribed to Saadawy Store updates. <a href="${unsubscribePageUrl(siteUrl, email)}" style="color: #8a6d3b;">Unsubscribe</a></p>
+      </div>
     </div>
   `
 
@@ -58,7 +62,11 @@ export default defineEventHandler(async (event) => {
       from: config.newsletterFromEmail,
       to: [s.email],
       subject,
-      html
+      html: htmlFor(s.email),
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeApiUrl(siteUrl, s.email)}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
     }))
 
     try {
@@ -74,6 +82,8 @@ export default defineEventHandler(async (event) => {
       failedEmails.push(...batch.map((s) => s.email))
     }
   }
+
+  await logActivity(event, access.email, 'newsletter.send', null, { subject, sent: sentCount, failed: failedEmails.length })
 
   return {
     success: true,

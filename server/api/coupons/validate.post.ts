@@ -1,4 +1,4 @@
-import { serverSupabaseServiceRole } from '#supabase/server'
+import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
   // Stops anyone trying codes one after another until one works.
@@ -31,6 +31,16 @@ export default defineEventHandler(async (event) => {
 
   if (!result.valid) {
     throw customerError(400, result.code!, result.reason!, result.params)
+  }
+
+  // Checked again when the order is placed; here only when the phone is already filled in
+  // (or the customer is signed in), so they hear about it before ordering.
+  if (isFirstOrderCoupon(coupon.code, await getStoreSettings(event))) {
+    const phone = normalizePhone(body.phone)
+    const customer = await serverSupabaseUser(event).catch(() => null)
+    if (await hasPreviousOrder(client, { phone: isEgyptianMobile(phone) ? phone : undefined, userId: customer?.sub })) {
+      throw customerError(400, 'couponFirstOrder', 'This code is for your first order only')
+    }
   }
 
   return {

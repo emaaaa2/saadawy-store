@@ -278,7 +278,8 @@ async function saveStock(product, value, input) {
   product.stock = value
   savingStock.add(product.id)
   try {
-    await $fetch(`/api/admin/products/${product.id}`, { method: 'PATCH', body: { stock: value } })
+    // `original`: refused if the stock changed since this list loaded (e.g. an order took some).
+    await $fetch(`/api/admin/products/${product.id}`, { method: 'PATCH', body: { stock: value, original: { stock: previous } } })
     refreshBadges()
   } catch (err) {
     product.stock = previous

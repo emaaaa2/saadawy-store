@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'products')
+  const access = await requireAdmin(event, 'products')
 
   const client = serverSupabaseServiceRole(event)
   const row = readProductInput(await readBody(event))
@@ -19,5 +19,6 @@ export default defineEventHandler(async (event) => {
 
   if (error) throw productSaveError(error)
 
+  await logActivity(event, access.email, 'product.create', data.sku ?? data.id, { name: data.name, price: data.price, stock: data.stock })
   return { product: data }
 })

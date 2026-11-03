@@ -3,7 +3,7 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 const EDITABLE_FIELDS = ['customer_name', 'phone', 'governorate', 'address']
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'orders')
+  const access = await requireAdmin(event, 'orders')
 
   const orderId = getRouterParam(event, 'id')
   const body = await readBody(event)
@@ -32,10 +32,12 @@ export default defineEventHandler(async (event) => {
     if (error) {
       throw createError({ statusCode: 500, statusMessage: error.message })
     }
+    await logActivity(event, access.email, 'order.edit', order.order_number, { changes: changedColumns(order as any, details) })
   }
 
-  if (body.status !== undefined) {
+  if (body.status !== undefined && body.status !== order.status) {
     await changeOrderStatus(event, order, body.status)
+    await logActivity(event, access.email, 'order.status', order.order_number, { from: order.status, to: body.status })
   }
 
   return { success: true }

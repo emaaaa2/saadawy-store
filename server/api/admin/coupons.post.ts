@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'coupons')
+  const access = await requireAdmin(event, 'coupons')
 
   const body = await readBody(event)
   const code = typeof body.code === 'string' ? body.code.trim().toUpperCase() : ''
@@ -12,9 +12,10 @@ export default defineEventHandler(async (event) => {
 
   const client = serverSupabaseServiceRole(event)
 
+  const row = { code, ...readCouponInput(body), active: true }
   const { error } = await client
     .from('coupons')
-    .insert({ code, ...readCouponInput(body), active: true })
+    .insert(row)
 
   if (error) {
     if (error.code === '23505') {
@@ -23,5 +24,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  await logActivity(event, access.email, 'coupon.create', code, row)
   return { success: true }
 })

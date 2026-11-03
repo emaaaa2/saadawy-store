@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'coupons')
+  const access = await requireAdmin(event, 'coupons')
 
   const id = getRouterParam(event, 'id')
   const updates = readCouponInput(await readBody(event), { partial: true })
@@ -12,6 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const client = serverSupabaseServiceRole(event)
 
+  const { data: before } = await client.from('coupons').select('*').eq('id', id).maybeSingle()
   const { error } = await client
     .from('coupons')
     .update(updates)
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
   if (error) {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
+  await logActivity(event, access.email, 'coupon.update', before?.code ?? id, { changes: changedColumns(before ?? {}, updates) })
 
   return { success: true }
 })

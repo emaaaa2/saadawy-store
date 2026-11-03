@@ -296,6 +296,25 @@ const photos = ref([])
 const brokenPhotos = reactive(new Set())
 const brokenCount = computed(() => photos.value.filter((url) => brokenPhotos.has(url)).length)
 
+function formFromProduct(p) {
+  return {
+    name: p.name ?? '',
+    nameEn: p.name_en ?? '',
+    brand: p.brand ?? '',
+    description: p.description ?? '',
+    descriptionEn: p.description_en ?? '',
+    usageInfo: p.usage_info ?? '',
+    usageInfoEn: p.usage_info_en ?? '',
+    price: p.price,
+    salePrice: p.sale_price,
+    sku: p.sku ?? '',
+    stock: p.stock ?? 0,
+    category: p.category ?? '',
+    subcategory: p.subcategory ?? '',
+    badge: p.badge ?? '',
+  }
+}
+
 if (!isNew.value) {
   const { data, error } = await useFetch(`/api/admin/products/${route.params.id}`)
   if (error.value || !data.value?.product) {
@@ -303,22 +322,7 @@ if (!isNew.value) {
   } else {
     const p = data.value.product
     product.value = p
-    form.value = {
-      name: p.name ?? '',
-      nameEn: p.name_en ?? '',
-      brand: p.brand ?? '',
-      description: p.description ?? '',
-      descriptionEn: p.description_en ?? '',
-      usageInfo: p.usage_info ?? '',
-      usageInfoEn: p.usage_info_en ?? '',
-      price: p.price,
-      salePrice: p.sale_price,
-      sku: p.sku ?? '',
-      stock: p.stock ?? 0,
-      category: p.category ?? '',
-      subcategory: p.subcategory ?? '',
-      badge: p.badge ?? '',
-    }
+    form.value = formFromProduct(p)
     photos.value = [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))]
     for (const url of data.value.missingPhotos ?? []) brokenPhotos.add(url)
   }
@@ -365,6 +369,17 @@ function removePhoto(index) {
 
 function addPhotoLink() {
   const url = photoLink.value.trim()
+  // A path on this computer (C:\…, file:///…) only exists here; customers could never load it.
+  // Point to the upload button instead, and open the file picker right away.
+  if (/^[a-z]:[\\/]|^\\\\|^file:|^\/(Users|home|storage|sdcard)\//i.test(url)) {
+    toast.error(t('admin.editor.linkIsLocalFile'))
+    photoInput.value?.click()
+    return
+  }
+  if (/^http:\/\//i.test(url)) {
+    toast.error(t('admin.editor.linkNotSecure'))
+    return
+  }
   if (!/^https:\/\/\S+$/.test(url)) {
     toast.error(t('admin.editor.linkInvalid'))
     return
@@ -422,15 +437,39 @@ function onDrop(event) {
   uploadFiles(event.dataTransfer.files)
 }
 
+// For an existing product, only the fields that were changed are sent, together with the values
+// they had when the page opened. The server refuses the save if one of those changed meanwhile
+// (an order took stock, or another admin saved), instead of silently undoing that change.
+function changesSinceLoad() {
+  const saved = formFromProduct(product.value)
+  const same = (a, b) => (a ?? '') === (b ?? '') || (a !== '' && b !== '' && Number(a) === Number(b))
+  const changes = {}
+  const original = {}
+  for (const key of Object.keys(form.value)) {
+    if (same(form.value[key], saved[key])) continue
+    changes[key] = key === 'salePrice' ? form.value.salePrice || null : form.value[key]
+    original[key] = saved[key]
+  }
+  const savedPhotos = [...new Set([product.value.image, ...(product.value.images ?? [])].filter(Boolean))]
+  if (JSON.stringify(photos.value) !== JSON.stringify(savedPhotos)) {
+    changes.image = photos.value[0] ?? null
+    changes.images = photos.value.slice(1)
+    original.image = product.value.image ?? null
+    original.images = product.value.images ?? []
+  }
+  return Object.keys(changes).length ? { ...changes, original } : null
+}
+
 async function handleSubmit() {
-  isSubmitting.value = true
-  const body = {
-    ...form.value,
-    salePrice: form.value.salePrice || null,
-    image: photos.value[0] ?? null,
-    images: photos.value.slice(1),
+  const body = isNew.value
+    ? { ...form.value, salePrice: form.value.salePrice || null, image: photos.value[0] ?? null, images: photos.value.slice(1) }
+    : changesSinceLoad()
+  if (!body) {
+    toast.show(t('admin.errors.nothingToUpdate'))
+    return
   }
 
+  isSubmitting.value = true
   try {
     if (isNew.value) {
       const { product: created } = await $fetch('/api/admin/products', { method: 'POST', body })

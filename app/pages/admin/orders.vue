@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AdminPageHeader :title="$t('admin.orders.metaTitle')" :description="$t('admin.orders.inTotal', { orders: plural(orders.length, 'order') })">
+    <AdminPageHeader :title="$t('admin.orders.metaTitle')" :description="$t('admin.orders.inTotal', { orders: plural(orders.length + olderCount, 'order') })">
       <button type="button" class="adm-btn adm-btn-secondary" :disabled="pending" @click="refreshAll">
         <Icon name="mdi:refresh" class="text-base" :class="{ 'animate-spin': pending }" />
         {{ $t('admin.common.refresh') }}
@@ -150,6 +150,13 @@
           </tbody>
         </table>
       </div>
+
+      <div v-if="olderCount" class="flex flex-wrap items-center justify-center gap-3 px-4 py-3 border-t border-stone-200 text-sm">
+        <span class="text-stone-500">{{ $t('admin.orders.olderHidden') }}</span>
+        <button type="button" class="adm-btn adm-btn-secondary adm-btn-sm" :disabled="pending" @click="scope = 'all'">
+          {{ $t('admin.orders.showOlder', { count: olderCount.toLocaleString('en-US') }) }}
+        </button>
+      </div>
     </section>
 
     <AdminDrawer
@@ -295,11 +302,23 @@ const router = useRouter()
 const toast = useToastStore()
 const { confirm } = useAdminConfirm()
 const { refresh: refreshBadges } = useAdminBadges()
-const { data, pending, error, refresh } = await useFetch('/api/admin/orders')
-const orders = computed(() => data.value?.orders ?? [])
-
 const activeTab = ref(ORDER_STATUS_META[route.query.status] ? route.query.status : 'all')
 const search = ref(typeof route.query.q === 'string' ? route.query.q : '')
+
+// The server sends open orders + the last 3 months (`scope: 'all'` for everything). A search of
+// 2+ characters is also sent to the server so it finds older orders too.
+const scope = ref('recent')
+const serverSearch = ref(search.value.trim().length >= 2 ? search.value.trim() : '')
+let searchTimer
+watch(search, (value) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { serverSearch.value = value.trim().length >= 2 ? value.trim() : '' }, 400)
+})
+const { data, pending, error, refresh } = await useFetch('/api/admin/orders', {
+  query: { scope, q: serverSearch, open: route.query.open ? String(route.query.open) : undefined },
+})
+const orders = computed(() => data.value?.orders ?? [])
+const olderCount = computed(() => (scope.value === 'recent' && !serverSearch.value ? data.value?.olderCount ?? 0 : 0))
 const paymentFilter = ref('')
 const activeId = ref(route.query.open ? String(route.query.open) : null)
 const isEditing = ref(false)

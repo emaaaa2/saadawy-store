@@ -8,6 +8,7 @@ export default {
   couponInactive: 'This coupon is no longer active',
   couponExpired: 'This coupon has expired',
   couponUsedUp: 'This coupon has reached its usage limit',
+  couponFirstOrder: 'This code is for your first order only, and this number already has an order',
   couponMinOrder: 'This coupon requires a minimum order of EGP {amount}',
   invalidTotal: 'Invalid order total',
   governorate: 'Please choose your governorate',
@@ -24,4 +25,5 @@ export default {
   trackMissing: 'Please enter your order number and phone number',
   trackNotFound: 'Order not found. Please check your order number and phone number.',
   signInForOrders: 'Please sign in to view your orders',
+  unsubscribeLink: 'This unsubscribe link is not valid. Open it from the email again.',
 }

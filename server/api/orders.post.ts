@@ -106,6 +106,10 @@ export default defineEventHandler(async (event) => {
       throw customerError(400, result.code!, result.reason!, result.params)
     }
 
+    if (isFirstOrderCoupon(coupon.code, settings) && await hasPreviousOrder(client, { phone, userId: customer?.sub })) {
+      throw customerError(400, 'couponFirstOrder', 'This code is for your first order only')
+    }
+
     discount = result.discount
     couponCode = coupon.code
     couponRow = coupon

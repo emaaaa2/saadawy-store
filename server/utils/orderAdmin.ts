@@ -5,12 +5,12 @@ export const ORDER_STATUSES = ['awaiting_payment', 'pending', 'confirmed', 'deli
 
 type Client = ReturnType<typeof serverSupabaseServiceRole>
 interface OrderItem { id: string; name: string; quantity: number }
-export interface AdminOrder { id: number | string; order_number: string; status: string; items: OrderItem[] }
+export interface AdminOrder { id: number | string; order_number: string; status: string; items: OrderItem[]; [column: string]: unknown }
 
 export async function getOrdersByIds(event: H3Event, ids: string[]) {
   const { data, error } = await serverSupabaseServiceRole(event)
     .from('orders')
-    .select('id, order_number, status, items')
+    .select('id, order_number, status, items, customer_name, phone, governorate, address, total')
     .in('id', ids)
 
   if (error) throw createError({ statusCode: 500, statusMessage: error.message })

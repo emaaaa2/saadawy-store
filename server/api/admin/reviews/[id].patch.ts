@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 export default defineEventHandler(async (event) => {
-  await requireAdmin(event, 'reviews')
+  const access = await requireAdmin(event, 'reviews')
 
   const id = getRouterParam(event, 'id')
   const body = await readBody(event)
@@ -21,5 +21,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, statusMessage: error.message })
   }
 
+  await logActivity(event, access.email, body.approved ? 'review.approve' : 'review.hide', id)
   return { success: true }
 })
