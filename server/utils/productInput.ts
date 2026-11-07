@@ -20,8 +20,10 @@ function optionalText(value: unknown, max = 5000) {
   return text || null
 }
 
+// Spaces inside are fine: photos uploaded in bulk are named like "1001 (2).webp", and rejecting
+// them made every gallery save on those products fail.
 function isImageUrl(value: unknown): value is string {
-  return typeof value === 'string' && /^(https:\/\/|\/)\S+$/.test(value)
+  return typeof value === 'string' && /^(https:\/\/|\/)\S(?:[^\t\r\n]*\S)?$/.test(value)
 }
 
 /**
