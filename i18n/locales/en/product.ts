@@ -8,6 +8,8 @@ export default {
   notFound: 'Product not found',
   brand: 'Brand:',
   howToUse: 'Ingredients / How to Use',
+  readMore: 'Read more',
+  readLess: 'Show less',
   prevImage: 'Previous image',
   nextImage: 'Next image',
   decrease: 'Decrease quantity',

@@ -136,9 +136,13 @@
           </span>
         </div>
 
-        <p v-if="productDescription(product)" dir="auto" class="text-ink/70 leading-relaxed mb-6 whitespace-pre-line">
-          {{ productDescription(product) }}
-        </p>
+        <ExpandableText
+          v-if="productDescription(product)"
+          :text="productDescription(product)"
+          text-class="text-ink/70 leading-relaxed"
+          clamp="line-clamp-5"
+          class="mb-6"
+        />
 
         <p v-if="product.brand" class="text-sm text-ink mb-4">
           <span class="font-semibold">{{ $t('product.brand') }}</span> <bdi>{{ product.brand }}</bdi>
@@ -146,7 +150,7 @@
 
         <div v-if="productUsage(product)" class="mb-6">
           <h3 class="text-sm font-semibold text-ink mb-1">{{ $t('product.howToUse') }}</h3>
-          <p dir="auto" class="text-sm text-ink/70 leading-relaxed whitespace-pre-line">{{ productUsage(product) }}</p>
+          <ExpandableText :text="productUsage(product)" text-class="text-sm text-ink/70 leading-relaxed" clamp="line-clamp-3" />
         </div>
 
         <div class="flex items-center gap-2 mb-8">

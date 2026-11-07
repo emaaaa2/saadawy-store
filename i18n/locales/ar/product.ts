@@ -8,6 +8,8 @@ export default {
   notFound: 'المنتج مش موجود',
   brand: 'الماركة:',
   howToUse: 'المكونات / طريقة الاستخدام',
+  readMore: 'اقرأ المزيد',
+  readLess: 'عرض أقل',
   prevImage: 'الصورة السابقة',
   nextImage: 'الصورة التالية',
   decrease: 'قلل الكمية',

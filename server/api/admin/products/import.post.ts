@@ -22,9 +22,9 @@ export default defineEventHandler(async (event) => {
 
   // What's already saved for the products in the file: kept where the file says nothing.
   const skusInFile: string[] = parsed.data.map((raw: any) => raw?.sku && String(raw.sku).trim()).filter(Boolean)
-  const existing = new Map<string, { slug: string; image: string | null; category: string; sale_price: number | null }>()
+  const existing = new Map<string, { name: string; slug: string; image: string | null; category: string; sale_price: number | null }>()
   for (let i = 0; i < skusInFile.length; i += 200) {
-    const { data, error } = await client.from('products').select('sku, slug, image, category, sale_price').in('sku', skusInFile.slice(i, i + 200))
+    const { data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price').in('sku', skusInFile.slice(i, i + 200))
     if (error) throw internalError(error)
     for (const p of data ?? []) existing.set(p.sku, p)
   }
@@ -47,7 +47,10 @@ export default defineEventHandler(async (event) => {
       return
     }
 
-    const name = String(raw.name ?? '').trim()
+    const saved = existing.get(sku)
+    // A product already on the site keeps its name: names are written in the dashboard and the
+    // shop system's short names would overwrite them. The file's name is only used for new products.
+    const name = saved?.name ?? String(raw.name ?? '').trim()
     if (!name) {
       errors.push({ row: rowNumber, message: `SKU ${sku}: missing name`, code: 'missingName', params: { sku } })
       return
@@ -65,7 +68,6 @@ export default defineEventHandler(async (event) => {
       return
     }
 
-    const saved = existing.get(sku)
     const row: Record<string, unknown> = {
       sku,
       name,

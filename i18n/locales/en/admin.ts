@@ -232,7 +232,7 @@ export default {
     viewInStore: 'View in store',
     stockInvalid: 'Stock must be a whole number, 0 or more',
     importTitle: 'Import {file}?',
-    importText: "Products are matched by SKU. Existing products only change in the columns the file has (required: sku, name, price, stock). Any column the file doesn't have, like category, description or sale price, stays as it is, and product links don't change. New SKUs are added as new products.",
+    importText: "Products are matched by SKU. Existing products only change in the columns the file has (required: sku, name, price, stock), except the name: a product already on the site keeps its name. Any column the file doesn't have, like category, description or sale price, stays as it is, and product links don't change. New SKUs are added as new products with the file's name.",
     importConfirm: 'Import',
     moved: '{count} product moved to {category} | {count} products moved to {category}',
     movedPartial: '{done} moved, {failed} failed: {reason}',
