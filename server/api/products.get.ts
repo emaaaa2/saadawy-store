@@ -14,10 +14,12 @@ export default defineEventHandler(async (event) => {
   const from = (page - 1) * limit
   const to = from + limit - 1
 
-  function buildQuery(photosFirst: boolean, englishNames = true) {
+  function buildQuery(englishNames = true) {
+    // Only products with a photo (see storeVisibility.ts); the rest stay in the dashboard.
     let dbQuery = client
       .from('products')
       .select('*', { count: 'exact' })
+      .or(SHOWN_IN_STORE)
       .range(from, to)
 
     if (sort === 'price_asc') {
@@ -27,8 +29,6 @@ export default defineEventHandler(async (event) => {
     } else if (sort === 'name_asc') {
       dbQuery = dbQuery.order('name', { ascending: true })
     } else {
-      // Default order: products that have a real photo first, newest first within each group.
-      if (photosFirst) dbQuery = dbQuery.order('has_photo', { ascending: false })
       dbQuery = dbQuery.order('created_at', { ascending: false })
     }
 
@@ -51,15 +51,10 @@ export default defineEventHandler(async (event) => {
     return dbQuery
   }
 
-  let { data, error, count } = await buildQuery(true)
+  let { data, error, count } = await buildQuery()
 
   // name_en comes from supabase_add_product_translations.sql; search without it until that's run.
   if (error?.message.includes('name_en')) {
-    ({ data, error, count } = await buildQuery(true, false))
-  }
-
-  // has_photo comes from supabase_add_product_has_photo.sql; work without it until that's run.
-  if (error?.message.includes('has_photo')) {
     ({ data, error, count } = await buildQuery(false))
   }
 

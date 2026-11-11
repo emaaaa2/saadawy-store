@@ -25,6 +25,7 @@ export interface StoreSettings {
   facebookUrl: string
   instagramUrl: string
   tiktokUrl: string
+  whatsappChannelUrl: string
   welcomePopupEnabled: boolean
   welcomeCouponCode: string
   welcomeMessage: string
@@ -40,16 +41,17 @@ export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
   bankName: '',
   bankAccountName: '',
   bankAccountNumber: '',
-  address: 'برج الحرميين، بجوار مستشفى وادي الطب، الشارع الجديد، بهتيم، قسم ثان شبرا الخيمة، محافظة القليوبية',
-  addressEn: 'Al-Haramain Tower, next to Wadi El-Teb Hospital, El-Shareaa El-Gedid, Bahtim, Shubra El-Kheima 2, Qalyubia',
+  address: 'برج الحرميين، بجوار مستشفى وادي الطب، أعلى فرع أورانج، الشارع الجديد، بهتيم، قسم ثان شبرا الخيمة، محافظة القليوبية',
+  addressEn: 'Al-Haramain Tower, next to Wadi El-Teb Hospital, above the Orange branch, El-Shareaa El-Gedid, Bahtim, Shubra El-Kheima 2, Qalyubia',
   openingHours: 'Open daily: 10:00 AM – 2:00 AM',
   openingHoursAr: 'مفتوح يوميًا من 10 الصبح لـ 2 بالليل',
   deliveryTime: '',
   deliveryTimeAr: '',
   mapUrl: 'https://maps.app.goo.gl/52oY7s4JVhZtr1g37',
-  facebookUrl: 'https://www.facebook.com/share/17ssH5Rhek/?mibextid=wwXIfr',
-  instagramUrl: 'https://www.instagram.com/saadawy_store?igsh=ejJ2aW5obnAyMGhn',
-  tiktokUrl: 'https://tiktok.com/@saadawy.store',
+  facebookUrl: 'https://www.facebook.com/SaadawysStore',
+  instagramUrl: 'https://www.instagram.com/saadawy_store/',
+  tiktokUrl: 'https://www.tiktok.com/@saadawystore',
+  whatsappChannelUrl: 'https://whatsapp.com/channel/0029VbD3FFY5kg7196r1ie0H',
   welcomePopupEnabled: true,
   welcomeCouponCode: 'WELCOME10',
   welcomeMessage: 'Enjoy 10% off your first order — just use the code below at checkout.',

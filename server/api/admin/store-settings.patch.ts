@@ -1,7 +1,7 @@
 import { serverSupabaseServiceRole } from '#supabase/server'
 
 const PHONE_FIELDS = ['whatsappOrders', 'whatsappSupport'] as const
-const URL_FIELDS = ['mapUrl', 'facebookUrl', 'instagramUrl', 'tiktokUrl'] as const
+const URL_FIELDS = ['mapUrl', 'facebookUrl', 'instagramUrl', 'tiktokUrl', 'whatsappChannelUrl'] as const
 
 export default defineEventHandler(async (event) => {
   const access = await requireAdmin(event, 'settings')

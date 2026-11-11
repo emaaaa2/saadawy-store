@@ -70,12 +70,15 @@ export default {
   },
   contact: {
     metaTitle: 'Contact Us',
-    metaDescription: 'Reach Saadawy Store on WhatsApp or Instagram, or visit our store in Shubra El-Kheima.',
+    metaDescription: 'Reach Saadawy Store on WhatsApp, follow our offers on our WhatsApp channel, Facebook, Instagram and TikTok, or visit our store in Shubra El-Kheima.',
     eyebrow: 'Get in Touch',
     title: 'Contact Us',
     text: 'Have a question about a product or your order? We\'re here to help.',
     whatsappText: 'Fastest way to reach us',
     instagramText: 'Follow for new arrivals',
+    channelTitle: 'Offers channel',
+    channelText: 'Where we post our latest offers first',
+    followUs: 'Also follow us on',
   },
   writeReview: {
     metaTitle: 'Write a Review',

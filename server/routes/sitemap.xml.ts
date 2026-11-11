@@ -32,6 +32,8 @@ export default defineEventHandler(async (event) => {
     const { data, error } = await client
       .from('products')
       .select('slug, created_at')
+      .or(SHOWN_IN_STORE) // only products the store shows
+      .order('created_at')
       .range(from, from + batchSize - 1)
 
     if (error || !data || data.length === 0) break

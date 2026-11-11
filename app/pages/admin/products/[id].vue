@@ -92,6 +92,10 @@
             <span class="text-xs text-stone-500">{{ photos.length }} / {{ MAX_PHOTOS }}</span>
           </div>
           <div class="p-5">
+            <p v-if="hiddenFromStore" class="flex items-start gap-2 text-sm text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 rounded-lg px-3 py-2 mb-4">
+              <Icon name="mdi:eye-off-outline" class="text-base shrink-0 mt-0.5" />
+              {{ $t('admin.editor.hiddenNoPhoto') }}
+            </p>
             <p v-if="brokenCount" class="flex items-start gap-2 text-sm text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 rounded-lg px-3 py-2 mb-4">
               <Icon name="mdi:image-off-outline" class="text-base shrink-0 mt-0.5" />
               {{ tc('admin.editor.brokenPhotos', brokenCount) }}
@@ -295,6 +299,8 @@ const photos = ref([])
 // Photo links whose file doesn't exist in storage (from the server, or failed to load here).
 const brokenPhotos = reactive(new Set())
 const brokenCount = computed(() => photos.value.filter((url) => brokenPhotos.has(url)).length)
+// The store hides products without a working main photo (server/utils/storeVisibility.ts).
+const hiddenFromStore = computed(() => !photos.value.length || brokenPhotos.has(photos.value[0]))
 
 function formFromProduct(p) {
   return {
@@ -384,8 +390,18 @@ function addPhotoLink() {
     toast.error(t('admin.editor.linkInvalid'))
     return
   }
-  if (!photos.value.includes(url)) photos.value = [...photos.value, url]
+  addPhoto(url)
   photoLink.value = ''
+}
+
+// Products still waiting for a photo have a link to a file that doesn't exist as their main photo.
+// The first real photo added takes over as main (missing ones are dropped), so the product shows
+// on the store as soon as it's saved.
+function addPhoto(url) {
+  const list = photos.value.filter((u) => u !== url)
+  photos.value = list.length && brokenPhotos.has(list[0])
+    ? [url, ...list.filter((u) => !brokenPhotos.has(u))]
+    : [...list, url]
 }
 
 // Shrinks big phone photos before upload so they stay fast and under the size limit.
@@ -418,7 +434,7 @@ async function uploadFiles(files) {
       body.append('file', blob, file.name)
       body.append('sku', form.value.sku || '')
       const { url } = await $fetch('/api/admin/products/upload-image', { method: 'POST', body })
-      photos.value = [...photos.value, url]
+      addPhoto(url)
     } catch (err) {
       toast.error(`${file.name}: ${adminErrorMessage(err)}`)
     } finally {

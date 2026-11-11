@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     .from('products')
     .select('*')
     .in('id', soldIds)
+    .or(SHOWN_IN_STORE) // products without a photo are hidden from the store
 
   if (category) {
     dbQuery = dbQuery.eq('category', category)

@@ -24,6 +24,7 @@ export default {
     contact: 'تواصل معنا',
     returns: 'الاستبدال والاسترجاع',
     chatWhatsApp: 'كلمنا على واتساب',
+    whatsappChannel: 'تابع قناة العروض على واتساب',
     stayInLoop: 'خليك متابع',
     newsletterText: 'اعرف أول بأول المنتجات الجديدة والعروض الحصرية.',
     emailPlaceholder: 'اكتب إيميلك',

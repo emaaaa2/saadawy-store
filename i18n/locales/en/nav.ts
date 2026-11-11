@@ -24,6 +24,7 @@ export default {
     contact: 'Contact',
     returns: 'Returns & Exchanges',
     chatWhatsApp: 'Chat on WhatsApp',
+    whatsappChannel: 'Follow our WhatsApp offers channel',
     stayInLoop: 'Stay in the Loop',
     newsletterText: 'Be the first to know about new arrivals and exclusive offers.',
     emailPlaceholder: 'Enter your email',

@@ -84,6 +84,17 @@
               <Icon :name="channel.icon" class="text-lg" />
             </a>
           </div>
+
+          <a
+            v-if="settings.whatsappChannelUrl"
+            :href="settings.whatsappChannelUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-phi-1 inline-flex items-center gap-2 text-sm text-beige/80 hover:text-gold transition"
+          >
+            <Icon name="mdi:whatsapp" class="text-lg text-gold shrink-0" />
+            {{ $t('nav.footer.whatsappChannel') }}
+          </a>
         </div>
       </div>
 

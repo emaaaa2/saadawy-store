@@ -268,11 +268,12 @@ const langOrder = computed(() => (isAr.value ? ['ar', 'en'] : ['en', 'ar']))
 const langName = (l) => (l === 'ar' ? t('admin.settings.inArabic') : t('admin.settings.inEnglish'))
 const setupParts = computed(() => t('admin.settings.setupText', { file: '\u0000' }).split('\u0000'))
 
-const socials = [
+const socials = computed(() => [
+  { field: 'whatsappChannelUrl', label: t('admin.settings.whatsappChannel'), icon: 'mdi:whatsapp' },
   { field: 'facebookUrl', label: 'Facebook', icon: 'mdi:facebook' },
   { field: 'instagramUrl', label: 'Instagram', icon: 'mdi:instagram' },
   { field: 'tiktokUrl', label: 'TikTok', icon: 'mdi:music-note' },
-]
+])
 
 const hasTransferDetails = computed(() =>
   ['vodafoneCash', 'instapay', 'bankAccountNumber'].some((field) => form.value[field]?.trim())
