@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
   const client = serverSupabaseServiceRole(event)
   const query = getQuery(event)
-  const search = String(query.q ?? '').replace(/[,()%*\\]/g, ' ').trim()
+  const search = searchTerm(query.q)
   const all = query.scope === 'all'
   const openId = typeof query.open === 'string' && query.open ? query.open : null
   const since = new Date(Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000).toISOString()

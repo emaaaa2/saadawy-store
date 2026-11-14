@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
     }
 
     if (search) {
-      // Search the English names too; strip characters that would break the filter syntax.
-      const term = search.replace(/[,()%*\\]/g, ' ').trim()
+      // Search the English names too.
+      const term = searchTerm(search)
       dbQuery = englishNames
         ? dbQuery.or(`name.ilike.%${term}%,name_en.ilike.%${term}%`)
         : dbQuery.ilike('name', `%${term}%`)

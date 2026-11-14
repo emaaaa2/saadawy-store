@@ -3,11 +3,14 @@
 // Arabic-Indic and Persian digits, in order 0–9.
 const EASTERN_DIGITS = ['٠١٢٣٤٥٦٧٨٩', '۰۱۲۳۴۵۶۷۸۹']
 
+/** "٤٦٠١" → "4601": Arabic keyboards type these digits, while codes and phones are stored with 0–9. */
+export function toLatinDigits(input: unknown) {
+  return String(input ?? '').replace(/[٠-٩۰-۹]/g, (d) => String(EASTERN_DIGITS.find((set) => set.includes(d))!.indexOf(d)))
+}
+
 /** "+20 100 123 4567", "٠١٠٠١٢٣٤٥٦٧", "0020100…" → "01001234567". Anything else is returned cleaned up. */
 export function normalizePhone(input: unknown) {
-  let digits = String(input ?? '')
-    .replace(/[٠-٩۰-۹]/g, (d) => String(EASTERN_DIGITS.find((set) => set.includes(d))!.indexOf(d)))
-    .replace(/\D/g, '')
+  let digits = toLatinDigits(input).replace(/\D/g, '')
   if (digits.startsWith('0020')) digits = digits.slice(4)
   else if (digits.startsWith('20') && digits.length === 12) digits = digits.slice(2)
   if (digits.length === 10 && digits.startsWith('1')) digits = `0${digits}`

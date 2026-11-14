@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const limit = 50
   const from = (page - 1) * limit
   const area = String(query.area ?? '')
-  const search = String(query.search ?? '').replace(/[,()%*\\]/g, ' ').trim()
+  const search = searchTerm(query.search)
   const areas = area ? allowed.filter((a) => a === area) : allowed
 
   if (!areas.length) return { entries: [], total: 0, page, pageSize: limit, totalPages: 1 }

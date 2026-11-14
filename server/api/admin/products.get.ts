@@ -17,8 +17,7 @@ export default defineEventHandler(async (event) => {
 
   const page = Math.max(Number(query.page) || 1, 1)
   const limit = Math.min(Math.max(Number(query.limit) || 50, 1), 100)
-  // Characters that would break the PostgREST filter syntax.
-  const search = String(query.search ?? '').replace(/[,()%*\\]/g, ' ').trim()
+  const search = searchTerm(query.search)
   const category = String(query.category ?? '')
   const stock = String(query.stock ?? '')
   const photo = String(query.photo ?? '')

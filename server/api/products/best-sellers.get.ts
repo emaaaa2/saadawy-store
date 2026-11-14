@@ -42,8 +42,8 @@ export default defineEventHandler(async (event) => {
     dbQuery = dbQuery.eq('category', category)
   }
 
-  if (search) {
-    dbQuery = dbQuery.ilike('name', `%${search}%`)
+  if (search && searchTerm(search)) {
+    dbQuery = dbQuery.ilike('name', `%${searchTerm(search)}%`)
   }
 
   const { data: products, error: productsError } = await dbQuery
