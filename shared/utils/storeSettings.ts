@@ -1,10 +1,34 @@
 export const PAYMENT_METHODS = [
   { value: 'cash_on_delivery', label: 'Cash on Delivery', icon: 'mdi:cash' },
-  { value: 'bank_transfer', label: 'Bank Transfer / Vodafone Cash', icon: 'mdi:bank-transfer' },
+  { value: 'bank_transfer', label: 'Mobile Wallet / InstaPay', icon: 'mdi:wallet-outline' },
   { value: 'card', label: 'Pay by Card', icon: 'mdi:credit-card-outline' },
 ] as const
 
 export type PaymentMethod = (typeof PAYMENT_METHODS)[number]['value']
+
+// The store's categories in menu order, with the photo and icon they have until the dashboard
+// (Dashboard → Categories) gives them another name or photo.
+export const STORE_CATEGORIES = [
+  { slug: 'skincare', icon: 'mdi:water-outline', image: '/images/skincare.jpg' },
+  { slug: 'makeup', icon: 'mdi:lipstick', image: '/images/makeup.jpg' },
+  { slug: 'haircare', icon: 'mdi:hair-dryer', image: '/images/pic.jpg' },
+  { slug: 'perfume', icon: 'mdi:spray-bottle', image: '/images/perfume1.jpg' },
+  { slug: 'bags', icon: 'mdi:bag-personal-outline', image: '/images/bag.jpg' },
+  { slug: 'kitchen', icon: 'mdi:pot-mix-outline', image: '/images/kitchen.jpg' },
+  { slug: 'hijab', icon: 'mdi:tshirt-crew-outline', image: '/images/hijab.jpg' },
+  { slug: 'accessories', icon: 'mdi:necklace', image: '/images/hijab2.jpg' },
+] as const
+
+export type StoreCategory = (typeof STORE_CATEGORIES)[number]['slug']
+
+/** What the dashboard changed for a category; an empty field keeps the default name or photo. */
+export interface CategoryCustomization {
+  nameAr: string
+  nameEn: string
+  image: string
+}
+
+export const CATEGORY_NAME_LIMIT = 40
 
 export interface StoreSettings {
   whatsappOrders: string
@@ -30,11 +54,12 @@ export interface StoreSettings {
   welcomeCouponCode: string
   welcomeMessage: string
   welcomeMessageAr: string
+  categories: Partial<Record<StoreCategory, CategoryCustomization>>
 }
 
 export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
-  whatsappOrders: '01025287580',
-  whatsappSupport: '01026051881',
+  whatsappOrders: '01114939842',
+  whatsappSupport: '01114939842',
   paymentMethods: { cash_on_delivery: true, bank_transfer: true, card: true },
   vodafoneCash: '',
   instapay: '',
@@ -56,6 +81,7 @@ export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
   welcomeCouponCode: 'WELCOME10',
   welcomeMessage: 'Enjoy 10% off your first order — just use the code below at checkout.',
   welcomeMessageAr: 'استمتع بخصم 10% على أول طلب — استخدم الكود ده عند الدفع.',
+  categories: {},
 }
 
 // Texts shown on the store in both languages: which field holds each language.
@@ -101,6 +127,8 @@ export function sanitizeStoreSettings(input: unknown): StoreSettings {
       for (const method of PAYMENT_METHODS) {
         if (typeof methods[method.value] === 'boolean') result.paymentMethods[method.value] = methods[method.value] as boolean
       }
+    } else if (key === 'categories') {
+      result.categories = sanitizeCategories(value)
     } else if (key === 'welcomePopupEnabled') {
       if (typeof value === 'boolean') result.welcomePopupEnabled = value
     } else if (typeof value === 'string') {
@@ -112,7 +140,26 @@ export function sanitizeStoreSettings(input: unknown): StoreSettings {
   return result
 }
 
-// "01025287580" or "+20 102 528 7580" -> "201025287580" for wa.me links.
+/** Only the store's categories, names cut to length, photos only as https links; untouched ones are left out. */
+export function sanitizeCategories(input: unknown): StoreSettings['categories'] {
+  const source = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
+  const text = (value: unknown, limit: number) => (typeof value === 'string' ? value.trim().slice(0, limit) : '')
+  const result: StoreSettings['categories'] = {}
+
+  for (const { slug } of STORE_CATEGORIES) {
+    const entry = (source[slug] && typeof source[slug] === 'object' ? source[slug] : {}) as Record<string, unknown>
+    const image = text(entry.image, 500)
+    const customization: CategoryCustomization = {
+      nameAr: text(entry.nameAr, CATEGORY_NAME_LIMIT),
+      nameEn: text(entry.nameEn, CATEGORY_NAME_LIMIT),
+      image: /^https:\/\/\S+$/.test(image) ? image : '',
+    }
+    if (customization.nameAr || customization.nameEn || customization.image) result[slug] = customization
+  }
+  return result
+}
+
+// "01114939842" or "+20 111 493 9842" -> "201114939842" for wa.me links.
 export function toWhatsAppNumber(phone: string) {
   const digits = String(phone || '').replace(/\D/g, '')
   if (digits.startsWith('0')) return `2${digits}`

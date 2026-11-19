@@ -36,7 +36,7 @@ export default {
     saved: 'Saved {amount}',
     payment: {
       cash_on_delivery: 'Cash on Delivery',
-      bank_transfer: 'Bank Transfer',
+      bank_transfer: 'Wallet / InstaPay',
       card: 'Card',
     },
   },

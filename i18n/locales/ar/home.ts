@@ -57,6 +57,9 @@ export default {
   },
   bestSellers: 'الأكثر مبيعًا',
   newArrivals: 'وصل حديثًا',
+  deals: 'عروض وخصومات',
+  explore: 'اكتشف أكتر',
+  loadMore: 'عرض منتجات أكتر',
   scrollLeft: 'تمرير لليسار',
   scrollRight: 'تمرير لليمين',
   whyUs: {

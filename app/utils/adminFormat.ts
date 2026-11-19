@@ -41,11 +41,11 @@ export function plural(count: number, word: string) {
 }
 
 export const PRODUCT_CATEGORIES = ['skincare', 'makeup', 'haircare', 'perfume', 'bags', 'kitchen', 'hijab', 'accessories', 'uncategorized']
-  .map((value) => ({ value, get label() { return translate(`categories.${value}`) } }))
+  .map((value) => ({ value, get label() { return categoryTitle(value) } }))
 
 export function categoryLabel(value: string | null | undefined) {
   if (!value) return '—'
-  return PRODUCT_CATEGORIES.some((c) => c.value === value) ? translate(`categories.${value}`) : value
+  return PRODUCT_CATEGORIES.some((c) => c.value === value) ? categoryTitle(value) : value
 }
 
 export function formatMoney(value: number | null | undefined) {

@@ -84,6 +84,10 @@ const groups = computed(() => {
     let group = result.find((g) => g.name === section.group)
     if (!group) result.push((group = { name: section.group, items: [] }))
     group.items.push(section)
+    // Categories (names and photos) come with the products permission, right under Products.
+    if (section.permission === 'products') {
+      group.items.push({ permission: 'categories', label: 'Categories', path: '/admin/categories', icon: 'mdi:shape-outline' })
+    }
   }
   if (access.value?.isOwner) {
     let settings = result.find((g) => g.name === 'Settings')

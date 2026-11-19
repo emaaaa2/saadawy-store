@@ -186,12 +186,45 @@
               </div>
             </div>
             <div>
+              <label for="product-discount" class="adm-label">{{ $t('admin.editor.discountPercent') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
+              <div class="relative">
+                <input
+                  id="product-discount"
+                  :value="discountInput"
+                  type="number"
+                  min="0"
+                  max="99"
+                  step="0.5"
+                  inputmode="decimal"
+                  :disabled="!form.price"
+                  class="adm-input pe-10"
+                  @input="setDiscount($event.target.value)"
+                />
+                <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">%</span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                <button
+                  v-for="percent in QUICK_DISCOUNTS"
+                  :key="percent"
+                  type="button"
+                  :disabled="!form.price"
+                  class="adm-btn adm-btn-sm"
+                  :class="discountPercent === percent ? 'adm-btn-primary' : 'adm-btn-secondary'"
+                  @click="setDiscount(String(percent))"
+                >{{ percent }}%</button>
+                <button v-if="form.salePrice" type="button" class="adm-btn adm-btn-sm adm-btn-secondary" @click="setDiscount('')">{{ $t('admin.editor.noDiscount') }}</button>
+              </div>
+              <p v-if="!form.price" class="adm-hint">{{ $t('admin.editor.discountNeedsPrice') }}</p>
+            </div>
+            <div>
               <label for="product-sale-price" class="adm-label">{{ $t('admin.editor.salePrice') }} <span class="text-stone-400 font-normal">{{ $t('admin.common.optional') }}</span></label>
               <div class="relative">
-                <input id="product-sale-price" v-model.number="form.salePrice" type="number" min="0.01" step="0.01" class="adm-input pe-12" />
+                <input id="product-sale-price" v-model.number="form.salePrice" type="number" min="0.01" step="0.01" class="adm-input pe-12" @input="discountTyped = false" />
                 <span class="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-400">{{ currency }}</span>
               </div>
-              <p v-if="discountPercent" class="adm-hint text-emerald-700 dark:text-emerald-400">{{ $t('admin.editor.percentOff', { percent: discountPercent }) }}</p>
+              <p v-if="discountPercent" class="adm-hint text-emerald-700 dark:text-emerald-400">
+                {{ $t('admin.editor.percentOff', { percent: discountPercent }) }} · {{ $t('admin.editor.customerSaves', { amount: formatMoney(form.price - form.salePrice) }) }}
+              </p>
               <p v-else-if="form.salePrice && form.price && form.salePrice >= form.price" class="adm-hint text-red-600 dark:text-red-400">{{ $t('admin.editor.saleTooHigh') }}</p>
             </div>
           </div>
@@ -356,6 +389,38 @@ const discountPercent = computed(() => {
   return Math.round((1 - salePrice / price) * 100)
 })
 
+// Discount calculator: typing a percentage (or tapping one) fills in the sale price, rounded to the
+// nearest pound; typing a sale price shows its percentage. If the percentage was typed last, changing
+// the price keeps that percentage and works the sale price out again.
+const QUICK_DISCOUNTS = [10, 15, 20, 25, 30, 50]
+const discountInput = ref('')
+const discountTyped = ref(false)
+
+function salePriceFor(percent) {
+  const price = Number(form.value.price)
+  if (!price || !(percent > 0) || percent >= 100) return null
+  const sale = Math.round(price * (1 - percent / 100))
+  return sale >= 1 && sale < price ? sale : Math.round(price * (1 - percent / 100) * 100) / 100
+}
+
+function setDiscount(value) {
+  discountInput.value = value
+  discountTyped.value = value !== ''
+  form.value.salePrice = value === '' ? null : salePriceFor(Number(value))
+}
+
+const showSalePercent = () => { discountInput.value = discountPercent.value ? String(discountPercent.value) : '' }
+// The product loaded, was saved or its changes were discarded: start again from its own sale price.
+// (Registered first so it runs before the two below.)
+watch(form, () => { discountTyped.value = false })
+watch(() => form.value.price, () => {
+  if (discountTyped.value && discountInput.value !== '') form.value.salePrice = salePriceFor(Number(discountInput.value))
+  else showSalePercent()
+})
+watch(() => form.value.salePrice, () => {
+  if (!discountTyped.value) showSalePercent()
+}, { immediate: true })
+
 function movePhoto(index, step) {
   const list = [...photos.value]
   const [item] = list.splice(index, 1)
@@ -404,23 +469,6 @@ function addPhoto(url) {
     : [...list, url]
 }
 
-// Shrinks big phone photos before upload so they stay fast and under the size limit.
-async function prepareImage(file) {
-  try {
-    const bitmap = await createImageBitmap(file)
-    const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height))
-    const canvas = document.createElement('canvas')
-    canvas.width = Math.round(bitmap.width * scale)
-    canvas.height = Math.round(bitmap.height * scale)
-    canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-    const webp = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.88))
-    if (webp?.type === 'image/webp') return webp
-    return await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
-  } catch {
-    return file
-  }
-}
-
 async function uploadFiles(files) {
   const images = [...files].filter((file) => file.type.startsWith('image/'))
   const room = MAX_PHOTOS - photos.value.length - uploadingCount.value
@@ -429,7 +477,7 @@ async function uploadFiles(files) {
   await Promise.all(images.slice(0, Math.max(room, 0)).map(async (file) => {
     uploadingCount.value++
     try {
-      const blob = await prepareImage(file)
+      const blob = await shrinkImage(file)
       const body = new FormData()
       body.append('file', blob, file.name)
       body.append('sku', form.value.sku || '')

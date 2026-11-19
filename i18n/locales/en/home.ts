@@ -57,6 +57,9 @@ export default {
   },
   bestSellers: 'Best Sellers',
   newArrivals: 'New Arrivals',
+  deals: 'Deals & Offers',
+  explore: 'Explore More',
+  loadMore: 'Show more products',
   scrollLeft: 'Scroll left',
   scrollRight: 'Scroll right',
   whyUs: {

@@ -171,6 +171,13 @@
             <span class="text-sm text-ink">{{ $t(`checkout.payment.${method.value}`) }}</span>
           </label>
         </div>
+        <p
+          v-if="form.paymentMethod === 'bank_transfer'"
+          class="mt-2 flex gap-2 rounded-lg bg-[#25D366]/10 p-3 text-xs leading-relaxed text-ink"
+        >
+          <Icon name="mdi:whatsapp" class="text-base text-[#25D366] shrink-0 mt-px" />
+          {{ $t('checkout.walletNote') }}
+        </p>
       </div>
 
       <button
@@ -292,6 +299,7 @@ function whatsappMessage(order) {
     ...cart.items.map((item) => `- ${productName(item)} x${item.quantity}`),
     "",
     line("total", price(order.total)),
+    line("payment", t(`checkout.payment.${form.value.paymentMethod}`)),
   ];
 
   if (form.value.paymentMethod === "bank_transfer") {

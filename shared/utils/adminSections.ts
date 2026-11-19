@@ -26,7 +26,7 @@ export interface AdminAccess {
 // Activity log areas (the part of an action before the dot) and the section each belongs to.
 // Every admin sees the log of the sections they can open; changes to admins are the owner's only.
 const ACTIVITY_AREAS: Record<string, AdminPermission | null> = {
-  product: 'products', order: 'orders', coupon: 'coupons', settings: 'settings',
+  product: 'products', category: 'products', order: 'orders', coupon: 'coupons', settings: 'settings',
   shipping: 'shipping', review: 'reviews', newsletter: 'newsletter', admin: null,
 }
 

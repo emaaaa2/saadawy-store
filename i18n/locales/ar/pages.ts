@@ -36,7 +36,7 @@ export default {
     saved: 'وفرت {amount}',
     payment: {
       cash_on_delivery: 'كاش عند الاستلام',
-      bank_transfer: 'تحويل بنكي',
+      bank_transfer: 'محفظة / إنستاباي',
       card: 'كارت',
     },
   },

@@ -31,7 +31,7 @@
         <h2>طرق الدفع</h2>
         <ul>
           <li v-if="settings.paymentMethods.cash_on_delivery">كاش عند الاستلام: بتدفع للمندوب لما الطلب يوصلك.</li>
-          <li v-if="settings.paymentMethods.bank_transfer">تحويل بنكي أو فودافون كاش: بتحوّل المبلغ وتبعتلنا صورة التحويل على واتساب، وبنجهز الطلب بعد ما التحويل يوصل.</li>
+          <li v-if="settings.paymentMethods.bank_transfer">محفظة إلكترونية أو إنستاباي: بعد تأكيد الطلب بنكمّل معاك على واتساب، بتحوّل المبلغ وتبعتلنا صورة التحويل، وبنجهز الطلب بعد ما التحويل يوصل.</li>
           <li v-if="settings.paymentMethods.card">الدفع بالكارت: من خلال صفحة الدفع الآمنة الخاصة بـ Paymob.</li>
         </ul>
       </section>
@@ -114,7 +114,7 @@
         <h2>Payment methods</h2>
         <ul>
           <li v-if="settings.paymentMethods.cash_on_delivery">Cash on delivery: you pay the courier when your order arrives.</li>
-          <li v-if="settings.paymentMethods.bank_transfer">Bank transfer or Vodafone Cash: you transfer the amount and send us the receipt on WhatsApp; we prepare your order once the transfer arrives.</li>
+          <li v-if="settings.paymentMethods.bank_transfer">Mobile wallet or InstaPay: after you place the order we continue on WhatsApp; you transfer the amount and send us the receipt, and we prepare your order once the transfer arrives.</li>
           <li v-if="settings.paymentMethods.card">Card: through Paymob's secure payment page.</li>
         </ul>
       </section>

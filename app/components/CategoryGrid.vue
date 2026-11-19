@@ -44,17 +44,12 @@
 
 <script setup>
 const { categoryName } = useLang()
+const storeSettings = useStoreSettings()
 
-const categories = [
-  { slug: 'skincare', icon: 'mdi:water-outline', image: '/images/skincare.jpg' },
-  { slug: 'makeup', icon: 'mdi:lipstick', image: '/images/makeup.jpg' },
-  { slug: 'haircare', icon: 'mdi:hair-dryer', image: '/images/pic.jpg' },
-  { slug: 'perfume', icon: 'mdi:spray-bottle', image: '/images/perfume1.jpg' },
-  { slug: 'bags', icon: 'mdi:bag-personal-outline', image: '/images/bag.jpg' },
-  { slug: 'kitchen', icon: 'mdi:pot-mix-outline', image: '/images/kitchen.jpg' },
-  { slug: 'hijab', icon: 'mdi:tshirt-crew-outline', image: '/images/hijab.jpg' },
-  { slug: 'accessories', icon: 'mdi:necklace', image: '/images/hijab2.jpg' },
-]
+// A photo uploaded in Dashboard → Categories replaces the default one.
+const categories = computed(() =>
+  STORE_CATEGORIES.map((cat) => ({ ...cat, image: storeSettings.value.categories?.[cat.slug]?.image || cat.image }))
+)
 
 const isDesktop = ref(false);
 const failedImages = reactive(new Set());

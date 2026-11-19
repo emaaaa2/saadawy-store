@@ -1,5 +1,5 @@
 <template>
-  <section class="px-6 pt-6 md:pt-phi-2 pb-8 md:pb-phi-3 max-w-6xl mx-auto">
+  <section v-if="products.length" class="px-6 pt-4 md:pt-phi-2 pb-4 md:pb-phi-2 max-w-6xl mx-auto">
     <div class="flex items-center justify-between mb-4 md:mb-phi-3">
       <h2 class="text-xl md:text-phi-h2 font-bold text-ink">{{ $t('home.bestSellers') }}</h2>
       <NuxtLink

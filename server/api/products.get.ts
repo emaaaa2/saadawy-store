@@ -28,6 +28,10 @@ export default defineEventHandler(async (event) => {
       dbQuery = dbQuery.order('price', { ascending: false })
     } else if (sort === 'name_asc') {
       dbQuery = dbQuery.order('name', { ascending: true })
+    } else if (sort === 'mix') {
+      // All sections shuffled together, but in the same order every time so pages don't repeat:
+      // the ids are random UUIDs. Used by "Explore more" on the home page.
+      dbQuery = dbQuery.order('id', { ascending: true })
     } else {
       dbQuery = dbQuery.order('created_at', { ascending: false })
     }

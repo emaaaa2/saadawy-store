@@ -27,6 +27,13 @@ export function translatePlural(key: string, count: number, params?: Params): st
   return i18n()?.t(key, { count, ...params }, count) ?? key
 }
 
+/** Same as useLang().categoryName, for plain helper functions outside components. */
+export function categoryTitle(value: string): string {
+  const nuxtApp = tryUseNuxtApp()
+  const custom = nuxtApp?.runWithContext(() => useStoreSettings().value.categories?.[value as StoreCategory])
+  return (currentLang() === 'ar' ? custom?.nameAr : custom?.nameEn) || translate(`categories.${value}`)
+}
+
 export function useLang() {
   const { $i18n } = useNuxtApp()
   const lang = computed<Lang>(() => ($i18n.locale.value === 'ar' ? 'ar' : 'en'))
@@ -75,15 +82,21 @@ export function useLang() {
     })
   }
 
-  const categoryName = (value: string | null | undefined) => (value ? t(`categories.${value}`) : '')
+  // Store-settings texts: the categories' names from the dashboard, the address, opening hours, …
+  const storeSettings = useStoreSettings()
+
+  /** The name given in Dashboard → Categories for this language, else the default one. */
+  const categoryName = (value: string | null | undefined) => {
+    if (!value) return ''
+    const custom = storeSettings.value.categories?.[value as StoreCategory]
+    return (isAr.value ? custom?.nameAr : custom?.nameEn) || t(`categories.${value}`)
+  }
   const subcategoryLabel = (sub: { label: string; labelAr?: string } | null | undefined) =>
     (isAr.value ? sub?.labelAr || sub?.label : sub?.label) ?? ''
   // Governorates are stored by English name; their `label` is Arabic.
   const governorateName = (g: { value: string; label: string } | null | undefined) =>
     (isAr.value ? g?.label : g?.value) ?? ''
 
-  // Store-settings texts that have an English and an Arabic version (address, opening hours, …).
-  const storeSettings = useStoreSettings()
   const settingTextFor = (name: BilingualSetting) => settingText(storeSettings.value, name, lang.value)
 
   return {
