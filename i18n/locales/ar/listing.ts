@@ -12,7 +12,7 @@ export default {
     nameAsc: 'الاسم: أ إلى ي',
   },
   emptyCategory: 'لسه مفيش منتجات في القسم ده',
-  emptyCategoryText: 'ارجع تاني قريب، بنضيف منتجات جديدة كل أسبوع.',
+  emptyCategoryText: 'ارجع تاني قريب، بنضيف منتجات جديدة كل يوم.',
   noMatches: 'مفيش نتائج لـ "{query}"',
   tryDifferent: 'جرب كلمة بحث تانية.',
   categoryMeta: {
@@ -33,7 +33,7 @@ export default {
     search: 'ابحث في الجديد...',
     empty: 'مفيش منتجات',
     emptyText: 'جرب بحث أو قسم تاني.',
-    metaDescription: 'تسوق أحدث المنتجات في سعداوي ستور — منتجات جديدة كل أسبوع.',
+    metaDescription: 'تسوق أحدث المنتجات في سعداوي ستور — منتجات جديدة كل يوم.',
   },
   search: {
     eyebrow: 'نتائج البحث',

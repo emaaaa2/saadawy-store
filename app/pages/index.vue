@@ -26,7 +26,7 @@
       <InstagramGallery />
     </div> -->
     <div v-fade-in>
-      <WhyUs />
+      <WhyUs :shelves="shelves" />
     </div>
     <ExploreGrid />
     <div v-fade-in>

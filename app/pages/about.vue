@@ -44,8 +44,8 @@ useSeoMeta({
   description: () => t('pages.about.metaDescription'),
 })
 
-// Same numbers as the home page's "Why choose us" section.
-const statNumbers = ['5000+', '4000+', '6+', null]
+// Same numbers as the home page's "Why customers love Saadawy" section (WhyUs.vue).
+const statNumbers = ['5000+', '4000+', String(STORE_CATEGORIES.length), null]
 const stats = computed(() =>
   tm('home.whyUs.stats').map((stat, index) => ({
     number: statNumbers[index] ?? t('home.whyUs.daily'),

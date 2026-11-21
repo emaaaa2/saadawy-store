@@ -10,7 +10,7 @@ export default {
     slides: [
       {
         alt: 'Saadawy Store products',
-        badge: 'New arrivals every week',
+        badge: 'New arrivals every day',
         title: 'Everything You Love,',
         titleGold: 'All In One Place',
         description: 'From skincare to bags, kitchen essentials to hijab and everyday needs — carefully selected pieces, all under one roof.',
@@ -64,25 +64,30 @@ export default {
   scrollRight: 'Scroll right',
   whyUs: {
     eyebrow: 'Why Customers Love Saadawy',
-    title: 'Why Thousands Choose Saadawy',
+    title: 'Everything You\'re Looking For… and Something New Every Day',
+    trust: 'Over {count} customers shop with Saadawy',
+    variety: {
+      title: 'Variety You Won\'t Find Anywhere Else',
+      count: 'products in {count} categories',
+      text: 'From makeup, perfume, skin and hair care to kitchen essentials, bags and accessories.',
+    },
+    fresh: {
+      title: 'New Every Day',
+      text: 'New products land every day, so every visit brings something new.',
+      badge: 'New',
+      cta: 'See what\'s new',
+    },
     features: [
       {
-        title: 'Original Products',
-        description: '100% authentic guaranteed',
-      },
-      {
-        title: 'Secure Shopping',
-        description: 'Safe payments you can trust',
-      },
-      {
-        title: 'Easy Returns',
-        description: 'Hassle-free returns',
+        title: 'Everything in One Order',
+        description: 'Get everything you need at once instead of going from shop to shop.',
       },
       {
         title: 'Fast Delivery',
-        description: 'Quick & reliable to your door',
+        description: 'Quick & reliable to your door, anywhere in Egypt.',
       },
     ],
+    // Also shown on the About page.
     stats: [
       {
         label: 'Happy Customers',

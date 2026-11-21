@@ -12,7 +12,7 @@ export default {
     nameAsc: 'Name: A to Z',
   },
   emptyCategory: 'No products yet in this category',
-  emptyCategoryText: 'Check back soon, we\'re adding new items every week.',
+  emptyCategoryText: 'Check back soon, we\'re adding new items every day.',
   noMatches: 'No matches for "{query}"',
   tryDifferent: 'Try a different search term.',
   categoryMeta: {
@@ -33,7 +33,7 @@ export default {
     search: 'Search new arrivals...',
     empty: 'No products found',
     emptyText: 'Try a different search or category.',
-    metaDescription: 'Shop the newest products at Saadawy Store — fresh arrivals added every week.',
+    metaDescription: 'Shop the newest products at Saadawy Store — fresh arrivals added every day.',
   },
   search: {
     eyebrow: 'Search Results',
