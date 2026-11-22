@@ -1,164 +1,368 @@
 <template>
   <LegalPage :title="$t('policies.returns')" :updated="UPDATED">
+    <!-- The policy at a glance: exchange, return, exceptions (same as the store's printed policy). -->
+    <template #summary>
+      <div class="grid sm:grid-cols-3 gap-4 mb-8">
+        <div v-for="(card, index) in summary" :key="card.title" class="relative bg-surface rounded-3xl border border-ink/10 p-5 pt-8 text-center flex flex-col">
+          <span class="absolute -top-4 inset-x-0 mx-auto w-9 h-9 rounded-full bg-gold text-white text-sm font-bold flex items-center justify-center shadow-sm">
+            {{ String(index + 1).padStart(2, '0') }}
+          </span>
+          <h2 class="text-lg font-bold text-ink pb-3 mb-3 border-b border-ink/10">{{ card.title }}</h2>
+
+          <template v-if="card.days">
+            <p class="text-5xl font-bold text-ink leading-none">{{ RETURN_DAYS }}</p>
+            <p class="text-sm font-semibold text-ink mt-1">{{ card.days }}</p>
+            <p class="text-sm text-gold mt-0.5">{{ card.from }}</p>
+          </template>
+          <p v-if="card.lead" class="text-sm text-ink/80">{{ card.lead }}</p>
+
+          <ul v-if="card.items" class="mt-4 pt-4 border-t border-dashed border-ink/15 space-y-2.5 text-sm text-ink/80 text-start">
+            <li v-for="item in card.items" :key="item.text" class="flex items-start gap-2">
+              <Icon :name="item.icon" class="text-lg text-gold shrink-0" />
+              <span>{{ item.text }}</span>
+            </li>
+          </ul>
+
+          <div v-if="card.icons" class="mt-4 pt-4 border-t border-dashed border-ink/15 grid grid-cols-3 gap-2">
+            <div v-for="item in card.icons" :key="item.text" class="flex flex-col items-center gap-1.5 text-xs text-ink/80">
+              <Icon :name="item.icon" class="text-2xl text-ink" />
+              {{ item.text }}
+            </div>
+          </div>
+
+          <p v-if="card.note" class="mt-auto pt-4">
+            <span class="flex items-start gap-2 text-xs text-ink/80 text-start bg-gold/10 border border-gold/30 rounded-2xl p-3">
+              <Icon name="mdi:alert-circle-outline" class="text-base text-gold shrink-0" />
+              {{ card.note }}
+            </span>
+          </p>
+        </div>
+      </div>
+    </template>
+
     <template v-if="isAr">
       <section>
         <p>
-          رضاك يهمنا. لو المنتج وصلك فيه مشكلة أو غيّرت رأيك، تقدر تستبدله أو ترجعه بالشروط اللي تحت.
-          ابعتلنا على واتساب ونحلّها معاك بسرعة.
+          نحرص في سعداوي ستور على أن تكون تجربة التسوق لدينا مُرضية تمامًا. توضح هذه السياسة شروط استبدال
+          المنتجات واسترجاعها، وتسري على المشتريات من متجرنا ومن موقعنا الإلكتروني.
         </p>
       </section>
 
       <section>
-        <h2>المدة</h2>
-        <p>تقدر تطلب الاستبدال أو الاسترجاع خلال <strong>{{ RETURN_DAYS }} يوم</strong> من يوم استلام الطلب.</p>
-      </section>
-
-      <section>
-        <h2>شروط قبول المنتج</h2>
-        <ul>
-          <li>يكون المنتج بحالته الأصلية، غير مستخدم، وفي علبته وتغليفه الأصلي.</li>
-          <li>يكون معاه كل الملحقات والهدايا اللي وصلت معاه.</li>
-          <li>نحتاج رقم الطلب (بيبدأ بـ SDW) عشان نراجع الطلب.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>منتجات لا يمكن إرجاعها</h2>
-        <p>حفاظًا على صحة وسلامة كل عملائنا، لا يمكن إرجاع أو استبدال:</p>
-        <ul>
-          <li>منتجات المكياج والعناية بالبشرة والشعر والعطور بعد فتحها أو استخدامها أو فك الغلاف البلاستيك.</li>
-          <li>الإكسسوارات الشخصية اللي بتتلبس مباشرة على الجسم زي الحلقان، بعد استخدامها.</li>
-        </ul>
-        <p>إلا لو المنتج وصلك تالف أو فيه عيب صناعة أو مختلف عن اللي طلبته، وقتها بنستبدله أو نرجعلك فلوسه في كل الأحوال.</p>
-      </section>
-
-      <section>
-        <h2>منتج تالف أو غلط</h2>
+        <h2>1. الاستبدال</h2>
         <p>
-          لو وصلك منتج مكسور أو فيه عيب أو مختلف عن طلبك، ابعتلنا صورته على واتساب خلال
-          <strong>{{ DAMAGE_REPORT_HOURS }} ساعة</strong> من الاستلام. في الحالة دي إحنا اللي بنتحمل مصاريف الشحن بالكامل.
+          يحق للعميل استبدال المنتج خلال <strong>{{ RETURN_DAYS }} يومًا</strong> من تاريخ الشراء، أو من تاريخ
+          استلام الطلب بالنسبة إلى الطلبات عبر الموقع، وفقًا للشروط التالية:
+        </p>
+        <ul>
+          <li>تقديم فاتورة الشراء، أو رقم الطلب بالنسبة إلى الطلبات عبر الموقع.</li>
+          <li>أن يكون المنتج بحالته الأصلية وغير مستخدم.</li>
+          <li>أن يكون المنتج بتغليفه وملصقاته الأصلية، مع جميع الملحقات والهدايا المرفقة به.</li>
+        </ul>
+        <p>في حال وجود فرق في السعر بين المنتج الأصلي والمنتج البديل، يُسدَّد الفرق أو يُرد إلى العميل حسب الحالة.</p>
+      </section>
+
+      <section>
+        <h2>2. الاسترجاع</h2>
+        <p>يُتاح استرجاع المنتج واسترداد قيمته في الحالات التالية فقط:</p>
+        <ul>
+          <li>وجود عيب صناعة في المنتج.</li>
+          <li>استلام منتج غير مطابق للفاتورة أو للطلب.</li>
+          <li>وجود تلف في المنتج عند الاستلام.</li>
+        </ul>
+        <p class="note">
+          لا يُعد تغيّر رأي العميل أو عدم ملاءمة المنتج له سببًا للاسترجاع، ويمكن في هذه الحالة استبدال المنتج وفقًا لشروط الاستبدال.
         </p>
       </section>
 
       <section>
-        <h2>مصاريف الشحن</h2>
+        <h2>3. المنتجات المستثناة</h2>
+        <p>لا يمكن استبدال أو استرجاع المنتجات التالية:</p>
         <ul>
-          <li>لو المنتج تالف أو غلط: الشحن علينا.</li>
-          <li>لو غيّرت رأيك: مصاريف شحن الإرجاع على العميل، ومصاريف الشحن الأصلية لا تُرد.</li>
+          <li>الأجهزة الكهربائية.</li>
+          <li>مستحضرات المكياج.</li>
+          <li>العطور.</li>
+          <li>أي منتج تم فتحه أو استخدامه.</li>
+        </ul>
+        <p>ويُستثنى من ذلك المنتج الذي يصل تالفًا أو به عيب صناعة أو مخالفًا للطلب، إذ يُستبدل أو تُرد قيمته.</p>
+      </section>
+
+      <section>
+        <h2>4. المنتجات التالفة أو غير المطابقة</h2>
+        <p>
+          يُرجى إبلاغنا عبر واتساب خلال <strong>{{ DAMAGE_REPORT_HOURS }} ساعة</strong> من الاستلام، مع إرفاق صور توضح
+          المنتج والمشكلة. وفي هذه الحالة يتحمل سعداوي ستور تكاليف الشحن كاملة.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. تكاليف الشحن</h2>
+        <ul>
+          <li>المنتجات التالفة أو المعيبة أو غير المطابقة: يتحمل سعداوي ستور تكاليف الشحن.</li>
+          <li>الاستبدال لأي سبب آخر: يتحمل العميل تكاليف شحن الاستبدال.</li>
         </ul>
       </section>
 
       <section>
-        <h2>استرداد المبلغ</h2>
-        <p>بعد ما المنتج يوصلنا ونفحصه، بنرجع المبلغ خلال <strong>{{ REFUND_DAYS }} أيام عمل</strong>:</p>
-        <ul>
-          <li>لو دفعت بالكارت: المبلغ بيرجع على نفس الكارت، وممكن البنك ياخد وقت إضافي لحد ما يظهر.</li>
-          <li>لو دفعت كاش عند الاستلام أو تحويل: بنرجعلك المبلغ على فودافون كاش أو تحويل بنكي حسب اختيارك.</li>
-        </ul>
-        <p>وتقدر بدل الاسترداد تختار تستبدل بمنتج تاني، ولو فيه فرق في السعر بندفعه أو بنرجعه حسب الحالة.</p>
+        <h2>6. استرداد المبلغ</h2>
+        <p>تُرد قيمة المنتج خلال <strong>{{ REFUND_DAYS }} أيام عمل</strong> من استلامه وفحصه، وفقًا لطريقة الدفع:</p>
+        <table>
+          <thead>
+            <tr><th>طريقة الدفع</th><th>طريقة الاسترداد</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>بطاقة بنكية</td><td>إلى البطاقة نفسها، وقد يستغرق ظهور المبلغ وقتًا إضافيًا حسب البنك.</td></tr>
+            <tr><td>نقدًا / محفظة إلكترونية / إنستاباي</td><td>إلى محفظة إلكترونية أو حساب إنستاباي، حسب اختيار العميل.</td></tr>
+          </tbody>
+        </table>
+        <p>ويمكن للعميل اختيار استبدال المنتج بمنتج آخر بدلًا من استرداد قيمته.</p>
       </section>
 
       <section>
-        <h2>إزاي تطلب الاستبدال أو الاسترجاع</h2>
-        <ul>
+        <h2>7. خطوات تقديم الطلب</h2>
+        <ol class="steps">
           <li>
-            ابعتلنا على واتساب على
-            <a :href="whatsappLink" target="_blank" rel="noopener noreferrer" dir="ltr">{{ settings.whatsappSupport }}</a>
-            رقم الطلب وسبب الاستبدال أو الاسترجاع، ومعاهم صور لو المنتج فيه مشكلة.
+            <strong>تواصل معنا</strong>
+            أرسل رقم الطلب أو صورة الفاتورة وسبب الطلب عبر واتساب على
+            <a :href="whatsappLink" target="_blank" rel="noopener noreferrer" dir="ltr">{{ settings.whatsappSupport }}</a>،
+            مع صور المنتج إن وُجدت مشكلة. ويمكن للمشتريات من المتجر زيارتنا مباشرةً بالمنتج والفاتورة.
           </li>
-          <li>هنأكد معاك الطلب ونرتب ميعاد استلام المنتج.</li>
-          <li>بعد استلامه وفحصه، بنبعتلك المنتج البديل أو نرجعلك المبلغ.</li>
-        </ul>
+          <li>
+            <strong>استلام المنتج وفحصه</strong>
+            ننسق معك موعد استلام المنتج بالنسبة إلى طلبات الموقع، ثم نفحصه للتأكد من استيفاء الشروط.
+          </li>
+          <li>
+            <strong>الاستبدال أو الاسترداد</strong>
+            نرسل إليك المنتج البديل، أو نرد قيمته خلال {{ REFUND_DAYS }} أيام عمل.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>8. تحديث السياسة</h2>
+        <p>يحتفظ سعداوي ستور بحق تعديل هذه السياسة، ويُعمل بالنسخة المنشورة على الموقع وقت الشراء.</p>
       </section>
     </template>
 
     <template v-else>
       <section>
         <p>
-          Your satisfaction matters to us. If something's wrong with your order or you've changed your mind,
-          you can exchange or return it under the conditions below. Message us on WhatsApp and we'll sort it out quickly.
+          At Saadawy Store, we want every purchase to be a satisfying one. This policy sets out the conditions for
+          exchanges and returns, and applies to purchases from both our store and our website.
         </p>
       </section>
 
       <section>
-        <h2>Time frame</h2>
-        <p>You can request an exchange or return within <strong>{{ RETURN_DAYS }} days</strong> of receiving your order.</p>
-      </section>
-
-      <section>
-        <h2>Conditions</h2>
-        <ul>
-          <li>The item is in its original condition, unused, and in its original box and packaging.</li>
-          <li>It comes with all accessories and gifts that were delivered with it.</li>
-          <li>We'll need your order number (it starts with SDW) to look up the order.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Items that can't be returned</h2>
-        <p>To protect the health and safety of all our customers, we can't accept returns or exchanges of:</p>
-        <ul>
-          <li>Makeup, skincare, haircare and perfume products once opened, used, or unsealed.</li>
-          <li>Personal accessories worn directly on the body, such as earrings, once used.</li>
-        </ul>
-        <p>The only exception is if the item arrived damaged, defective, or different from what you ordered — then we'll always exchange it or refund you.</p>
-      </section>
-
-      <section>
-        <h2>Damaged or wrong items</h2>
+        <h2>1. Exchanges</h2>
         <p>
-          If an item arrives broken, defective, or different from your order, send us a photo on WhatsApp within
-          <strong>{{ DAMAGE_REPORT_HOURS }} hours</strong> of delivery. In that case we cover all shipping costs.
+          Products may be exchanged within <strong>{{ RETURN_DAYS }} days</strong> of purchase, or of delivery for
+          website orders, provided that:
+        </p>
+        <ul>
+          <li>The purchase invoice is presented, or the order number for website orders.</li>
+          <li>The product is in its original condition and unused.</li>
+          <li>The product is in its original packaging with its original labels, together with all accessories and gifts supplied with it.</li>
+        </ul>
+        <p>Where the replacement differs in price, the difference will be paid by or refunded to the customer as applicable.</p>
+      </section>
+
+      <section>
+        <h2>2. Returns</h2>
+        <p>A product may be returned for a refund only in the following cases:</p>
+        <ul>
+          <li>The product has a manufacturing defect.</li>
+          <li>The product received does not match the invoice or the order.</li>
+          <li>The product was damaged on delivery.</li>
+        </ul>
+        <p class="note">
+          A change of mind, or a product not suiting the customer, is not grounds for a return; such products may be exchanged under the exchange conditions.
         </p>
       </section>
 
       <section>
-        <h2>Shipping costs</h2>
+        <h2>3. Non-exchangeable and non-returnable items</h2>
+        <p>The following cannot be exchanged or returned:</p>
         <ul>
-          <li>Damaged or wrong item: shipping is on us.</li>
-          <li>Changed your mind: return shipping is paid by the customer, and the original shipping fee isn't refunded.</li>
+          <li>Electrical appliances.</li>
+          <li>Makeup.</li>
+          <li>Perfumes.</li>
+          <li>Any product that has been opened or used.</li>
+        </ul>
+        <p>This does not apply to items that arrive damaged, defective or different from the order, which will be exchanged or refunded.</p>
+      </section>
+
+      <section>
+        <h2>4. Damaged or incorrect items</h2>
+        <p>
+          Please notify us on WhatsApp within <strong>{{ DAMAGE_REPORT_HOURS }} hours</strong> of delivery, with photos showing
+          the product and the issue. In such cases, Saadawy Store covers all shipping costs.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. Shipping costs</h2>
+        <ul>
+          <li>Damaged, defective or incorrect items: shipping costs are covered by Saadawy Store.</li>
+          <li>Exchanges for any other reason: exchange shipping costs are paid by the customer.</li>
         </ul>
       </section>
 
       <section>
-        <h2>Refunds</h2>
-        <p>Once the item reaches us and we've checked it, we refund you within <strong>{{ REFUND_DAYS }} working days</strong>:</p>
-        <ul>
-          <li>Paid by card: the amount goes back to the same card. Your bank may take a few extra days to show it.</li>
-          <li>Paid cash on delivery or by transfer: we refund you by Vodafone Cash or bank transfer, whichever you prefer.</li>
-        </ul>
-        <p>Instead of a refund you can choose to exchange for another product; any price difference is paid or refunded accordingly.</p>
+        <h2>6. Refunds</h2>
+        <p>Refunds are issued within <strong>{{ REFUND_DAYS }} working days</strong> of receiving and inspecting the product, according to the payment method:</p>
+        <table>
+          <thead>
+            <tr><th>Payment method</th><th>Refund method</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Bank card</td><td>To the same card; your bank may take additional time to show the amount.</td></tr>
+            <tr><td>Cash / mobile wallet / InstaPay</td><td>To a mobile wallet or InstaPay account, as the customer prefers.</td></tr>
+          </tbody>
+        </table>
+        <p>Customers may choose to exchange for another product instead of a refund.</p>
       </section>
 
       <section>
-        <h2>How to request an exchange or return</h2>
-        <ul>
+        <h2>7. How to make a request</h2>
+        <ol class="steps">
           <li>
-            Message us on WhatsApp at
-            <a :href="whatsappLink" target="_blank" rel="noopener noreferrer">{{ settings.whatsappSupport }}</a>
-            with your order number and the reason, plus photos if the item has a problem.
+            <strong>Contact us</strong>
+            Send your order number or a photo of the invoice and the reason on WhatsApp at
+            <a :href="whatsappLink" target="_blank" rel="noopener noreferrer">{{ settings.whatsappSupport }}</a>,
+            with photos if there is an issue. For in-store purchases, you may visit us with the product and invoice.
           </li>
-          <li>We'll confirm the request and arrange a time to collect the item.</li>
-          <li>After we receive and check it, we'll send the replacement or refund you.</li>
-        </ul>
+          <li>
+            <strong>Collection and inspection</strong>
+            For website orders, we arrange a time to collect the product, then inspect it to confirm the conditions are met.
+          </li>
+          <li>
+            <strong>Exchange or refund</strong>
+            We send the replacement, or refund you within {{ REFUND_DAYS }} working days.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>8. Policy updates</h2>
+        <p>Saadawy Store reserves the right to amend this policy; the version published on the website at the time of purchase applies.</p>
       </section>
     </template>
   </LegalPage>
 </template>
 
 <script setup>
-// Review these with the store's actual policy before launch.
+// The store's exchange and return policy (Eman, 2026-11-22).
 const RETURN_DAYS = 14
 const DAMAGE_REPORT_HOURS = 48
 const REFUND_DAYS = 7
-const UPDATED = '2026-10-03'
+const UPDATED = '2026-11-22'
 
 const settings = useStoreSettings()
 const { t, isAr } = useLang()
 const whatsappLink = computed(() => `https://wa.me/${toWhatsAppNumber(settings.value.whatsappSupport)}`)
+
+const summary = computed(() => (isAr.value
+  ? [
+      {
+        title: 'الاستبدال', days: 'يومًا', from: 'من تاريخ الشراء',
+        items: [
+          { icon: 'mdi:receipt-text-outline', text: 'بالفاتورة' },
+          { icon: 'mdi:package-variant-closed', text: 'المنتج بحالته الأصلية' },
+          { icon: 'mdi:hand-back-right-off-outline', text: 'غير مستخدم' },
+          { icon: 'mdi:tag-outline', text: 'بالتغليف والملصقات الأصلية' },
+        ],
+      },
+      {
+        title: 'الاسترجاع', lead: 'متاح في حالات محددة فقط',
+        items: [
+          { icon: 'mdi:alert-decagram-outline', text: 'وجود عيب صناعة' },
+          { icon: 'mdi:file-compare', text: 'منتج غير مطابق للفاتورة' },
+          { icon: 'mdi:package-variant-remove', text: 'وجود تلف بالمنتج' },
+        ],
+        note: 'لا يُعد تغيّر الرأي أو عدم ملاءمة المنتج سببًا للاسترجاع',
+      },
+      {
+        title: 'المنتجات المستثناة', lead: 'منتجات لا تُستبدل ولا تُسترجع',
+        icons: [
+          { icon: 'mdi:hair-dryer-outline', text: 'الأجهزة الكهربائية' },
+          { icon: 'mdi:lipstick', text: 'المكياج' },
+          { icon: 'mdi:spray-bottle', text: 'العطور' },
+        ],
+        note: 'ويشمل ذلك المنتجات التي تم فتحها أو استخدامها',
+      },
+    ]
+  : [
+      {
+        title: 'Exchanges', days: 'days', from: 'from the date of purchase',
+        items: [
+          { icon: 'mdi:receipt-text-outline', text: 'With the invoice' },
+          { icon: 'mdi:package-variant-closed', text: 'In original condition' },
+          { icon: 'mdi:hand-back-right-off-outline', text: 'Unused' },
+          { icon: 'mdi:tag-outline', text: 'With original packaging and labels' },
+        ],
+      },
+      {
+        title: 'Returns', lead: 'Only in specific cases',
+        items: [
+          { icon: 'mdi:alert-decagram-outline', text: 'Manufacturing defect' },
+          { icon: 'mdi:file-compare', text: 'Product not matching the invoice' },
+          { icon: 'mdi:package-variant-remove', text: 'Damaged product' },
+        ],
+        note: 'A change of mind or a product not suiting you is not grounds for a return',
+      },
+      {
+        title: 'Exclusions', lead: 'Items that cannot be exchanged or returned',
+        icons: [
+          { icon: 'mdi:hair-dryer-outline', text: 'Electrical appliances' },
+          { icon: 'mdi:lipstick', text: 'Makeup' },
+          { icon: 'mdi:spray-bottle', text: 'Perfumes' },
+        ],
+        note: 'This includes products that have been opened or used',
+      },
+    ]))
 
 useSeoMeta({
   title: () => t('policies.returns'),
   description: () => t('policies.returnsMeta', { days: RETURN_DAYS }),
 })
 </script>
+
+<style scoped>
+/* A highlighted line inside a section (e.g. what isn't grounds for a return). */
+.note {
+  @apply mt-3 rounded-2xl bg-gold/10 border border-gold/30 px-4 py-3 text-sm text-ink/80;
+}
+
+/* Numbered steps as three cards. */
+.steps {
+  @apply grid sm:grid-cols-3 gap-3 mt-2;
+  counter-reset: step;
+}
+.steps li {
+  @apply relative rounded-2xl border border-ink/10 bg-page/60 p-4 pt-12 text-sm leading-relaxed;
+  counter-increment: step;
+}
+.steps li::before {
+  content: counter(step);
+  @apply absolute top-4 start-4 w-7 h-7 rounded-full bg-gold text-white text-sm font-bold flex items-center justify-center;
+}
+.steps strong {
+  @apply block text-base mb-1;
+}
+
+table {
+  @apply w-full mt-3 text-sm border border-ink/10 rounded-2xl overflow-hidden border-separate border-spacing-0;
+}
+th {
+  @apply bg-page/80 text-ink font-semibold text-start px-3 sm:px-4 py-2.5 border-b border-ink/10;
+}
+td {
+  @apply px-3 sm:px-4 py-3 align-top border-b border-ink/10;
+}
+tbody tr:last-child td {
+  @apply border-b-0;
+}
+td:first-child {
+  @apply font-medium text-ink w-2/5;
+}
+</style>

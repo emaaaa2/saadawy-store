@@ -7,7 +7,7 @@ export default {
   updated: 'Last updated: {date}',
   question: 'Have a question? Our team is here to help.',
   chat: 'Chat on WhatsApp',
-  returnsMeta: 'Exchange or return Saadawy Store products within {days} days of delivery, with simple conditions.',
+  returnsMeta: 'Exchange Saadawy Store products within {days} days of purchase; returns for defective, damaged or wrong items.',
   privacyMeta: 'How Saadawy Store collects, uses and protects your information.',
   termsMeta: 'Ordering, payment, shipping and coupon terms at Saadawy Store.',
 }
