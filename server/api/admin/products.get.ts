@@ -70,8 +70,15 @@ export default defineEventHandler(async (event) => {
     total = count ?? 0
   }
 
+  // Stock per colour, for products that have colours.
+  const variants = await getVariants(client, products.filter((product) => product.has_variants).map((product) => product.id))
+
   return {
-    products: products.map((product) => ({ ...product, photoMissing: !hasStoredImage(product.image, storedImages) })),
+    products: products.map((product) => ({
+      ...product,
+      photoMissing: !hasStoredImage(product.image, storedImages),
+      ...(variants[product.id] ? { variants: variants[product.id] } : {}),
+    })),
     total,
     page,
     pageSize: limit,

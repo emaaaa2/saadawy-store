@@ -156,7 +156,27 @@
                 <p v-else class="font-medium">{{ formatMoney(product.price) }}</p>
               </td>
               <td>
-                <div class="flex items-center gap-1.5">
+                <!-- With colours: the total, then each colour's own stock (edited in the product page). -->
+                <div v-if="product.variants?.length" class="min-w-[10rem] max-w-[16rem]">
+                  <p class="text-sm font-medium text-stone-800">
+                    {{ product.stock }}
+                    <span class="text-xs font-normal text-stone-500">· {{ tc('admin.editor.variants.count', product.variants.length) }}</span>
+                  </p>
+                  <ul class="flex flex-wrap gap-1 mt-1">
+                    <li
+                      v-for="v in product.variants"
+                      :key="v.id"
+                      class="adm-badge"
+                      :class="v.stock === 0 ? 'bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400' : v.stock <= LOW_STOCK_LIMIT ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300' : 'bg-stone-100 text-stone-700'"
+                      :title="`${variantName(v)}: ${v.stock}`"
+                    >
+                      <span v-if="v.color" class="w-2.5 h-2.5 rounded-full border border-black/10 shrink-0" :style="{ backgroundColor: v.color }"></span>
+                      <span dir="auto" class="max-w-[6rem] truncate">{{ variantName(v) }}</span>
+                      <span class="font-semibold">{{ v.stock }}</span>
+                    </li>
+                  </ul>
+                </div>
+                <div v-else class="flex items-center gap-1.5">
                   <button type="button" class="adm-icon-btn w-7 h-7 border border-stone-200" :disabled="product.stock === 0 || savingStock.has(product.id)" :aria-label="$t('admin.products.decrease')" @click="saveStock(product, product.stock - 1)">
                     <Icon name="mdi:minus" class="text-sm" />
                   </button>
@@ -212,7 +232,7 @@ definePageMeta({
   middleware: 'admin-auth',
   adminPermission: 'products',
 })
-const { t, tc, productName } = useLang()
+const { t, tc, productName, variantName } = useLang()
 useSeoMeta({ title: () => t('admin.products.metaTitle'), robots: 'noindex' })
 
 const route = useRoute()

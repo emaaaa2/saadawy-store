@@ -8,17 +8,25 @@ const SECTIONS = ['makeup', 'skincare', 'perfume', 'haircare', 'kitchen', 'bags'
 const PER_SHELF = 12
 const MIN_SHELF = 4 // a section with fewer products gets no row
 const FIELDS = 'id, sku, slug, name, name_en, brand, price, sale_price, image, badge, stock, category, subcategory, created_at'
+// Products with colours open their page from the card instead of going straight to the cart.
+const WITH_VARIANTS = `${FIELDS}, has_variants`
 
 export default defineCachedEventHandler(async (event) => {
   const client = serverSupabaseServiceRole(event)
-  const shelf = () => client.from('products').select(FIELDS).or(SHOWN_IN_STORE).gt('stock', 0).order('created_at', { ascending: false })
+  const load = (fields: string) => {
+    const shelf = () => client.from('products').select(fields).or(SHOWN_IN_STORE).gt('stock', 0).order('created_at', { ascending: false })
+    return Promise.all([
+      shelf().not('sale_price', 'is', null).limit(60),
+      shelf().limit(16),
+      ...SECTIONS.map((category) => shelf().eq('category', category).limit(PER_SHELF)),
+    ])
+  }
 
-  const [deals, newArrivals, ...sections] = await Promise.all([
-    shelf().not('sale_price', 'is', null).limit(60),
-    shelf().limit(16),
-    ...SECTIONS.map((category) => shelf().eq('category', category).limit(PER_SHELF)),
-  ])
-  for (const result of [deals, newArrivals, ...sections]) {
+  let results = await load(WITH_VARIANTS)
+  // 42703: has_variants isn't there until supabase_add_product_variants.sql is run.
+  if (results.some((r) => r.error?.code === '42703')) results = await load(FIELDS)
+  const [deals, newArrivals, ...sections] = results
+  for (const result of results) {
     if (result.error) throw internalError(result.error)
   }
 

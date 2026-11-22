@@ -22,9 +22,12 @@ export default defineEventHandler(async (event) => {
 
   // What's already saved for the products in the file: kept where the file says nothing.
   const skusInFile: string[] = parsed.data.map((raw: any) => raw?.sku && String(raw.sku).trim()).filter(Boolean)
-  const existing = new Map<string, { name: string; slug: string; image: string | null; category: string; sale_price: number | null }>()
+  const existing = new Map<string, { name: string; slug: string; image: string | null; category: string; sale_price: number | null; has_variants?: boolean }>()
   for (let i = 0; i < skusInFile.length; i += 200) {
-    const { data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price').in('sku', skusInFile.slice(i, i + 200))
+    const batch = skusInFile.slice(i, i + 200)
+    let { data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price, has_variants').in('sku', batch)
+    // 42703: has_variants isn't there until supabase_add_product_variants.sql is run.
+    if (error?.code === '42703') ({ data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price').in('sku', batch))
     if (error) throw internalError(error)
     for (const p of data ?? []) existing.set(p.sku, p)
   }
@@ -72,7 +75,8 @@ export default defineEventHandler(async (event) => {
       sku,
       name,
       price,
-      stock,
+      // A product with colours keeps the stock set per colour in the dashboard (the file has one number).
+      ...(saved?.has_variants ? {} : { stock }),
       // An existing product keeps its link (changing it would break shared links and search results).
       slug: saved?.slug ?? productSlug(sku, name),
       // The database needs a category on every row; an empty cell keeps the current one.

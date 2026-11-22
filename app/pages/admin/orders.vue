@@ -182,10 +182,18 @@
 
         <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-400 mb-2">{{ $t('admin.orders.items') }}</h3>
         <ul class="adm-card divide-y divide-stone-200 mb-4">
-          <li v-for="item in activeOrder.items" :key="item.id" class="flex items-center gap-3 px-4 py-3 text-sm">
+          <li v-for="(item, index) in activeOrder.items" :key="`${item.id}:${item.variant_id ?? index}`" class="flex items-center gap-3 px-4 py-3 text-sm">
+            <!-- The photo the customer chose (opens full size), so it's clear which colour to pack. -->
+            <a v-if="item.image" :href="item.image" target="_blank" rel="noopener" class="w-12 h-12 shrink-0 rounded-lg overflow-hidden border border-stone-200 bg-stone-50" :title="$t('admin.orders.openPhoto')">
+              <img :src="item.image" alt="" loading="lazy" class="w-full h-full object-cover" />
+            </a>
             <span class="adm-badge bg-stone-100 text-stone-600 font-mono shrink-0">{{ item.sku || '—' }}</span>
             <span class="flex-1 min-w-0">
               <span dir="auto" class="block truncate text-start">{{ item.name }}</span>
+              <span v-if="item.variant_name" class="adm-badge bg-gold/10 text-gold mt-0.5">
+                <Icon name="mdi:palette-swatch-outline" class="text-sm" />
+                {{ $t('admin.orders.colour', { name: item.variant_name }) }}
+              </span>
               <span class="text-xs text-stone-500">{{ formatMoney(item.sale_price ?? item.price) }} × {{ item.quantity }}</span>
             </span>
             <span class="font-medium shrink-0">{{ formatMoney((item.sale_price ?? item.price) * item.quantity) }}</span>

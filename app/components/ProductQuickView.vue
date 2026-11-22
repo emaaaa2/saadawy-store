@@ -72,7 +72,18 @@
               </span>
             </div>
 
+            <!-- Colours are picked on the product page. -->
+            <NuxtLink
+              v-if="store.product?.has_variants"
+              :to="`/product/${store.product.slug}`"
+              class="bg-olive text-beige px-6 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition flex items-center justify-center gap-2"
+              @click="store.close()"
+            >
+              <Icon name="mdi:palette-swatch-outline" class="text-lg" />
+              {{ $t('product.variant.chooseShort') }}
+            </NuxtLink>
             <button
+              v-else
               class="bg-olive text-beige px-6 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition flex items-center justify-center gap-2"
               @click="
                 cart.addItem(store.product);

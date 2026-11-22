@@ -75,7 +75,16 @@
             {{ $price(product.sale_price ?? product.price) }}
           </span>
         </div>
+        <!-- A product with colours opens its page to pick one (the link around the card does that). -->
+        <span
+          v-if="product.has_variants"
+          class="w-7 h-7 shrink-0 rounded-full bg-olive text-beige flex items-center justify-center group-hover:bg-gold transition"
+          :title="$t('product.variant.chooseShort')"
+        >
+          <Icon name="mdi:palette-swatch-outline" class="text-sm" />
+        </span>
         <button
+          v-else
           class="w-7 h-7 shrink-0 rounded-full bg-olive text-beige flex items-center justify-center hover:bg-gold transition"
           :aria-label="$t('common.addToCart')"
           @click.stop.prevent="cart.addItem(product)"

@@ -16,9 +16,6 @@
       <h1 class="text-3xl md:text-4xl font-bold text-ink mb-2">{{ title }}</h1>
       <p class="text-sm text-taupe mb-8">{{ $t('policies.updated', { date: date(updated) }) }}</p>
 
-      <!-- Optional at-a-glance summary above the full text (used by the returns page). -->
-      <slot name="summary" />
-
       <div class="legal-content bg-surface rounded-3xl border border-ink/10 p-6 md:p-10">
         <slot />
       </div>

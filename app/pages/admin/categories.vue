@@ -80,6 +80,54 @@
               </div>
             </div>
           </div>
+
+          <!-- The types inside this category (filters on its page and in the menu). -->
+          <div class="pt-4 border-t border-stone-200">
+            <div class="flex items-baseline justify-between gap-2 mb-2">
+              <span class="adm-label mb-0">{{ $t('admin.categories.types') }}</span>
+              <span class="text-xs text-stone-400">{{ $t('admin.categories.typesHint') }}</span>
+            </div>
+            <ul v-if="subs[cat.slug].length" class="space-y-2">
+              <li v-for="(sub, index) in subs[cat.slug]" :key="sub.key" class="flex items-center gap-2">
+                <input
+                  v-model="sub.labelAr"
+                  type="text"
+                  dir="rtl"
+                  required
+                  :maxlength="SUBCATEGORY_NAME_LIMIT"
+                  class="adm-input flex-1 min-w-0"
+                  :placeholder="$t('admin.categories.typeAr')"
+                  :aria-label="$t('admin.categories.typeAr')"
+                />
+                <input
+                  v-model="sub.label"
+                  type="text"
+                  dir="ltr"
+                  :maxlength="SUBCATEGORY_NAME_LIMIT"
+                  class="adm-input flex-1 min-w-0"
+                  :placeholder="$t('admin.categories.typeEn')"
+                  :aria-label="$t('admin.categories.typeEn')"
+                />
+                <span
+                  v-if="sub.value"
+                  class="adm-badge shrink-0 w-14 justify-center"
+                  :class="countOf(cat.slug, sub.value) ? 'bg-stone-100 text-stone-700' : 'bg-stone-50 text-stone-400'"
+                  :title="tc('admin.categories.typeCount', countOf(cat.slug, sub.value))"
+                >
+                  {{ countOf(cat.slug, sub.value) }}
+                </span>
+                <span v-else class="adm-badge shrink-0 w-14 justify-center bg-gold/10 text-gold">{{ $t('admin.categories.newType') }}</span>
+                <button type="button" class="adm-icon-btn hover:text-red-600 shrink-0" :aria-label="$t('admin.categories.removeType')" :title="$t('admin.categories.removeType')" @click="removeSub(cat.slug, index)">
+                  <Icon name="mdi:trash-can-outline" class="text-lg" />
+                </button>
+              </li>
+            </ul>
+            <p v-else class="text-xs text-stone-500">{{ $t('admin.categories.noTypes') }}</p>
+            <button type="button" class="adm-btn adm-btn-ghost adm-btn-sm mt-2" @click="addSub(cat.slug)">
+              <Icon name="mdi:plus" class="text-base" />
+              {{ $t('admin.categories.addType') }}
+            </button>
+          </div>
         </div>
       </section>
     </form>
@@ -108,7 +156,7 @@ definePageMeta({
   middleware: 'admin-auth',
   adminPermission: 'products'
 })
-const { t, isAr } = useLang()
+const { t, tc, isAr } = useLang()
 useSeoMeta({ title: () => t('admin.categories.metaTitle'), robots: 'noindex' })
 
 // The names a category has when the box is left empty, in both languages.
@@ -127,18 +175,58 @@ function formFrom(categories) {
   ]))
 }
 
+// Each category's types; `key` only tells the rows apart here, `value` is empty for a new one.
+let subKey = 0
+function subsFrom(subcategories) {
+  return Object.fromEntries(STORE_CATEGORIES.map(({ slug }) => [
+    slug,
+    (subcategories?.[slug] ?? []).map((sub) => ({ key: ++subKey, value: sub.value ?? '', label: sub.label ?? '', labelAr: sub.labelAr ?? '' })),
+  ]))
+}
+const subsPayload = () => Object.fromEntries(Object.entries(subs.value).map(([slug, list]) => [
+  slug,
+  list.map(({ key: _key, ...sub }) => sub),
+]))
+
 const form = ref(formFrom(data.value?.categories))
-const saved = ref(JSON.stringify(form.value))
+const subs = ref(subsFrom(data.value?.subcategories))
+const counts = ref(data.value?.subcategoryCounts ?? {})
+const pageState = () => JSON.stringify([form.value, subsPayload()])
+const saved = ref(pageState())
 watch(data, (value) => {
   form.value = formFrom(value?.categories)
-  saved.value = JSON.stringify(form.value)
+  subs.value = subsFrom(value?.subcategories)
+  counts.value = value?.subcategoryCounts ?? {}
+  saved.value = pageState()
 })
+
+const countOf = (slug, value) => counts.value?.[slug]?.[value] ?? 0
+
+function addSub(slug) {
+  subs.value[slug].push({ key: ++subKey, value: '', label: '', labelAr: '' })
+}
+
+// A type with products asks first: they stay in the category, without a type, once saved.
+async function removeSub(slug, index) {
+  const sub = subs.value[slug][index]
+  const count = sub.value ? countOf(slug, sub.value) : 0
+  if (count) {
+    const ok = await confirm({
+      title: t('admin.categories.removeTypeTitle', { name: sub.labelAr || sub.label }),
+      message: tc('admin.categories.removeTypeText', count),
+      confirmLabel: t('admin.categories.removeType'),
+      danger: true,
+    })
+    if (!ok) return
+  }
+  subs.value[slug].splice(index, 1)
+}
 
 const isSaving = ref(false)
 const uploading = reactive({})
 const isUploading = computed(() => Object.values(uploading).some(Boolean))
 const failedImages = reactive(new Set())
-const isDirty = computed(() => JSON.stringify(form.value) !== saved.value)
+const isDirty = computed(() => pageState() !== saved.value)
 
 // The dashboard's own language comes first.
 const langOrder = computed(() => (isAr.value ? ['ar', 'en'] : ['en', 'ar']))
@@ -176,12 +264,14 @@ async function onPickPhoto(slug, event) {
 async function handleSave() {
   isSaving.value = true
   try {
-    const result = await $fetch('/api/admin/categories', { method: 'PATCH', body: { categories: form.value } })
+    const result = await $fetch('/api/admin/categories', { method: 'PATCH', body: { categories: form.value, subcategories: subsPayload() } })
     form.value = formFrom(result.categories)
-    saved.value = JSON.stringify(form.value)
-    // The menu, footer and home page of this visit show the new names and photos right away.
-    storeSettings.value = { ...storeSettings.value, categories: structuredClone(result.categories) }
-    toast.show(t('admin.categories.saved'))
+    subs.value = subsFrom(result.subcategories)
+    counts.value = result.subcategoryCounts ?? {}
+    saved.value = pageState()
+    // The menu, footer and home page of this visit show the new names, photos and types right away.
+    storeSettings.value = { ...storeSettings.value, categories: structuredClone(result.categories), subcategories: structuredClone(result.subcategories) }
+    toast.show(result.cleared ? tc('admin.categories.savedCleared', result.cleared) : t('admin.categories.saved'))
   } catch (err) {
     toast.error(adminErrorMessage(err))
   } finally {
@@ -190,7 +280,10 @@ async function handleSave() {
 }
 
 function discard() {
-  form.value = JSON.parse(saved.value)
+  const [savedForm, savedSubs] = JSON.parse(saved.value)
+  form.value = savedForm
+  subs.value = subsFrom(savedSubs)
+  saved.value = pageState()
 }
 
 onBeforeRouteLeave(async () => {

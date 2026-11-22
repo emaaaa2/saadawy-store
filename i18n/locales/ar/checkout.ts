@@ -42,6 +42,8 @@ export default {
     phone: 'الموبايل: {value}',
     address: 'العنوان: {value}',
     items: 'المنتجات:',
+    code: 'كود {value}',
+    photo: 'الصورة: {value}',
     total: 'الإجمالي: {value}',
     payment: 'طريقة الدفع: {value}',
     transferTo: 'برجاء التحويل على:',

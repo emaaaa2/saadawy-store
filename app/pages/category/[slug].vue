@@ -105,7 +105,8 @@ const currentPage = ref(1)
 const searchQuery = ref('')
 const sortBy = ref('newest')
 const subcategory = ref(typeof route.query.subcategory === 'string' ? route.query.subcategory : '')
-const subcategoryOptions = computed(() => categorySubcategories[categorySlug.value] ?? [])
+const subcategoriesOf = useSubcategories()
+const subcategoryOptions = computed(() => subcategoriesOf(categorySlug.value))
 
 watch(categorySlug, () => {
   currentPage.value = 1

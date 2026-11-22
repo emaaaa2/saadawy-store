@@ -172,6 +172,121 @@
             </details>
           </div>
         </section>
+
+        <!-- Colours / shades under this code: each with its own stock (and an optional swatch and photo). -->
+        <section class="adm-card">
+          <div class="adm-card-header">
+            <div>
+              <h2 class="adm-card-title">{{ $t('admin.editor.variants.title') }}</h2>
+              <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.editor.variants.hint') }}</p>
+            </div>
+            <span v-if="variants.length" class="adm-badge bg-stone-100 text-stone-700 shrink-0">{{ $t('admin.editor.variants.total', { count: variantsTotal }) }}</span>
+          </div>
+
+          <div v-if="variants.length" class="divide-y divide-stone-200">
+            <div v-for="(v, index) in variants" :key="v.key" class="px-4 sm:px-5 py-3 flex flex-wrap items-center gap-3">
+              <div class="flex items-center gap-3">
+                <div class="relative">
+                  <label
+                    class="block w-10 h-10 rounded-full border border-stone-300 cursor-pointer overflow-hidden"
+                    :class="{ 'no-color': !v.color }"
+                    :style="v.color ? { backgroundColor: v.color } : {}"
+                    :title="$t('admin.editor.variants.color')"
+                  >
+                    <input type="color" class="opacity-0 w-full h-full cursor-pointer" :value="v.color || '#d4a5a5'" :aria-label="$t('admin.editor.variants.color')" @input="v.color = $event.target.value" />
+                  </label>
+                  <button v-if="v.color" type="button" class="absolute -top-1 -end-1 w-4 h-4 rounded-full bg-surface border border-stone-300 text-stone-500 flex items-center justify-center" :aria-label="$t('admin.editor.variants.clearColor')" @click="v.color = ''">
+                    <Icon name="mdi:close" class="text-[10px]" />
+                  </button>
+                </div>
+
+                <div class="relative">
+                  <button
+                    type="button"
+                    class="w-10 h-10 rounded-lg border border-stone-200 bg-stone-50 overflow-hidden flex items-center justify-center"
+                    :title="$t('admin.editor.variants.photo')"
+                    :aria-label="$t('admin.editor.variants.photo')"
+                    @click="photoPickerFor = photoPickerFor === v.key ? null : v.key"
+                  >
+                    <img v-if="v.image" :src="v.image" alt="" class="w-full h-full object-cover" />
+                    <Icon v-else name="mdi:image-plus-outline" class="text-lg text-stone-400" />
+                  </button>
+                  <div v-if="photoPickerFor === v.key" class="absolute z-20 top-full mt-1 start-0 w-64 adm-card p-2 shadow-lg">
+                    <p class="text-xs text-stone-500 px-1 pb-2">{{ $t('admin.editor.variants.choosePhoto') }}</p>
+                    <div v-if="photos.length" class="grid grid-cols-4 gap-1.5">
+                      <button type="button" class="aspect-square rounded-md border border-stone-200 text-[10px] text-stone-500 flex items-center justify-center" @click="v.image = ''; photoPickerFor = null">
+                        {{ $t('admin.editor.variants.noPhoto') }}
+                      </button>
+                      <button
+                        v-for="url in photos"
+                        :key="url"
+                        type="button"
+                        class="aspect-square rounded-md overflow-hidden border-2"
+                        :class="v.image === url ? 'border-olive' : 'border-transparent'"
+                        @click="v.image = url; photoPickerFor = null"
+                      >
+                        <img :src="url" alt="" class="w-full h-full object-cover" />
+                      </button>
+                    </div>
+                    <p v-else class="text-xs text-stone-500 px-1">{{ $t('admin.editor.variants.noPhotos') }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <input
+                v-model="v.name"
+                type="text"
+                dir="rtl"
+                required
+                maxlength="60"
+                class="adm-input flex-1 min-w-[7rem]"
+                :placeholder="$t('admin.editor.variants.nameAr')"
+                :aria-label="$t('admin.editor.variants.nameAr')"
+              />
+              <input
+                v-model="v.nameEn"
+                type="text"
+                dir="ltr"
+                maxlength="60"
+                class="adm-input flex-1 min-w-[7rem]"
+                :placeholder="$t('admin.editor.variants.nameEn')"
+                :aria-label="$t('admin.editor.variants.nameEn')"
+              />
+
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="adm-btn adm-btn-secondary w-9 px-0" :disabled="v.stock <= 0" :aria-label="$t('admin.products.decrease')" @click="v.stock = Math.max(0, (v.stock || 0) - 1)">
+                  <Icon name="mdi:minus" />
+                </button>
+                <input
+                  v-model.number="v.stock"
+                  type="number"
+                  required
+                  min="0"
+                  step="1"
+                  class="adm-input w-16 text-center"
+                  :class="v.stock === 0 ? '!border-red-300 bg-red-50 dark:bg-red-500/15 text-red-700 dark:text-red-400' : v.stock <= LOW_STOCK_LIMIT ? '!border-amber-300 bg-amber-50 dark:bg-amber-500/15 text-amber-800 dark:text-amber-300' : ''"
+                  :title="v.stock === 0 ? $t('admin.editor.variants.soldOut') : v.stock <= LOW_STOCK_LIMIT ? $t('admin.editor.variants.low') : ''"
+                  :aria-label="$t('admin.editor.variants.stock')"
+                />
+                <button type="button" class="adm-btn adm-btn-secondary w-9 px-0" :aria-label="$t('admin.products.increase')" @click="v.stock = (v.stock || 0) + 1">
+                  <Icon name="mdi:plus" />
+                </button>
+              </div>
+
+              <button type="button" class="adm-icon-btn hover:text-red-600 ms-auto" :aria-label="$t('admin.editor.variants.remove')" :title="$t('admin.editor.variants.remove')" @click="removeVariant(index)">
+                <Icon name="mdi:trash-can-outline" class="text-lg" />
+              </button>
+            </div>
+          </div>
+
+          <div class="px-4 sm:px-5 py-3 flex flex-wrap items-center gap-3" :class="{ 'border-t border-stone-200': variants.length }">
+            <button type="button" class="adm-btn adm-btn-secondary" @click="addVariant">
+              <Icon name="mdi:plus" class="text-base" />
+              {{ $t('admin.editor.variants.add') }}
+            </button>
+            <p class="text-xs text-stone-500">{{ variants.length ? $t('admin.editor.variants.fromColors') : $t('admin.editor.variants.firstNote') }}</p>
+          </div>
+        </section>
       </div>
 
       <div class="space-y-6">
@@ -237,7 +352,12 @@
               <label for="product-sku" class="adm-label">{{ $t('admin.editor.sku') }}</label>
               <input id="product-sku" v-model="form.sku" type="text" dir="ltr" maxlength="50" placeholder="4133" class="adm-input font-mono rtl:text-right" />
             </div>
-            <div>
+            <div v-if="variants.length">
+              <p class="adm-label">{{ $t('admin.editor.stock') }}</p>
+              <p class="text-2xl font-semibold text-stone-800">{{ variantsTotal }}</p>
+              <p class="adm-hint">{{ $t('admin.editor.variants.fromColors') }}</p>
+            </div>
+            <div v-else>
               <label for="product-stock" class="adm-label">{{ $t('admin.editor.stock') }}</label>
               <div class="flex items-center gap-2">
                 <button type="button" class="adm-btn adm-btn-secondary w-10 px-0" :disabled="form.stock <= 0" :aria-label="$t('admin.products.decrease')" @click="form.stock = Math.max(0, (form.stock || 0) - 1)">
@@ -335,6 +455,24 @@ const brokenCount = computed(() => photos.value.filter((url) => brokenPhotos.has
 // The store hides products without a working main photo (server/utils/storeVisibility.ts).
 const hiddenFromStore = computed(() => !photos.value.length || brokenPhotos.has(photos.value[0]))
 
+// Colours / shades (product_variants). `key` only tells the rows apart on this page.
+let variantKey = 0
+const variantFromRow = (v) => ({ key: ++variantKey, id: v.id ?? null, name: v.name ?? '', nameEn: v.name_en ?? '', color: v.color ?? '', image: v.image ?? '', stock: v.stock ?? 0 })
+const variants = ref([])
+const savedVariants = ref([]) // as loaded or last saved: their stock is checked against the database on save
+const photoPickerFor = ref(null)
+const variantsTotal = computed(() => variants.value.reduce((sum, v) => sum + (Number(v.stock) || 0), 0))
+const toPayload = (list) => list.map((v) => ({ id: v.id || undefined, name: v.name, nameEn: v.nameEn, color: v.color, image: v.image, stock: Number(v.stock) || 0 }))
+const variantsPayload = () => toPayload(variants.value)
+
+function addVariant() {
+  variants.value.push(variantFromRow({}))
+}
+
+function removeVariant(index) {
+  variants.value.splice(index, 1)
+}
+
 function formFromProduct(p) {
   return {
     name: p.name ?? '',
@@ -364,14 +502,20 @@ if (!isNew.value) {
     form.value = formFromProduct(p)
     photos.value = [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))]
     for (const url of data.value.missingPhotos ?? []) brokenPhotos.add(url)
+    savedVariants.value = data.value.variants ?? []
+    variants.value = savedVariants.value.map(variantFromRow)
   }
 }
 
-const snapshot = ref(JSON.stringify([form.value, photos.value]))
-const isDirty = computed(() => JSON.stringify([form.value, photos.value]) !== snapshot.value)
+// Everything the page can save, to tell whether there are unsaved changes.
+const pageState = () => JSON.stringify([form.value, photos.value, variantsPayload()])
+const snapshot = ref(pageState())
+const isDirty = computed(() => pageState() !== snapshot.value)
+const variantsChanged = () => JSON.stringify(variantsPayload()) !== JSON.stringify(toPayload(savedVariants.value.map(variantFromRow)))
 
+const subcategoriesOf = useSubcategories()
 const subcategoryOptions = computed(() => {
-  const options = categorySubcategories[form.value.category] ?? []
+  const options = subcategoriesOf(form.value.category)
   // Keep an existing value visible even if it's not in today's list.
   if (form.value.subcategory && !options.some((o) => o.value === form.value.subcategory)) {
     return [...options, { value: form.value.subcategory, label: form.value.subcategory, labelAr: form.value.subcategory }]
@@ -510,6 +654,8 @@ function changesSinceLoad() {
   const changes = {}
   const original = {}
   for (const key of Object.keys(form.value)) {
+    // With colours, stock is saved per colour (saveVariants).
+    if (key === 'stock' && (variants.value.length || savedVariants.value.length)) continue
     if (same(form.value[key], saved[key])) continue
     changes[key] = key === 'salePrice' ? form.value.salePrice || null : form.value[key]
     original[key] = saved[key]
@@ -528,7 +674,8 @@ async function handleSubmit() {
   const body = isNew.value
     ? { ...form.value, salePrice: form.value.salePrice || null, image: photos.value[0] ?? null, images: photos.value.slice(1) }
     : changesSinceLoad()
-  if (!body) {
+  const saveColours = variantsChanged()
+  if (!body && !saveColours) {
     toast.show(t('admin.errors.nothingToUpdate'))
     return
   }
@@ -537,13 +684,17 @@ async function handleSubmit() {
   try {
     if (isNew.value) {
       const { product: created } = await $fetch('/api/admin/products', { method: 'POST', body })
-      snapshot.value = JSON.stringify([form.value, photos.value])
+      if (variants.value.length) await saveVariants(created.id)
+      snapshot.value = pageState()
       toast.show(t('admin.editor.added'))
       await navigateTo(`/admin/products/${created.id}`, { replace: true })
     } else {
-      const { product: saved } = await $fetch(`/api/admin/products/${route.params.id}`, { method: 'PATCH', body })
-      product.value = saved
-      snapshot.value = JSON.stringify([form.value, photos.value])
+      if (body) {
+        const { product: saved } = await $fetch(`/api/admin/products/${route.params.id}`, { method: 'PATCH', body })
+        product.value = saved
+      }
+      if (saveColours) await saveVariants(route.params.id)
+      snapshot.value = pageState()
       toast.show(t('admin.editor.saved'))
     }
   } catch (err) {
@@ -551,6 +702,22 @@ async function handleSubmit() {
   } finally {
     isSubmitting.value = false
   }
+}
+
+// Sends the colours as the page shows them; the product's stock comes back as their total.
+async function saveVariants(productId) {
+  const result = await $fetch(`/api/admin/products/${productId}/variants`, {
+    method: 'PUT',
+    body: {
+      variants: variantsPayload(),
+      original: savedVariants.value.map((v) => ({ id: v.id, stock: v.stock })),
+      stock: Number(form.value.stock) || 0, // the product's own stock again if the last colour was removed
+    },
+  })
+  savedVariants.value = result.variants
+  variants.value = result.variants.map(variantFromRow)
+  product.value = result.product
+  form.value.stock = result.product.stock
 }
 
 async function handleDelete() {
@@ -565,7 +732,7 @@ async function handleDelete() {
   isSubmitting.value = true
   try {
     await $fetch(`/api/admin/products/${route.params.id}`, { method: 'DELETE' })
-    snapshot.value = JSON.stringify([form.value, photos.value])
+    snapshot.value = pageState()
     toast.show(t('admin.products.deleted'))
     await navigateTo('/admin/products')
   } catch (err) {
@@ -592,6 +759,10 @@ onUnmounted(() => window.removeEventListener('beforeunload', warnBeforeUnload))
 </script>
 
 <style scoped>
+/* A colour row without a swatch colour. */
+.no-color {
+  background: repeating-linear-gradient(45deg, rgb(var(--stone-100)) 0 4px, rgb(var(--stone-50)) 4px 8px);
+}
 .photo-btn {
   @apply w-7 h-7 rounded-md bg-surface/90 text-stone-800 flex items-center justify-center text-base hover:bg-surface hover:text-stone-900 transition;
 }

@@ -1,45 +1,5 @@
 <template>
   <LegalPage :title="$t('policies.returns')" :updated="UPDATED">
-    <!-- The policy at a glance: exchange, return, exceptions (same as the store's printed policy). -->
-    <template #summary>
-      <div class="grid sm:grid-cols-3 gap-4 mb-8">
-        <div v-for="(card, index) in summary" :key="card.title" class="relative bg-surface rounded-3xl border border-ink/10 p-5 pt-8 text-center flex flex-col">
-          <span class="absolute -top-4 inset-x-0 mx-auto w-9 h-9 rounded-full bg-gold text-white text-sm font-bold flex items-center justify-center shadow-sm">
-            {{ String(index + 1).padStart(2, '0') }}
-          </span>
-          <h2 class="text-lg font-bold text-ink pb-3 mb-3 border-b border-ink/10">{{ card.title }}</h2>
-
-          <template v-if="card.days">
-            <p class="text-5xl font-bold text-ink leading-none">{{ RETURN_DAYS }}</p>
-            <p class="text-sm font-semibold text-ink mt-1">{{ card.days }}</p>
-            <p class="text-sm text-gold mt-0.5">{{ card.from }}</p>
-          </template>
-          <p v-if="card.lead" class="text-sm text-ink/80">{{ card.lead }}</p>
-
-          <ul v-if="card.items" class="mt-4 pt-4 border-t border-dashed border-ink/15 space-y-2.5 text-sm text-ink/80 text-start">
-            <li v-for="item in card.items" :key="item.text" class="flex items-start gap-2">
-              <Icon :name="item.icon" class="text-lg text-gold shrink-0" />
-              <span>{{ item.text }}</span>
-            </li>
-          </ul>
-
-          <div v-if="card.icons" class="mt-4 pt-4 border-t border-dashed border-ink/15 grid grid-cols-3 gap-2">
-            <div v-for="item in card.icons" :key="item.text" class="flex flex-col items-center gap-1.5 text-xs text-ink/80">
-              <Icon :name="item.icon" class="text-2xl text-ink" />
-              {{ item.text }}
-            </div>
-          </div>
-
-          <p v-if="card.note" class="mt-auto pt-4">
-            <span class="flex items-start gap-2 text-xs text-ink/80 text-start bg-gold/10 border border-gold/30 rounded-2xl p-3">
-              <Icon name="mdi:alert-circle-outline" class="text-base text-gold shrink-0" />
-              {{ card.note }}
-            </span>
-          </p>
-        </div>
-      </div>
-    </template>
-
     <template v-if="isAr">
       <section>
         <p>
@@ -260,66 +220,6 @@ const UPDATED = '2026-11-22'
 const settings = useStoreSettings()
 const { t, isAr } = useLang()
 const whatsappLink = computed(() => `https://wa.me/${toWhatsAppNumber(settings.value.whatsappSupport)}`)
-
-const summary = computed(() => (isAr.value
-  ? [
-      {
-        title: 'الاستبدال', days: 'يومًا', from: 'من تاريخ الشراء',
-        items: [
-          { icon: 'mdi:receipt-text-outline', text: 'بالفاتورة' },
-          { icon: 'mdi:package-variant-closed', text: 'المنتج بحالته الأصلية' },
-          { icon: 'mdi:hand-back-right-off-outline', text: 'غير مستخدم' },
-          { icon: 'mdi:tag-outline', text: 'بالتغليف والملصقات الأصلية' },
-        ],
-      },
-      {
-        title: 'الاسترجاع', lead: 'متاح في حالات محددة فقط',
-        items: [
-          { icon: 'mdi:alert-decagram-outline', text: 'وجود عيب صناعة' },
-          { icon: 'mdi:file-compare', text: 'منتج غير مطابق للفاتورة' },
-          { icon: 'mdi:package-variant-remove', text: 'وجود تلف بالمنتج' },
-        ],
-        note: 'لا يُعد تغيّر الرأي أو عدم ملاءمة المنتج سببًا للاسترجاع',
-      },
-      {
-        title: 'المنتجات المستثناة', lead: 'منتجات لا تُستبدل ولا تُسترجع',
-        icons: [
-          { icon: 'mdi:hair-dryer-outline', text: 'الأجهزة الكهربائية' },
-          { icon: 'mdi:lipstick', text: 'المكياج' },
-          { icon: 'mdi:spray-bottle', text: 'العطور' },
-        ],
-        note: 'ويشمل ذلك المنتجات التي تم فتحها أو استخدامها',
-      },
-    ]
-  : [
-      {
-        title: 'Exchanges', days: 'days', from: 'from the date of purchase',
-        items: [
-          { icon: 'mdi:receipt-text-outline', text: 'With the invoice' },
-          { icon: 'mdi:package-variant-closed', text: 'In original condition' },
-          { icon: 'mdi:hand-back-right-off-outline', text: 'Unused' },
-          { icon: 'mdi:tag-outline', text: 'With original packaging and labels' },
-        ],
-      },
-      {
-        title: 'Returns', lead: 'Only in specific cases',
-        items: [
-          { icon: 'mdi:alert-decagram-outline', text: 'Manufacturing defect' },
-          { icon: 'mdi:file-compare', text: 'Product not matching the invoice' },
-          { icon: 'mdi:package-variant-remove', text: 'Damaged product' },
-        ],
-        note: 'A change of mind or a product not suiting you is not grounds for a return',
-      },
-      {
-        title: 'Exclusions', lead: 'Items that cannot be exchanged or returned',
-        icons: [
-          { icon: 'mdi:hair-dryer-outline', text: 'Electrical appliances' },
-          { icon: 'mdi:lipstick', text: 'Makeup' },
-          { icon: 'mdi:spray-bottle', text: 'Perfumes' },
-        ],
-        note: 'This includes products that have been opened or used',
-      },
-    ]))
 
 useSeoMeta({
   title: () => t('policies.returns'),

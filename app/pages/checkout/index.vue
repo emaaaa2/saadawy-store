@@ -30,11 +30,11 @@
         <h3 class="font-semibold text-ink mb-3">{{ $t('checkout.summary') }}</h3>
         <div
           v-for="item in cart.items"
-          :key="item.id"
+          :key="cartLineKey(item)"
           class="flex justify-between gap-3 text-sm py-2 border-b border-ink/10 last:border-0"
         >
           <span class="text-ink/80"
-            ><bdi>{{ productName(item) }}</bdi> × {{ item.quantity }}</span
+            ><bdi>{{ cartItemName(item) }}</bdi> × {{ item.quantity }}</span
           >
           <span class="font-medium text-ink shrink-0"
             >{{ price((item.sale_price ?? item.price) * item.quantity) }}</span
@@ -202,7 +202,7 @@
 const cart = useCartStore();
 const user = useSupabaseUser();
 const toast = useToastStore();
-const { t, price, productName, governorateName } = useLang();
+const { t, price, cartItemName, governorateName } = useLang();
 const isSubmitting = ref(false);
 const phoneError = ref("");
 useSeoMeta({ title: () => t("checkout.title"), robots: "noindex" });
@@ -296,7 +296,7 @@ function whatsappMessage(order) {
     line("address", form.value.address),
     "",
     t("checkout.whatsapp.items"),
-    ...cart.items.map((item) => `- ${productName(item)} x${item.quantity}`),
+    ...cart.items.flatMap((item) => orderItemLines(item, t, cartItemName)),
     "",
     line("total", price(order.total)),
     line("payment", t(`checkout.payment.${form.value.paymentMethod}`)),

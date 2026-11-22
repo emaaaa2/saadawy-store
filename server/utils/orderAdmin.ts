@@ -4,7 +4,8 @@ import { serverSupabaseServiceRole } from '#supabase/server'
 export const ORDER_STATUSES = ['awaiting_payment', 'pending', 'confirmed', 'delivered', 'cancelled']
 
 type Client = ReturnType<typeof serverSupabaseServiceRole>
-interface OrderItem { id: string; name: string; quantity: number }
+// variant_id: the colour/shade the customer chose (product_variants), when the product has them.
+interface OrderItem { id: string; name: string; quantity: number; variant_id?: string | null }
 export interface AdminOrder { id: number | string; order_number: string; status: string; items: OrderItem[]; [column: string]: unknown }
 
 export async function getOrdersByIds(event: H3Event, ids: string[]) {
@@ -17,16 +18,24 @@ export async function getOrdersByIds(event: H3Event, ids: string[]) {
   return (data ?? []) as AdminOrder[]
 }
 
+/** Takes one order line out of stock: from its colour if it has one, else from the product. True if there was enough. */
+export function takeItemStock(client: Client, item: OrderItem) {
+  return item.variant_id
+    ? client.rpc('decrement_variant_stock', { variant_id: item.variant_id, qty: item.quantity })
+    : client.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
+}
+
 export async function returnToStock(client: Client, items: OrderItem[]) {
   for (const item of items) {
-    await client.rpc('increment_stock', { product_id: item.id, qty: item.quantity })
+    if (item.variant_id) await client.rpc('increment_variant_stock', { variant_id: item.variant_id, qty: item.quantity })
+    else await client.rpc('increment_stock', { product_id: item.id, qty: item.quantity })
   }
 }
 
 export async function takeFromStock(client: Client, items: OrderItem[]) {
   const taken: OrderItem[] = []
   for (const item of items) {
-    const { data: ok, error } = await client.rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
+    const { data: ok, error } = await takeItemStock(client, item)
     if (error || !ok) {
       await returnToStock(client, taken)
       throw error

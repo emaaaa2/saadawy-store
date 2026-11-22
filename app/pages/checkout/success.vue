@@ -44,7 +44,7 @@
 
 <script setup>
 const route = useRoute()
-const { t, price, productName } = useLang()
+const { t, price, cartItemName } = useLang()
 const paymentPending = computed(() => route.query.pending === 'true')
 const paymentSucceeded = computed(() => route.query.success === 'true' && !paymentPending.value)
 
@@ -69,7 +69,7 @@ onMounted(() => {
     line('address', order.address),
     '',
     t('checkout.whatsapp.items'),
-    ...order.items.map((item) => `- ${productName(item)} x${item.quantity}`),
+    ...order.items.flatMap((item) => orderItemLines(item, t, cartItemName)),
     '',
     line('total', price(order.total)),
   ].join('\n')

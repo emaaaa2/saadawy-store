@@ -19,5 +19,6 @@ export default defineEventHandler(async (event) => {
   const storedImages = await getStoredImageNames(event)
   const missingPhotos = [data.image, ...(data.images ?? [])].filter((url) => url && !hasStoredImage(url, storedImages))
 
-  return { product: data, missingPhotos }
+  const variants = data.has_variants ? (await getVariants(client, [data.id]))[data.id] ?? [] : []
+  return { product: data, variants, missingPhotos }
 })

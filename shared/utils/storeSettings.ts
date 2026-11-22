@@ -1,3 +1,5 @@
+import { MAX_SUBCATEGORIES, SUBCATEGORY_NAME_LIMIT, type Subcategory } from './subcategories'
+
 export const PAYMENT_METHODS = [
   { value: 'cash_on_delivery', label: 'Cash on Delivery', icon: 'mdi:cash' },
   { value: 'bank_transfer', label: 'Mobile Wallet / InstaPay', icon: 'mdi:wallet-outline' },
@@ -55,6 +57,8 @@ export interface StoreSettings {
   welcomeMessage: string
   welcomeMessageAr: string
   categories: Partial<Record<StoreCategory, CategoryCustomization>>
+  // A category's types as edited in the dashboard; a category not in here uses DEFAULT_SUBCATEGORIES.
+  subcategories: Partial<Record<StoreCategory, Subcategory[]>>
 }
 
 export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
@@ -82,6 +86,7 @@ export const STORE_SETTINGS_DEFAULTS: StoreSettings = {
   welcomeMessage: 'Enjoy 10% off your first order — just use the code below at checkout.',
   welcomeMessageAr: 'استمتع بخصم 10% على أول طلب — استخدم الكود ده عند الدفع.',
   categories: {},
+  subcategories: {},
 }
 
 // Texts shown on the store in both languages: which field holds each language.
@@ -129,6 +134,8 @@ export function sanitizeStoreSettings(input: unknown): StoreSettings {
       }
     } else if (key === 'categories') {
       result.categories = sanitizeCategories(value)
+    } else if (key === 'subcategories') {
+      result.subcategories = sanitizeSubcategories(value)
     } else if (key === 'welcomePopupEnabled') {
       if (typeof value === 'boolean') result.welcomePopupEnabled = value
     } else if (typeof value === 'string') {
@@ -155,6 +162,31 @@ export function sanitizeCategories(input: unknown): StoreSettings['categories'] 
       image: /^https:\/\/\S+$/.test(image) ? image : '',
     }
     if (customization.nameAr || customization.nameEn || customization.image) result[slug] = customization
+  }
+  return result
+}
+
+/** Each category's list of types: known categories only, valid unique values, at least one name each. */
+export function sanitizeSubcategories(input: unknown): StoreSettings['subcategories'] {
+  const source = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>
+  const text = (value: unknown) => (typeof value === 'string' ? value.trim().slice(0, SUBCATEGORY_NAME_LIMIT) : '')
+  const result: StoreSettings['subcategories'] = {}
+
+  for (const { slug } of STORE_CATEGORIES) {
+    const list = source[slug]
+    if (!Array.isArray(list)) continue
+    const seen = new Set<string>()
+    const clean: Subcategory[] = []
+    for (const item of list.slice(0, MAX_SUBCATEGORIES)) {
+      const v = (item && typeof item === 'object' ? item : {}) as Record<string, unknown>
+      const value = typeof v.value === 'string' && /^[a-z0-9-]{1,40}$/.test(v.value) ? v.value : ''
+      const labelAr = text(v.labelAr)
+      const label = text(v.label)
+      if (!value || seen.has(value) || (!labelAr && !label)) continue
+      seen.add(value)
+      clean.push({ value, label, labelAr })
+    }
+    result[slug] = clean
   }
   return result
 }

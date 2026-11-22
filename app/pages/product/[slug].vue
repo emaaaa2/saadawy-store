@@ -153,17 +153,25 @@
           <ExpandableText :text="productUsage(product)" text-class="text-sm text-ink/70 leading-relaxed" clamp="line-clamp-3" />
         </div>
 
+        <ProductVariantPicker
+          v-if="variants.length"
+          ref="variantPicker"
+          v-model="selectedVariantId"
+          :variants="variants"
+          :error="variantError"
+        />
+
         <div class="flex items-center gap-2 mb-8">
           <Icon
-            :name="product.stock > 0 ? 'mdi:check-circle' : 'mdi:close-circle'"
-            :class="product.stock > 0 ? 'text-sage' : 'text-red-400'"
+            :name="available > 0 ? 'mdi:check-circle' : 'mdi:close-circle'"
+            :class="available > 0 ? 'text-sage' : 'text-red-400'"
             class="text-lg"
           />
-          <span class="text-sm" :class="product.stock > 0 ? 'text-sage' : 'text-red-400'">
-            {{ product.stock > 0 ? $t('common.inStock') : $t('common.outOfStock') }}
+          <span class="text-sm" :class="available > 0 ? 'text-sage' : 'text-red-400'">
+            {{ available > 0 ? $t('common.inStock') : $t('common.outOfStock') }}
           </span>
-          <span v-if="product.stock > 0 && product.stock < 3" class="text-sm font-semibold text-red-500">
-            — {{ $t('common.onlyLeft', { count: product.stock }) }}
+          <span v-if="available > 0 && available < 3" class="text-sm font-semibold text-red-500">
+            — {{ $t('common.onlyLeft', { count: available }) }}
           </span>
         </div>
 
@@ -180,14 +188,14 @@
             <button
               class="w-10 h-10 flex items-center justify-center text-ink hover:bg-ink/5 transition"
               :aria-label="$t('product.increase')"
-              @click="quantity = Math.min(product.stock, quantity + 1)"
+              @click="quantity = Math.min(available, quantity + 1)"
             >
               <Icon name="mdi:plus" class="text-sm" />
             </button>
           </div>
 
           <button
-            :disabled="product.stock === 0"
+            :disabled="available === 0"
             class="flex-1 bg-olive text-beige py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             @click="handleAddToCart"
           >
@@ -208,10 +216,6 @@
           <li v-if="settingText('deliveryTime')" class="flex items-center gap-2.5">
             <Icon name="mdi:clock-outline" class="text-lg text-gold shrink-0" />
             {{ $t('product.trust.delivery', { time: settingText('deliveryTime') }) }}
-          </li>
-          <li class="flex items-center gap-2.5">
-            <Icon name="mdi:check-decagram-outline" class="text-lg text-gold shrink-0" />
-            {{ $t('product.trust.original') }}
           </li>
           <li class="flex items-center gap-2.5">
             <Icon name="mdi:whatsapp" class="text-lg text-gold shrink-0" />
@@ -241,12 +245,12 @@
             </p>
           </div>
           <button
-            :disabled="product.stock === 0"
+            :disabled="available === 0"
             class="shrink-0 bg-olive text-beige px-5 py-3 rounded-full font-semibold hover:bg-gold hover:text-olive transition disabled:opacity-40 flex items-center gap-2"
             @click="handleAddToCart"
           >
             <Icon name="mdi:cart-outline" class="text-lg" />
-            {{ product.stock === 0 ? $t('common.outOfStock') : $t('common.addToCart') }}
+            {{ available === 0 ? $t('common.outOfStock') : variants.length && !selectedVariant ? $t('product.variant.chooseShort') : $t('common.addToCart') }}
           </button>
         </div>
       </div>
@@ -366,9 +370,41 @@ function scrollToReviews() {
   reviewFormTrigger.value++
 }
 
+// Colours / shades: the customer picks one before adding to the cart; each has its own stock and
+// may have its own photo, which the gallery then shows.
+const variants = computed(() => product.value?.variants ?? [])
+const selectedVariantId = ref(variants.value.length === 1 ? variants.value[0].id : null)
+const selectedVariant = computed(() => variants.value.find((v) => v.id === selectedVariantId.value) ?? null)
+const available = computed(() => (selectedVariant.value ? selectedVariant.value.stock : product.value?.stock ?? 0))
+const variantError = ref(false)
+const variantPicker = ref(null)
+
+// Another product opened in the same page: start with no colour chosen (or its only one).
+watch(() => product.value?.id, () => {
+  selectedVariantId.value = variants.value.length === 1 ? variants.value[0].id : null
+})
+
+watch(selectedVariantId, () => {
+  variantError.value = false
+  quantity.value = 1
+  const index = selectedVariant.value?.image ? galleryImages.value.indexOf(selectedVariant.value.image) : -1
+  if (index >= 0) activeImageIndex.value = index
+})
+
+// The photo the customer chose: the colour's own photo, else the one on screen when the product
+// has several (e.g. different designs or scents under one code), so the shop knows which one.
+const chosenImage = computed(() =>
+  selectedVariant.value?.image || (galleryImages.value.length > 1 ? galleryImages.value[activeImageIndex.value] : null) || null
+)
+
 function handleAddToCart() {
+  if (variants.value.length && !selectedVariant.value) {
+    variantError.value = true
+    variantPicker.value?.scrollIntoView()
+    return
+  }
   for (let i = 0; i < quantity.value; i++) {
-    cart.addItem(product.value)
+    cart.addItem(product.value, selectedVariant.value, chosenImage.value)
   }
 }
 

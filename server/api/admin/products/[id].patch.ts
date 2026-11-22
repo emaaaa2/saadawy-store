@@ -35,6 +35,13 @@ export default defineEventHandler(async (event) => {
   if (readError) throw productSaveError(readError)
   if (!current) throw adminError(404, 'productNotFound', 'This product no longer exists')
 
+  // A product with colours has its stock set per colour (api/admin/products/[id]/variants).
+  if (current.has_variants && 'stock' in updates) {
+    delete updates.stock
+    if (original && typeof original === 'object') delete original.stock
+    if (!Object.keys(updates).length) return { product: current }
+  }
+
   // The dashboard sends the values it showed when the page opened. If any of the fields being
   // saved has changed since (an order took stock, or another admin saved), don't overwrite it.
   const checked = original && typeof original === 'object' ? Object.keys(original).filter((key) => COLUMNS[key]) : []

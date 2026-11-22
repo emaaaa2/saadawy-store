@@ -37,7 +37,7 @@
             <div class="flex-1 overflow-y-auto p-4 space-y-4">
               <div
                 v-for="item in cart.items"
-                :key="item.id"
+                :key="cartLineKey(item)"
                 class="flex gap-3 pb-4 border-b border-ink/10"
               >
                 <div
@@ -61,6 +61,9 @@
                   <p dir="auto" class="text-sm font-medium text-ink mb-1">
                     {{ $pname(item) }}
                   </p>
+                  <p v-if="item.variant_id" dir="auto" class="text-xs text-taupe mb-1">
+                    {{ $t('product.variant.label') }}: {{ variantName({ name: item.variant_name, name_en: item.variant_name_en }) }}
+                  </p>
                   <p class="text-sm font-bold text-ink mb-2">
                     {{ $price(item.sale_price ?? item.price) }}
                   </p>
@@ -69,7 +72,7 @@
                     <button
                       class="w-6 h-6 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-olive hover:text-beige transition"
                       :aria-label="$t('product.decrease')"
-                      @click="cart.decreaseQty(item.id)"
+                      @click="cart.decreaseQty(cartLineKey(item))"
                     >
                       <Icon name="mdi:minus" class="text-xs" />
                     </button>
@@ -79,7 +82,7 @@
                     <button
                       class="w-6 h-6 rounded-full border border-ink/20 flex items-center justify-center text-ink hover:bg-olive hover:text-beige transition"
                       :aria-label="$t('product.increase')"
-                      @click="cart.increaseQty(item.id)"
+                      @click="cart.increaseQty(cartLineKey(item))"
                     >
                       <Icon name="mdi:plus" class="text-xs" />
                     </button>
@@ -87,7 +90,7 @@
                     <button
                       class="ms-auto text-taupe hover:text-red-500 transition"
                       :aria-label="$t('cart.remove')"
-                      @click="cart.removeItem(item.id)"
+                      @click="cart.removeItem(cartLineKey(item))"
                     >
                       <Icon name="mdi:trash-can-outline" class="text-base" />
                     </button>
@@ -121,6 +124,7 @@
 <script setup>
 const cartUI = useCartUIStore();
 const cart = useCartStore();
+const { variantName } = useLang();
 const failedImages = reactive(new Set());
 </script>
 

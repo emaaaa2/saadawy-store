@@ -337,10 +337,11 @@ const searchOpen = ref(false);
 const searchInputEl = ref(null);
 let debounceTimer = null;
 
-const navCategories = ["skincare", "perfume", "makeup", "haircare", "bags", "kitchen", "hijab", "accessories"].map((slug) => ({
+const subcategoriesOf = useSubcategories();
+const navCategories = computed(() => ["skincare", "perfume", "makeup", "haircare", "bags", "kitchen", "hijab", "accessories"].map((slug) => ({
   slug,
-  subcategories: categorySubcategories[slug] ?? [],
-}));
+  subcategories: subcategoriesOf(slug),
+})));
 
 watch(searchQuery, (newValue) => {
   clearTimeout(debounceTimer);

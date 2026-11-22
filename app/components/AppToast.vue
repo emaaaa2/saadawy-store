@@ -33,13 +33,14 @@
 <script setup>
 const toast = useToastStore()
 const cartUI = useCartUIStore()
-const { t, productName } = useLang()
+const { t, cartItemName } = useLang()
 
 const text = computed(() => {
   const message = toast.message
   if (typeof message === 'string') return message
   const { product, ...params } = message.params ?? {}
-  return t(message.key, product ? { ...params, name: productName(product) } : params)
+  // A cart line also shows its colour ("… – أحمر 05").
+  return t(message.key, product ? { ...params, name: cartItemName(product) } : params)
 })
 // Set by the product page while its fixed Add to Cart bar is showing on phones.
 const ctaVisible = useState('mobile-cta-visible', () => false)

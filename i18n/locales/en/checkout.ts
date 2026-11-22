@@ -42,6 +42,8 @@ export default {
     phone: 'Phone: {value}',
     address: 'Address: {value}',
     items: 'Items:',
+    code: 'code {value}',
+    photo: 'Photo: {value}',
     total: 'Total: {value}',
     payment: 'Payment: {value}',
     transferTo: 'Please transfer to:',

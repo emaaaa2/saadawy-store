@@ -1,5 +1,9 @@
-// `label` is English, `labelAr` Arabic; show the right one with useLang().subcategoryLabel().
-export const categorySubcategories: Record<string, { value: string; label: string; labelAr: string }[]> = {
+// The types inside each category (e.g. Makeup → Lips). `value` is what products store and what the
+// store's links use; `label` is English, `labelAr` Arabic (useLang().subcategoryLabel()).
+// These are the defaults: Dashboard → Categories can add, rename and remove them (store settings).
+export interface Subcategory { value: string; label: string; labelAr: string }
+
+export const DEFAULT_SUBCATEGORIES: Record<string, Subcategory[]> = {
   skincare: [
     { value: 'cleansers', label: 'Cleansers', labelAr: 'غسول ومنظفات' },
     { value: 'serums', label: 'Serums', labelAr: 'سيرم' },
@@ -51,4 +55,18 @@ export const categorySubcategories: Record<string, { value: string; label: strin
     { value: 'toys', label: 'Toys', labelAr: 'ألعاب' },
     { value: 'other', label: 'Other', labelAr: 'أخرى' },
   ],
+}
+
+export const SUBCATEGORY_NAME_LIMIT = 40
+export const MAX_SUBCATEGORIES = 40
+
+/** A category's types: the dashboard's list if it has been saved, else the defaults above. */
+export function subcategoriesFor(settings: { subcategories?: Record<string, Subcategory[] | undefined> } | null | undefined, category: string | null | undefined): Subcategory[] {
+  if (!category) return []
+  return settings?.subcategories?.[category] ?? DEFAULT_SUBCATEGORIES[category] ?? []
+}
+
+/** Lower-case letters, digits and dashes, from an English name ("Lip Oils & Balms" → "lip-oils-balms"). */
+export function subcategorySlug(text: string) {
+  return text.toLowerCase().replace(/&/g, ' ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40)
 }

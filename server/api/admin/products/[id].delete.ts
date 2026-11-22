@@ -10,11 +10,18 @@ export default defineEventHandler(async (event) => {
   if (readError) throw internalError(readError)
   if (!product) throw adminError(404, 'productNotFound', 'This product no longer exists')
 
+  // Its colours go with it (the database deletes them too), so they're kept for a restore as well.
+  const variants = product.has_variants ? (await getVariants(client, [product.id]))[product.id] ?? [] : []
+
   // The whole product (photos, categories, English names) is saved in the activity log first, so
   // it can be restored from the dashboard. If that copy can't be saved, the product isn't deleted.
   let entryId: number
   try {
-    entryId = await recordActivity(event, access.email, 'product.delete', product.sku ?? productId, { name: product.name, row: product })
+    entryId = await recordActivity(event, access.email, 'product.delete', product.sku ?? productId, {
+      name: product.name,
+      row: product,
+      ...(variants.length ? { variants } : {}),
+    })
   } catch (error) {
     console.error('Activity log failed before a delete:', error)
     throw adminError(500, 'activitySql', 'Run supabase_admin_activity.sql in Supabase first')

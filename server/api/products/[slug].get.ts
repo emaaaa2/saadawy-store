@@ -19,5 +19,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'Product not found' })
   }
 
-  return { product: data }
+  // Colours / shades the customer picks from (each with its own stock).
+  const variants = data.has_variants ? (await getVariants(client, [data.id]))[data.id] ?? [] : []
+  return { product: { ...data, variants } }
 })

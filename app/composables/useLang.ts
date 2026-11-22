@@ -66,6 +66,15 @@ export function useLang() {
   const productDescription = (p: Product) => (isAr.value ? p?.description : p?.description_en || p?.description) ?? ''
   const productUsage = (p: Product) => (isAr.value ? p?.usage_info : p?.usage_info_en || p?.usage_info) ?? ''
 
+  /** A colour / shade's name (product_variants: `name` Arabic, `name_en` English). */
+  const variantName = (v: { name?: string | null; name_en?: string | null } | null | undefined) =>
+    (isAr.value ? v?.name : v?.name_en || v?.name) ?? ''
+  /** A cart line's name with the chosen colour, e.g. "روج … – أحمر 05". */
+  const cartItemName = (item: Product & { variant_name?: string | null; variant_name_en?: string | null }) => {
+    const variant = variantName({ name: item?.variant_name, name_en: item?.variant_name_en })
+    return variant ? `${productName(item)} – ${variant}` : productName(item)
+  }
+
   function price(value: number | string | null | undefined) {
     const amount = Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })
     return isAr.value ? `${amount} ج.م` : `EGP ${amount}`
@@ -91,8 +100,9 @@ export function useLang() {
     const custom = storeSettings.value.categories?.[value as StoreCategory]
     return (isAr.value ? custom?.nameAr : custom?.nameEn) || t(`categories.${value}`)
   }
-  const subcategoryLabel = (sub: { label: string; labelAr?: string } | null | undefined) =>
-    (isAr.value ? sub?.labelAr || sub?.label : sub?.label) ?? ''
+  // A type added in the dashboard may have only one of the two names.
+  const subcategoryLabel = (sub: { label?: string; labelAr?: string } | null | undefined) =>
+    (isAr.value ? sub?.labelAr || sub?.label : sub?.label || sub?.labelAr) ?? ''
   // Governorates are stored by English name; their `label` is Arabic.
   const governorateName = (g: { value: string; label: string } | null | undefined) =>
     (isAr.value ? g?.label : g?.value) ?? ''
@@ -101,7 +111,7 @@ export function useLang() {
 
   return {
     lang, isAr, dir, setLang, t, tc, tm,
-    productName, productDescription, productUsage, price, date, categoryName, subcategoryLabel, governorateName,
+    productName, productDescription, productUsage, variantName, cartItemName, price, date, categoryName, subcategoryLabel, governorateName,
     settingText: settingTextFor,
   }
 }

@@ -18,6 +18,7 @@ export default {
   tooManyOpenOrders: 'You already have several orders waiting. Please wait for us to confirm them, or contact us on WhatsApp.',
   tooManyRequests: 'Too many attempts. Please wait a few minutes and try again.',
   outOfStock: '{name} is out of stock',
+  chooseVariant: 'Please choose a colour or shade for {name}',
   reviewName: 'Please enter your name',
   reviewComment: 'Please enter a review (max 1000 characters)',
   reviewRating: 'Please choose a rating from 1 to 5',

@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
   const before = await getStoreSettings(event)
   // Categories are edited on their own page (api/admin/categories); this page may hold an old copy.
   settings.categories = before.categories
+  settings.subcategories = before.subcategories
   const updatedAt = new Date().toISOString()
   const { error } = await serverSupabaseServiceRole(event)
     .from('store_settings')

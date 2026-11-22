@@ -96,8 +96,8 @@
         </p>
         <div class="space-y-2">
           <div
-            v-for="item in order.items"
-            :key="item.id"
+            v-for="(item, index) in order.items"
+            :key="`${item.id}:${item.variant_id ?? index}`"
             class="flex items-center justify-between gap-3 text-sm"
           >
             <span class="text-ink/80"><bdi>{{ item.name }}</bdi> × {{ item.quantity }}</span>

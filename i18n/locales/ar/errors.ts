@@ -18,6 +18,7 @@ export default {
   tooManyOpenOrders: 'عندك كذا طلب لسه مستني التأكيد. استنى لما نأكدهم، أو كلمنا على واتساب.',
   tooManyRequests: 'محاولات كتير ورا بعض. استنى كام دقيقة وجرب تاني.',
   outOfStock: '{name} خلص من المخزون',
+  chooseVariant: 'اختار اللون أو الدرجة لـ {name}',
   reviewName: 'اكتب اسمك',
   reviewComment: 'اكتب تقييمك (بحد أقصى 1000 حرف)',
   reviewRating: 'اختار تقييم من 1 لـ 5',

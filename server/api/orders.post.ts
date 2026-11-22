@@ -47,9 +47,10 @@ export default defineEventHandler(async (event) => {
 
   const itemIds = body.items.map((item) => item.id)
 
+  // '*' so this still works before supabase_add_product_variants.sql adds has_variants.
   const { data: products, error: productsError } = await client
     .from('products')
-    .select('id, name, price, sale_price, sku, category')
+    .select('*')
     .in('id', itemIds)
 
   if (productsError) {
@@ -57,6 +58,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const productMap = new Map(products.map((product) => [product.id, product]))
+  const variantsByProduct = await getVariants(client, products.filter((product) => product.has_variants).map((product) => product.id))
 
   const verifiedItems = body.items.map((item) => {
     const product = productMap.get(item.id)
@@ -69,14 +71,28 @@ export default defineEventHandler(async (event) => {
       throw customerError(400, 'invalidQuantity', 'Invalid item quantity')
     }
 
+    // A product with colours is ordered as one of them; its stock comes from that colour.
+    const variant = product.has_variants
+      ? (variantsByProduct[product.id] ?? []).find((v) => v.id === item.variant_id)
+      : null
+    if (product.has_variants && !variant) {
+      throw customerError(400, 'chooseVariant', `Please choose a colour for ${product.name}`, { name: product.name })
+    }
+
     return {
       id: product.id,
       sku: product.sku,
-      name: product.name,
+      // The colour is part of the name, so every place that shows the order shows it too.
+      name: variant ? `${product.name} – ${variant.name}` : product.name,
       price: product.price,
       sale_price: product.sale_price,
       category: product.category,
-      quantity: item.quantity
+      quantity: item.quantity,
+      // The photo the customer chose (one of this product's or the colour's own), else the colour's
+      // photo, else the product's: the dashboard order shows it so the right one gets packed.
+      image: ([product.image, ...(product.images ?? []), variant?.image].includes(item.chosen_image) && item.chosen_image)
+        || variant?.image || product.image || null,
+      ...(variant ? { variant_id: variant.id, variant_name: variant.name, variant_name_en: variant.name_en } : {})
     }
   })
 
@@ -143,8 +159,7 @@ export default defineEventHandler(async (event) => {
   }
 
   for (const item of verifiedItems) {
-    const { data: success, error: stockError } = await client
-      .rpc('decrement_stock', { product_id: item.id, qty: item.quantity })
+    const { data: success, error: stockError } = await takeItemStock(client, item)
 
     if (stockError) {
       await undo()
