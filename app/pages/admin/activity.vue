@@ -119,6 +119,7 @@ function lines(entry) {
   }
   if (entry.action === 'order.status') return [`${t(`admin.status.${d.from}`)} ${arrow.value} ${t(`admin.status.${d.to}`)}`]
   if (entry.action === 'products.import') return [t('admin.activity.importSummary', { rows: d.rows, saved: d.saved, added: d.added })]
+  if (entry.action === 'products.colourStock') return [t('admin.activity.colourStockSummary', { rows: d.rows, updated: d.updated, conflicts: d.conflicts })]
   if (entry.action === 'newsletter.send') return [`${d.subject ?? ''} — ${t('admin.activity.sentSummary', { sent: d.sent ?? 0 })}`]
   if (entry.action === 'admin.permissions' || entry.action === 'admin.add') {
     const names = (list) => (list ?? []).map((p) => t(`admin.sections.${p}`)).join('، ')

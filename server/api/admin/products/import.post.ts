@@ -22,12 +22,12 @@ export default defineEventHandler(async (event) => {
 
   // What's already saved for the products in the file: kept where the file says nothing.
   const skusInFile: string[] = parsed.data.map((raw: any) => raw?.sku && String(raw.sku).trim()).filter(Boolean)
-  const existing = new Map<string, { name: string; slug: string; image: string | null; category: string; sale_price: number | null; has_variants?: boolean }>()
+  const existing = new Map<string, { id: string; name: string; slug: string; image: string | null; category: string; sale_price: number | null; stock: number; has_variants?: boolean }>()
   for (let i = 0; i < skusInFile.length; i += 200) {
     const batch = skusInFile.slice(i, i + 200)
-    let { data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price, has_variants').in('sku', batch)
+    let { data, error } = await client.from('products').select('id, sku, name, slug, image, category, sale_price, stock, has_variants').in('sku', batch)
     // 42703: has_variants isn't there until supabase_add_product_variants.sql is run.
-    if (error?.code === '42703') ({ data, error } = await client.from('products').select('sku, name, slug, image, category, sale_price').in('sku', batch))
+    if (error?.code === '42703') ({ data, error } = await client.from('products').select('id, sku, name, slug, image, category, sale_price, stock').in('sku', batch))
     if (error) throw internalError(error)
     for (const p of data ?? []) existing.set(p.sku, p)
   }
@@ -35,6 +35,9 @@ export default defineEventHandler(async (event) => {
   // `code` lets the dashboard show each reason in its own language (admin.errors.import).
   const errors: { row: number; message: string; code: string; params?: Record<string, unknown> }[] = []
   const rows: Record<string, unknown>[] = []
+  // Products with colours whose number in the file isn't the total of their colours on the site:
+  // the file can't say which colour changed, so they're listed for the admin to check.
+  const colourChecks: { productId: string; sku: string; name: string; sheet: number; site: number }[] = []
 
   parsed.data.forEach((raw: any, index: number) => {
     const rowNumber = index + 2 // +1 for 0-index, +1 for header row
@@ -69,6 +72,10 @@ export default defineEventHandler(async (event) => {
     if (!Number.isInteger(stock) || stock < 0) {
       errors.push({ row: rowNumber, message: `SKU ${sku}: invalid stock`, code: 'invalidStock', params: { sku } })
       return
+    }
+
+    if (saved?.has_variants && stock !== Number(saved.stock)) {
+      colourChecks.push({ productId: saved.id, sku, name: saved.name, sheet: stock, site: Number(saved.stock) })
     }
 
     const row: Record<string, unknown> = {
@@ -137,6 +144,7 @@ export default defineEventHandler(async (event) => {
     totalRows: parsed.data.length,
     upserted,
     added,
-    errors
+    errors,
+    colourChecks,
   }
 })

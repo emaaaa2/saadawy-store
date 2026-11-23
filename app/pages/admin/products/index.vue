@@ -10,17 +10,37 @@
         <Icon name="mdi:download-outline" class="text-base" />
         {{ $t('admin.products.exportCsv') }}
       </a>
+      <!-- Colour stock: download every colour's count, edit it in Excel, upload it back. -->
+      <input ref="colourInput" type="file" accept=".csv" class="hidden" @change="handleColourUpload" />
+      <details ref="colourMenu" class="relative">
+        <summary class="adm-btn adm-btn-secondary list-none cursor-pointer [&::-webkit-details-marker]:hidden">
+          <Icon :name="isUploadingColours ? 'mdi:loading' : 'mdi:palette-swatch-outline'" class="text-base" :class="{ 'animate-spin': isUploadingColours }" />
+          {{ isUploadingColours ? $t('admin.products.colourUploading') : $t('admin.products.colourStock') }}
+          <Icon name="mdi:chevron-down" class="text-base" />
+        </summary>
+        <div class="absolute z-30 end-0 mt-1 w-72 adm-card p-2 shadow-lg">
+          <p class="text-xs text-stone-500 px-2 pt-1 pb-2 leading-relaxed">{{ $t('admin.products.colourStockHint') }}</p>
+          <a href="/api/admin/products/colour-stock" class="flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100" @click="closeColourMenu">
+            <Icon name="mdi:download-outline" class="text-lg text-stone-400" />
+            {{ $t('admin.products.colourDownload') }}
+          </a>
+          <button type="button" class="w-full flex items-center gap-2 px-2 py-2 rounded-lg text-sm text-stone-700 hover:bg-stone-100" :disabled="isUploadingColours" @click="closeColourMenu(); colourInput?.click()">
+            <Icon name="mdi:upload-outline" class="text-lg text-stone-400" />
+            {{ $t('admin.products.colourUpload') }}
+          </button>
+        </div>
+      </details>
       <NuxtLink to="/admin/products/new" class="adm-btn adm-btn-primary">
         <Icon name="mdi:plus" class="text-base" />
         {{ $t('admin.products.add') }}
       </NuxtLink>
     </AdminPageHeader>
 
-    <div v-if="importResult" class="adm-card p-4 mb-4 flex gap-3" :class="importResult.errors.length ? 'border-amber-200 dark:border-amber-500/30' : 'border-emerald-200 dark:border-emerald-500/30'">
+    <div v-if="importResult" class="adm-card p-4 mb-4 flex gap-3" :class="importNeedsLook ? 'border-amber-200 dark:border-amber-500/30' : 'border-emerald-200 dark:border-emerald-500/30'">
       <Icon
-        :name="importResult.errors.length ? 'mdi:alert-outline' : 'mdi:check-circle-outline'"
+        :name="importNeedsLook ? 'mdi:alert-outline' : 'mdi:check-circle-outline'"
         class="text-xl shrink-0"
-        :class="importResult.errors.length ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'"
+        :class="importNeedsLook ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'"
       />
       <div class="flex-1 min-w-0 text-sm">
         <p class="font-medium text-stone-800">{{ $t('admin.products.importDone', { saved: importResult.upserted, total: importResult.totalRows }) }}</p>
@@ -30,8 +50,52 @@
             <li v-for="err in importResult.errors" :key="err.row">{{ $t('admin.products.importRow', { row: err.row, message: err.code ? $t(`admin.errors.import.${err.code}`, err.params) : err.message }) }}</li>
           </ul>
         </template>
+        <!-- Products with colours: the sheet has one number, the site has one per colour. -->
+        <template v-if="importResult.colourChecks?.length">
+          <p class="font-medium text-stone-800 mt-3">{{ $t('admin.products.colourCheckTitle', { count: importResult.colourChecks.length }) }}</p>
+          <p class="text-stone-500 mt-0.5">{{ $t('admin.products.colourCheckText') }}</p>
+          <ul class="mt-2 divide-y divide-stone-200 border border-stone-200 rounded-lg max-h-64 overflow-y-auto">
+            <li v-for="check in importResult.colourChecks" :key="check.productId" class="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
+              <span class="adm-badge bg-stone-100 text-stone-600 font-mono">{{ check.sku }}</span>
+              <span dir="auto" class="flex-1 min-w-[8rem] truncate text-stone-800">{{ check.name }}</span>
+              <span class="text-xs text-stone-500">{{ $t('admin.products.colourCheckNumbers', { sheet: check.sheet, site: check.site }) }}</span>
+              <span class="adm-badge" :class="check.sheet < check.site ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400' : 'bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-400'">
+                {{ check.sheet < check.site ? $t('admin.products.colourLess', { count: check.site - check.sheet }) : $t('admin.products.colourMore', { count: check.sheet - check.site }) }}
+              </span>
+              <NuxtLink :to="`/admin/products/${check.productId}`" class="adm-btn adm-btn-ghost adm-btn-sm">{{ $t('admin.products.fixColours') }}</NuxtLink>
+            </li>
+          </ul>
+        </template>
       </div>
       <button type="button" class="adm-icon-btn shrink-0" :aria-label="$t('admin.products.dismiss')" @click="importResult = null">
+        <Icon name="mdi:close" class="text-lg" />
+      </button>
+    </div>
+
+    <div v-if="colourResult" class="adm-card p-4 mb-4 flex gap-3" :class="colourResult.conflicts.length || colourResult.errors.length ? 'border-amber-200 dark:border-amber-500/30' : 'border-emerald-200 dark:border-emerald-500/30'">
+      <Icon
+        :name="colourResult.conflicts.length || colourResult.errors.length ? 'mdi:alert-outline' : 'mdi:check-circle-outline'"
+        class="text-xl shrink-0"
+        :class="colourResult.conflicts.length || colourResult.errors.length ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'"
+      />
+      <div class="flex-1 min-w-0 text-sm">
+        <p class="font-medium text-stone-800">{{ $t('admin.products.colourDone', { updated: colourResult.updated, total: colourResult.totalRows }) }}</p>
+        <template v-if="colourResult.conflicts.length">
+          <p class="text-stone-500 mt-1">{{ $t('admin.products.colourConflicts') }}</p>
+          <ul class="text-stone-600 list-disc list-inside max-h-40 overflow-y-auto mt-1">
+            <li v-for="c in colourResult.conflicts" :key="`${c.sku}-${c.color}`">
+              <bdi>{{ c.sku }} – {{ c.color }}</bdi>: {{ $t('admin.products.colourConflictRow', { base: c.base ?? '—', now: c.now, wanted: c.wanted }) }}
+            </li>
+          </ul>
+        </template>
+        <template v-if="colourResult.errors.length">
+          <p class="text-stone-500 mt-1">{{ $t('admin.products.importSkipped', { count: colourResult.errors.length }) }}</p>
+          <ul class="text-stone-500 list-disc list-inside max-h-32 overflow-y-auto mt-1">
+            <li v-for="err in colourResult.errors" :key="err.row">{{ $t('admin.products.importRow', { row: err.row, message: $t(`admin.errors.import.${err.code}`, err.params) }) }}</li>
+          </ul>
+        </template>
+      </div>
+      <button type="button" class="adm-icon-btn shrink-0" :aria-label="$t('admin.products.dismiss')" @click="colourResult = null">
         <Icon name="mdi:close" class="text-lg" />
       </button>
     </div>
@@ -252,6 +316,38 @@ const bulkCategory = ref('')
 const isBulkBusy = ref(false)
 const fileInput = ref(null)
 const importResult = ref(null)
+const importNeedsLook = computed(() => !!(importResult.value?.errors.length || importResult.value?.colourChecks?.length))
+
+// Colour stock sheet (api/admin/products/colour-stock).
+const colourInput = ref(null)
+const colourMenu = ref(null)
+const colourResult = ref(null)
+const isUploadingColours = ref(false)
+const closeColourMenu = () => { if (colourMenu.value) colourMenu.value.open = false }
+
+async function handleColourUpload(event) {
+  const file = event.target.files[0]
+  event.target.value = ''
+  if (!file) return
+
+  const ok = await confirm({
+    title: t('admin.products.colourUploadTitle', { file: file.name }),
+    message: t('admin.products.colourUploadText'),
+    confirmLabel: t('admin.products.colourUploadConfirm'),
+  })
+  if (!ok) return
+
+  isUploadingColours.value = true
+  try {
+    colourResult.value = await $fetch('/api/admin/products/colour-stock', { method: 'POST', body: { csv: await file.text() } })
+    await refresh()
+    refreshBadges()
+  } catch (err) {
+    toast.error(adminErrorMessage(err))
+  } finally {
+    isUploadingColours.value = false
+  }
+}
 const isImporting = ref(false)
 const savingStock = reactive(new Set())
 
