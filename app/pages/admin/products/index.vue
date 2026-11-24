@@ -304,13 +304,16 @@ const toast = useToastStore()
 const { confirm } = useAdminConfirm()
 const { refresh: refreshBadges } = useAdminBadges()
 
-const currentPage = ref(1)
+const router = useRouter()
+const SORTS = ['newest', 'name', 'stock', 'price']
+const currentPage = ref(Math.max(1, Number.parseInt(route.query.page) || 1))
 const searchInput = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const search = ref(searchInput.value)
-const category = ref('all')
+const category = ref(typeof route.query.category === 'string' && route.query.category ? route.query.category : 'all')
 const stockFilter = ref(['low', 'out', 'in'].includes(route.query.stock) ? route.query.stock : '')
 const photoFilter = ref(['missing', 'has'].includes(route.query.photo) ? route.query.photo : '')
-const sort = ref(route.query.stock ? 'stock' : 'newest')
+const defaultSort = () => (stockFilter.value ? 'stock' : 'newest')
+const sort = ref(SORTS.includes(route.query.sort) ? route.query.sort : defaultSort())
 const selectedIds = ref([])
 const bulkCategory = ref('')
 const isBulkBusy = ref(false)
@@ -362,6 +365,20 @@ watch([search, category, stockFilter, photoFilter, sort], () => {
   selectedIds.value = []
 })
 watch(currentPage, () => { selectedIds.value = [] })
+
+// The list's page, search and filters live in the address, so saving a product (which goes back
+// here) or the browser's back button returns to the same place instead of page 1.
+watch([currentPage, search, category, stockFilter, photoFilter, sort], () => {
+  const query = Object.fromEntries(Object.entries({
+    page: currentPage.value > 1 ? String(currentPage.value) : '',
+    q: search.value,
+    category: category.value !== 'all' ? category.value : '',
+    stock: stockFilter.value,
+    photo: photoFilter.value,
+    sort: sort.value !== defaultSort() ? sort.value : '',
+  }).filter(([, value]) => value))
+  router.replace({ query })
+})
 
 const { data, pending, error, refresh } = await useFetch('/api/admin/products', {
   query: { page: currentPage, search, category, stock: stockFilter, photo: photoFilter, sort },

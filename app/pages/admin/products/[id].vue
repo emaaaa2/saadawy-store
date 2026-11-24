@@ -3,7 +3,7 @@
     <AdminPageHeader
       :title="isNew ? $t('admin.editor.addTitle') : form.name || $t('admin.editor.editTitle')"
       :description="isNew ? $t('admin.editor.addHint') : $t('admin.editor.skuLine', { sku: form.sku || '—' })"
-      back="/admin/products"
+      :back="listPath"
     >
       <a v-if="!isNew && product?.slug" :href="`/product/${product.slug}`" target="_blank" rel="noopener" class="adm-btn adm-btn-secondary">
         <Icon name="mdi:open-in-new" class="text-base" />
@@ -414,6 +414,7 @@ definePageMeta({
 
 const MAX_PHOTOS = 21
 const route = useRoute()
+const router = useRouter()
 const toast = useToastStore()
 const { confirm } = useAdminConfirm()
 const { t, tc, isAr, subcategoryLabel } = useLang()
@@ -687,7 +688,7 @@ async function handleSubmit() {
       if (variants.value.length) await saveVariants(created.id)
       snapshot.value = pageState()
       toast.show(t('admin.editor.added'))
-      await navigateTo(`/admin/products/${created.id}`, { replace: true })
+      backToList()
     } else {
       if (body) {
         const { product: saved } = await $fetch(`/api/admin/products/${route.params.id}`, { method: 'PATCH', body })
@@ -696,12 +697,30 @@ async function handleSubmit() {
       if (saveColours) await saveVariants(route.params.id)
       snapshot.value = pageState()
       toast.show(t('admin.editor.saved'))
+      backToList()
     }
   } catch (err) {
     toast.error(adminErrorMessage(err))
   } finally {
     isSubmitting.value = false
   }
+}
+
+// The products list this page was opened from, with its page and filters (the list keeps them in
+// its address), for the back arrow and for after saving. Opened another way: the list's first page.
+const listPath = ref('/admin/products')
+const openedFromList = ref(false)
+onMounted(() => {
+  const back = window.history.state?.back
+  if (typeof back === 'string' && /^\/admin\/products(\?|$)/.test(back)) {
+    listPath.value = back
+    openedFromList.value = true
+  }
+})
+
+function backToList() {
+  if (openedFromList.value) router.back()
+  else navigateTo(listPath.value)
 }
 
 // Sends the colours as the page shows them; the product's stock comes back as their total.
@@ -734,7 +753,7 @@ async function handleDelete() {
     await $fetch(`/api/admin/products/${route.params.id}`, { method: 'DELETE' })
     snapshot.value = pageState()
     toast.show(t('admin.products.deleted'))
-    await navigateTo('/admin/products')
+    backToList()
   } catch (err) {
     toast.error(adminErrorMessage(err))
     isSubmitting.value = false
