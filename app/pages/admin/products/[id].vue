@@ -89,7 +89,7 @@
               <h2 class="adm-card-title">{{ $t('admin.editor.photos') }}</h2>
               <p class="text-xs text-stone-500 mt-0.5">{{ $t('admin.editor.photosHint') }}</p>
             </div>
-            <span class="text-xs text-stone-500">{{ photos.length }} / {{ MAX_PHOTOS }}</span>
+            <span class="text-xs text-stone-500">{{ tc('admin.editor.photoCount', photos.length) }}</span>
           </div>
           <div class="p-5">
             <p v-if="hiddenFromStore" class="flex items-start gap-2 text-sm text-sky-800 dark:text-sky-300 bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 rounded-lg px-3 py-2 mb-4">
@@ -144,7 +144,6 @@
               </div>
 
               <button
-                v-if="photos.length + uploadingCount < MAX_PHOTOS"
                 type="button"
                 class="aspect-square rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1 text-stone-500 transition"
                 :class="[
@@ -412,7 +411,6 @@ definePageMeta({
   adminPermission: 'products'
 })
 
-const MAX_PHOTOS = 21
 const route = useRoute()
 const router = useRouter()
 const toast = useToastStore()
@@ -616,10 +614,8 @@ function addPhoto(url) {
 
 async function uploadFiles(files) {
   const images = [...files].filter((file) => file.type.startsWith('image/'))
-  const room = MAX_PHOTOS - photos.value.length - uploadingCount.value
-  if (images.length > room) toast.error(tc('admin.editor.roomLeft', room))
 
-  await Promise.all(images.slice(0, Math.max(room, 0)).map(async (file) => {
+  await Promise.all(images.map(async (file) => {
     uploadingCount.value++
     try {
       const blob = await shrinkImage(file)

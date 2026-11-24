@@ -1,5 +1,7 @@
 const BADGES = ['Best Seller', 'New', 'Sale']
-const MAX_IMAGES = 20
+// Not a limit admins should meet (the editor has none): only stops a broken request from saving
+// thousands of links on one product.
+const MAX_IMAGES = 200
 
 function fail(code: string, message: string, params?: Record<string, unknown>): never {
   throw adminError(400, code, message, params)

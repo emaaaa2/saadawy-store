@@ -300,7 +300,7 @@ export default {
     linkInvalid: 'Paste a link that starts with https://',
     linkIsLocalFile: "That's where the photo is on this computer, not a link online, so customers can't see it. Upload it with \"Add photos\" — pick it in the window that just opened.",
     linkNotSecure: 'The link must start with https:// (not http://), or the photo won\'t show on the site.',
-    roomLeft: 'Only {count} more photo can be added | Only {count} more photos can be added',
+    photoCount: '{count} photo | {count} photos',
     pricing: 'Pricing',
     price: 'Price',
     salePrice: 'Sale price',
